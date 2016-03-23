@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QCoreApplication>
+#include <QSqlError>
 
 SqlWorker::SqlWorker(QString dbName_, QString hostName_, int port_, QString userName_, QString passwd_)
 {
@@ -53,8 +54,8 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             }
         }
     } else {
-        qDebug() << "SQL Error...";
-        qDebug() << QCoreApplication::libraryPaths();
+        qWarning() << db.lastError().text();
+//        qDebug() << QCoreApplication::libraryPaths(); // <- Lists the used library path, can be used for debugging if the qmysql plugin can not be found
     }
     return list;
 }
