@@ -26,13 +26,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     statusLabel = new QLabel(this);
     statusLabel->setText("Disconneted");
-    statusBar()->addPermanentWidget(statusLabel);
+    this->statusBar()->addPermanentWidget(statusLabel);
 
     myPacketWorker = 0;
     myPacketWorkerThread = 0;
 
     myPacketStore = new PacketStore(this);
+    mySqlPacketStore = new PacketStore(this);
     myEventStore = new EventStore(this);
+    mySqlEventStore = new EventStore(this);
 
     dataMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
 
@@ -43,19 +45,25 @@ MainWindow::MainWindow(QWidget *parent) :
     settings = new QSettings();
     readSettings();
     ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->treeView_arch->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->treeView->setRootIsDecorated(true);
+    ui->treeView_arch->setRootIsDecorated(true);
     ui->treeView->setUniformRowHeights(true);   // <- should increase performance
+    ui->treeView_arch->setUniformRowHeights(true);   // <- should increase performance
     // todo: this can be enabled if required...
 //    ui->treeView->setAlternatingRowColors(true);
 //    ui->treeView->setSortingEnabled(true);
     if (settings->value("ui/eventmode").toBool()) {
-        ui->treeView->setModel(myEventStore->model);
+        ui->treeView->setModel(myEventStore->proxy_model);
+        ui->treeView_arch->setModel(mySqlEventStore->proxy_model);
         action_EventMode->setChecked(true);
     } else {
-        ui->treeView->setModel(myPacketStore->model);
+        ui->treeView_arch->setModel(mySqlPacketStore->proxy_model);
+        ui->treeView->setModel(myPacketStore->proxy_model);
     }
 
     connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+    connect(ui->treeView_arch, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView_Arch(QModelIndex)));
 
     // Initialize the DateTime Pickers
     ui->dateTimeEdit_start->setCalendarPopup(true);
@@ -92,6 +100,9 @@ MainWindow::~MainWindow()
     }
 
     delete myPacketStore;
+    delete myEventStore;
+    delete mySqlEventStore;
+    delete mySqlPacketStore;
     delete settings;
     delete ui;
 }
@@ -104,7 +115,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_actionTo_Server_triggered()
 {
-    statusBar()->clearMessage();
+    this->statusBar()->clearMessage();
 
     if (action_Connect->text() == "Disconnect") {
         if (myPacketWorkerThread != 0) {
@@ -117,7 +128,7 @@ void MainWindow::on_actionTo_Server_triggered()
     }
 
     myPacketWorker = new PacketWorker(myPacketStore, myEventStore);
-    connect(myPacketWorker, SIGNAL(hasError(const QString&)), this, SLOT(displayError(const QString&)));
+    connect(myPacketWorker, SIGNAL(hasError(const QString&)), this, SLOT(displayPacketWorkerError(const QString&)));
     connect(this, SIGNAL(clientSetup(QThread*,QString,int)), myPacketWorker, SLOT(setup(QThread*,QString,int)));
     myPacketWorkerThread = new QThread();
 
@@ -131,7 +142,7 @@ void MainWindow::on_actionTo_Server_triggered()
         } else {
             QString str;
             QTextStream(&str) << "Could not connect to " << settings->value("server/host").toString() << " on port " << settings->value("server/port").toInt();
-            statusBar()->showMessage(str);
+            this->statusBar()->showMessage(str);
         }
     }
 }
@@ -161,9 +172,14 @@ void MainWindow::on_actionEdit_triggered()
     serverSettingsWindow->activateWindow();
 }
 
-void MainWindow::displayError(const QString errormessage)
+void MainWindow::displayStatusBarMessage(const QString message)
 {
-    statusBar()->showMessage(errormessage);
+    this->statusBar()->showMessage(message);
+}
+
+void MainWindow::displayPacketWorkerError(const QString errormessage)
+{
+    this->statusBar()->showMessage(errormessage);
     qDebug() << "deleting thread";
     myPacketWorkerThread->quit();
     myPacketWorkerThread->wait();
@@ -177,23 +193,38 @@ void MainWindow::displayError(const QString errormessage)
 
 void MainWindow::on_commandLinkButton_clicked()
 {
-    SqlWorker worker(settings->value("db/username").toString(),
-                     settings->value("db/host").toString(),
-                     settings->value("db/port").toInt(),
-                     settings->value("db/username").toString(),
-                     settings->value("db/pw").toString());
+    SqlWorker worker(qobject_cast<QObject*>(this), settings);
     QDateTime begin_ = ui->dateTimeEdit_start->dateTime();
     QDateTime end_ = ui->dateTimeEdit_stop->dateTime();
-    worker.fetchPackets(begin_, end_);
+
+    QList<SourcePacket*> retrievedPackets;
+    retrievedPackets = worker.fetchPackets(begin_, end_);
+    if (retrievedPackets.size() > 0) {
+        mySqlPacketStore->emptyStore();
+        for (int i = 0; i < retrievedPackets.size(); ++i) {
+            SourcePacket* packet = retrievedPackets.at(i);
+            mySqlPacketStore->putPacket(packet);
+
+            if (packet->hasDataFieldHeader()) {
+                if (packet->getDataFieldHeader()->getServiceType() == 5) {
+                    Event* event = new Event(packet->getDataFieldHeader()->getTimestamp(), (Severity)packet->getDataFieldHeader()->getSubServiceType(), (unsigned char*)packet->getData().data());
+                    // Put the event into the event store
+                    mySqlEventStore->putEvent(event);
+                }
+            }
+        }
+    }
 }
 
 void MainWindow::eventMode_triggered()
 {
     if (!action_EventMode->isChecked()) {
-        ui->treeView->setModel(myPacketStore->model);
+        ui->treeView->setModel(myPacketStore->proxy_model);
+        ui->treeView_arch->setModel(mySqlPacketStore->proxy_model);
         settings->setValue("ui/eventmode", false);
     } else {
-        ui->treeView->setModel(myEventStore->model);
+        ui->treeView->setModel(myEventStore->proxy_model);
+        ui->treeView_arch->setModel(mySqlEventStore->proxy_model);
         settings->setValue("ui/eventmode", true);
     }
 }
@@ -201,7 +232,20 @@ void MainWindow::eventMode_triggered()
 void MainWindow::loadObjectView(QModelIndex index)
 {
     if (myEventStore->itemInStore(index.data().toString())) {
-        ObjectView* objView = new ObjectView(this, index, myEventStore->model);
+        QModelIndex sourceIndex = myEventStore->proxy_model->mapToSource(index);
+        ObjectView* objView = new ObjectView(this, sourceIndex, myEventStore->model);
+        objView->setAttribute(Qt::WA_DeleteOnClose);
+        objView->show();
+        objView->raise();
+        objView->activateWindow();
+    }
+}
+
+void MainWindow::loadObjectView_Arch(QModelIndex index)
+{
+    if (mySqlEventStore->itemInStore(index.data().toString())) {
+        QModelIndex sourceIndex = mySqlEventStore->proxy_model->mapToSource(index);
+        ObjectView* objView = new ObjectView(this, sourceIndex, mySqlEventStore->model);
         objView->setAttribute(Qt::WA_DeleteOnClose);
         objView->show();
         objView->raise();

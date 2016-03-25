@@ -14,6 +14,8 @@ ServerSettings::ServerSettings(QWidget *parent, QSettings* pSettings) :
     ui->port->setText(settings->value("db/port").toString());
     ui->db->setText(settings->value("db/database").toString());
     ui->user->setText(settings->value("db/username").toString());
+
+    ui->pw->setEchoMode(QLineEdit::Password);
     ui->pw->setText(settings->value("db/pw").toString());
 }
 

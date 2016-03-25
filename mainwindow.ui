@@ -39,7 +39,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideRight</enum>
@@ -114,7 +114,14 @@
          </layout>
         </item>
         <item>
-         <widget class="QTreeView" name="treeView_arch"/>
+         <widget class="QTreeView" name="treeView_arch">
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+          <property name="expandsOnDoubleClick">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

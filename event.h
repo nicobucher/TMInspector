@@ -13,7 +13,8 @@ enum Severity {
 };
 
 enum ExtraRoles {
-    ReadableTextRole = Qt::UserRole + 1
+    ReadableTextRole = Qt::UserRole + 1,
+    RawDataRole
 };
 
 class Event : public QObject, public QStandardItem
@@ -42,7 +43,7 @@ public:
     }
 
     void setObjectId(int id_) {
-        this->object_id->setData("0x"+QString::number(id_, 16), Qt::ToolTipRole);
+        this->object_id->setData(QString::number(id_, 16), Qt::DisplayRole);
     }
 
     QStandardItem* getObjectId() {
@@ -51,6 +52,10 @@ public:
 
     QString getObjectIdAsString() {
         return this->object_id->text();
+    }
+
+    int getObjectIdAsInt() {
+        return this->object_id->data(RawDataRole).toInt();
     }
 
     QString getObjectName() {

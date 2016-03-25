@@ -30,7 +30,9 @@ private:
     QThread* myPacketWorkerThread;
 
     PacketStore* myPacketStore;
+    PacketStore* mySqlPacketStore;
     EventStore* myEventStore;
+    EventStore* mySqlEventStore;
 
     QLabel* statusLabel;
 
@@ -47,8 +49,10 @@ signals:
     void clientSetup(QThread* t_, QString host, int port);
 
 public slots:
-    void displayError(const QString errormessage);
+    void displayPacketWorkerError(const QString errormessage);
+    void displayStatusBarMessage(const QString message);
     void loadObjectView(QModelIndex index);
+    void loadObjectView_Arch(QModelIndex index);
 
 private slots:
     void on_actionTo_Server_triggered();
@@ -62,6 +66,7 @@ private:
     QMenu *dataMenu;
     QAction *action_Connect;
     QAction *action_EventMode;
+
 };
 
 #endif // MAINWINDOW_H

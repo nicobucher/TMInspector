@@ -2,8 +2,7 @@
 #include <iostream>
 
 PacketStore::PacketStore(QObject* parent) : Store(parent)
-{
-    this->model = new QStandardItemModel();
+{   
     QStringList labels;
     labels << "SSC" << "Type" << "Subtype" << "Byte" << "Timestamp";
     this->model->setHorizontalHeaderLabels(labels);

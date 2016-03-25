@@ -26,10 +26,15 @@ private:
     QStandardItemModel* objectListModel;
     QStandardItemModel* selectedModel;
 
+    EventStore* event_store;
+
     void updateInfoText();
+    void updateList(QHash<QString, QString>* hash_, QStandardItemModel* model_);
 
 private slots:
     void comboBoxSelected(int listIndex_);
+    void reload();
+
 };
 
 #endif // TRANSLATIONVIEWER_H

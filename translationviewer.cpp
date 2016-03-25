@@ -3,11 +3,13 @@
 
 TranslationViewer::TranslationViewer(QWidget *parent, EventStore* event_store_) :
     QDialog(parent),
-    ui(new Ui::TranslationViewer)
+    ui(new Ui::TranslationViewer),
+    event_store(event_store_)
 {
     ui->setupUi(this);
 
-    connect(ui->pushButton_2, SIGNAL(clicked(bool)), event_store_, SLOT(loadTranslationTable()));
+    connect(ui->pushButton_2, SIGNAL(clicked(bool)), event_store, SLOT(loadTranslationTable()));
+    connect(event_store, SIGNAL(hashUpdated()), this, SLOT(reload()));
 
     QStringList list;
     list << "Event-IDs" << "Object-IDs";
@@ -23,26 +25,37 @@ TranslationViewer::TranslationViewer(QWidget *parent, EventStore* event_store_) 
     eventListModel->setHorizontalHeaderLabels(list);
     objectListModel->setHorizontalHeaderLabels(list);
 
-    QHashIterator<QString, QString> it(event_store_->l_event_names);
-    while (it.hasNext()) {
-        it.next();
-        QList<QStandardItem*> row;
-        row << new QStandardItem(it.key()) << new QStandardItem(it.value());
-        this->eventListModel->insertRow(0, row);
-    }
-
-    QHashIterator<QString, QString> it2(event_store_->l_object_names);
-    while (it2.hasNext()) {
-        it2.next();
-        QList<QStandardItem*> row;
-        row << new QStandardItem(it2.key()) << new QStandardItem(it2.value());
-        this->objectListModel->insertRow(0, row);
-    }
-
     selectedModel = eventListModel;
+    ui->tableView->horizontalHeader()->setStretchLastSection(true);
+    ui->tableView->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
+    ui->tableView->horizontalHeader()->setSortIndicatorShown(true);
     ui->tableView->setModel(selectedModel);
 
+    reload();
     updateInfoText();
+}
+
+void
+TranslationViewer::updateList(QHash<QString, QString>* hash_, QStandardItemModel* model_)
+{
+    if (hash_->size() > 0) {
+        model_->removeRows(0, model_->rowCount());
+        QHashIterator<QString, QString> it(*hash_);
+        while (it.hasNext()) {
+            it.next();
+            QList<QStandardItem*> row;
+            row << new QStandardItem(it.key()) << new QStandardItem(it.value());
+            model_->insertRow(0, row);
+        }
+        model_->sort(0, Qt::AscendingOrder);
+    }
+}
+
+void
+TranslationViewer::reload()
+{
+    updateList(&event_store->l_event_names, this->eventListModel);
+    updateList(&event_store->l_object_names, this->objectListModel);
 }
 
 void

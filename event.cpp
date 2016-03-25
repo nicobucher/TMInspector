@@ -1,4 +1,5 @@
 #include "event.h"
+#include <QDebug>
 
 Event::Event()
 {
@@ -37,13 +38,15 @@ QStandardItem* Event::clone() const
 void
 Event::makeEventfromPacketData(unsigned char* pData_)
 {
-    int value;
-    value = (pData_[12] << 8) + pData_[13];
+    unsigned int value;
+//    qDebug() << (int)pData_[12] << (int)pData_[13] << (int)pData_[14] << (int)pData_[15] << (int)pData_[16]<< (int)pData_[17];
+    value = (pData_[0] << 8) + pData_[1];
     this->event_id->setData(QString::number(value), Qt::DisplayRole);
-    value = (pData_[14] << 24) + (pData_[15] << 16) + (pData_[16] << 8) + pData_[17];
+    value = (pData_[2] << 24) + (pData_[3] << 16) + (pData_[4] << 8) + pData_[5];
     this->object_id->setData(QString::number(value, 16), Qt::DisplayRole);
-    value = (pData_[18] << 24) + (pData_[19] << 16) + (pData_[20] << 8) + pData_[21];
+    this->object_id->setData(value, RawDataRole);
+    value = (pData_[6] << 24) + (pData_[7] << 16) + (pData_[8] << 8) + pData_[9];
     this->param1->setData(QString::number(value), Qt::DisplayRole);
-    value = (pData_[22] << 24) + (pData_[23] << 16) + (pData_[24] << 8) + pData_[25];
+    value = (pData_[10] << 24) + (pData_[11] << 16) + (pData_[12] << 8) + pData_[13];
     this->param2->setData(QString::number(value), Qt::DisplayRole);
 }

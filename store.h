@@ -4,13 +4,13 @@
 #include <QObject>
 #include <QStandardItem>
 #include <QStandardItemModel>
+#include <QSortFilterProxyModel>
 
 class Store : public QObject
 {
     Q_OBJECT
 public:
     Store(QObject *parent);
-    QStandardItemModel* model;
 
     bool itemInStore(QString obj_id) {
         QList<QStandardItem*> list = this->model->findItems(obj_id);
@@ -26,13 +26,20 @@ public:
     }
 
     void emptyStore() {
-        this->model->clear();
+        this->model->removeRows(0, this->model->rowCount());
     }
+
+protected:
+    QStandardItemModel* model;
+    QSortFilterProxyModel* proxy_model;
 
 public slots:
     virtual void loadTranslationTable() {
         // Implement this if needed
     }
+
+    friend class MainWindow;
+    friend class ObjectView;
 };
 
 #endif // STORE_H
