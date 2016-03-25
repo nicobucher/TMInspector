@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     store.cpp \
     objectview.cpp \
     objectfilterproxymodel.cpp \
-    translationviewer.cpp
+    translationviewer.cpp \
+    addtranslationdialog.cpp
 
 HEADERS  += mainwindow.h \
     serversettings.h \
@@ -42,9 +43,11 @@ HEADERS  += mainwindow.h \
     objectview.h \
     filehelpers.h \
     objectfilterproxymodel.h \
-    translationviewer.h
+    translationviewer.h \
+    addtranslationdialog.h
 
 FORMS    += mainwindow.ui \
     serversettings.ui \
     objectview.ui \
-    translationviewer.ui
+    translationviewer.ui \
+    addtranslationdialog.ui

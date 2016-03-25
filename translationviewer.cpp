@@ -1,5 +1,6 @@
 #include "translationviewer.h"
 #include "ui_translationviewer.h"
+#include "addtranslationdialog.h"
 
 TranslationViewer::TranslationViewer(QWidget *parent, EventStore* event_store_) :
     QDialog(parent),
@@ -9,18 +10,18 @@ TranslationViewer::TranslationViewer(QWidget *parent, EventStore* event_store_) 
     ui->setupUi(this);
 
     connect(ui->pushButton_2, SIGNAL(clicked(bool)), event_store, SLOT(loadTranslationTable()));
+    connect(ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(addTranslation()));
     connect(event_store, SIGNAL(hashUpdated()), this, SLOT(reload()));
 
-    QStringList list;
-    list << "Event-IDs" << "Object-IDs";
-    ui->comboBox->addItems(list);
+    ui->comboBox->insertItem(EventListIndex, "Event-ID Translation List");
+    ui->comboBox->insertItem(ObjectListIndex, "Object-ID Translation List");
 
     connect(ui->comboBox, SIGNAL(activated(int)), this, SLOT(comboBoxSelected(int)));
 
     eventListModel = new QStandardItemModel(this);
     objectListModel = new QStandardItemModel(this);
 
-    list.clear();
+    QStringList list;
     list << "Key" << "Value";
     eventListModel->setHorizontalHeaderLabels(list);
     objectListModel->setHorizontalHeaderLabels(list);
@@ -49,6 +50,7 @@ TranslationViewer::updateList(QHash<QString, QString>* hash_, QStandardItemModel
         }
         model_->sort(0, Qt::AscendingOrder);
     }
+    updateInfoText();
 }
 
 void
@@ -62,10 +64,10 @@ void
 TranslationViewer::comboBoxSelected(int listIndex_)
 {
     switch(listIndex_) {
-    case 0:
+    case EventListIndex:
         selectedModel = eventListModel;
         break;
-    case 1:
+    case ObjectListIndex:
         selectedModel = objectListModel;
         break;
     }
@@ -77,6 +79,16 @@ void
 TranslationViewer::updateInfoText()
 {
     ui->label->setText(QString::number(selectedModel->rowCount()) + " Translation(s) found.");
+}
+
+void
+TranslationViewer::addTranslation()
+{
+    AddTranslationDialog* dialog = new AddTranslationDialog(this, event_store, ui->comboBox->currentIndex());
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
+    dialog->raise();
+    dialog->activateWindow();
 }
 
 TranslationViewer::~TranslationViewer()

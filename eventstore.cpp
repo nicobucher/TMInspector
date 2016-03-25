@@ -75,6 +75,19 @@ void EventStore::populateObjectHash(QSqlDatabase* db_)
     }
 }
 
+void EventStore::addTranslation(QString key_, QString trans_, int list_index_)
+{
+    switch(list_index_) {
+    case EventListIndex:
+        l_event_names.insert(key_, trans_);
+        break;
+    case ObjectListIndex:
+        l_object_names.insert(key_, trans_);
+        break;
+    }
+    emit hashUpdated();
+}
+
 void EventStore::putEvent(Event* e_)
 {
     QStandardItem *root = this->model->invisibleRootItem();

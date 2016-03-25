@@ -232,7 +232,9 @@ void MainWindow::eventMode_triggered()
 void MainWindow::loadObjectView(QModelIndex index)
 {
     if (myEventStore->itemInStore(index.data().toString())) {
+        // The mapping to the source model is required because index is of the proxy_model and needs to be mapped to the source model in order to be resolved
         QModelIndex sourceIndex = myEventStore->proxy_model->mapToSource(index);
+        // Then pass the mapped sourceIndex to the ObjectView
         ObjectView* objView = new ObjectView(this, sourceIndex, myEventStore->model);
         objView->setAttribute(Qt::WA_DeleteOnClose);
         objView->show();
@@ -244,7 +246,9 @@ void MainWindow::loadObjectView(QModelIndex index)
 void MainWindow::loadObjectView_Arch(QModelIndex index)
 {
     if (mySqlEventStore->itemInStore(index.data().toString())) {
+        // The mapping to the source model is required because index is of the proxy_model and needs to be mapped to the source model in order to be resolved
         QModelIndex sourceIndex = mySqlEventStore->proxy_model->mapToSource(index);
+        // Then pass the mapped sourceIndex to the ObjectView
         ObjectView* objView = new ObjectView(this, sourceIndex, mySqlEventStore->model);
         objView->setAttribute(Qt::WA_DeleteOnClose);
         objView->show();

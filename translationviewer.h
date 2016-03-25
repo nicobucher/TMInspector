@@ -34,6 +34,7 @@ private:
 private slots:
     void comboBoxSelected(int listIndex_);
     void reload();
+    void addTranslation();
 
 };
 

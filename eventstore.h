@@ -10,6 +10,11 @@
 #include "store.h"
 #include "event.h"
 
+enum ListIndex {
+    EventListIndex = 0,
+    ObjectListIndex
+};
+
 class EventStore : public Store
 {
     Q_OBJECT
@@ -17,6 +22,7 @@ public:
     EventStore(QObject *parent);
     void putEvent(Event* e_);    
     int checkChildObjExists(int objId_);
+    void addTranslation(QString key_, QString trans_, int list_index_);
     QHash<QString,QString> l_event_names;
     QHash<QString,QString> l_object_names;
 
