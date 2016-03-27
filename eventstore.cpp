@@ -128,14 +128,14 @@ int EventStore::checkChildObjExists(int objId_)
 QList<QStandardItem*> EventStore::prepareRow(QStandardItem* event_id, const Severity severity, QStandardItem* param1, QStandardItem* param2, const QDateTime timestamp)
 {
     QList<QStandardItem*> row;
-    QStandardItem* severity_item = new QStandardItem("");
+    AnimatedStandardItem* severity_item = new AnimatedStandardItem("");
     switch (severity) {
     case Info:
-        severity_item->setBackground(Qt::green);
+        severity_item->setAnimation(Qt::green);
         severity_item->setText("Info");
         break;
     case Low:
-        severity_item->setBackground(Qt::cyan);
+        severity_item->setAnimation(Qt::cyan);
         severity_item->setText("Low");
         break;
     case Medium:
@@ -146,6 +146,10 @@ QList<QStandardItem*> EventStore::prepareRow(QStandardItem* event_id, const Seve
         severity_item->setBackground(Qt::red);
         severity_item->setText("Alert");
         break;
+    }
+    QDateTime now = QDateTime::currentDateTime();
+    if (timestamp.secsTo(now) < 60*60) { // If the event was generated within the last hour
+        severity_item->animate();
     }
 
     row << severity_item;

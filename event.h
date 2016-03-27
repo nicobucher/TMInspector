@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QStandardItem>
 #include <QDateTime>
+#include "animatedstandarditem.h"
 
 enum Severity {
     Info = 1,
@@ -25,6 +26,7 @@ public:
     Event(QDateTime ts_, Severity sev_);
     Event(QDateTime ts_, Severity sev_, unsigned char* data_);
     virtual QStandardItem* clone() const;
+
 private:
     QStandardItem* event_id;
     QStandardItem* object_id;
