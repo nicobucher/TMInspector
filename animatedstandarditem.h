@@ -13,6 +13,7 @@ class AnimatedStandardItem : public QObject, public QStandardItem
 
   public:
     AnimatedStandardItem(const QString text);
+    ~AnimatedStandardItem();
     void setColor (QColor color){
         setBackground(color);
     }

@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->dateTimeEdit_stop->setDateTime(now);
 
 
-    /* Initial Data for both models (for testing */
+    /* Initial Data for both models (for testing ->>*/
     SourcePacket test_packet(0, 3, 53);
     myPacketStore->putPacket(&test_packet);
 
@@ -83,6 +83,26 @@ MainWindow::MainWindow(QWidget *parent) :
     testevent.setObjectName("Test-Event");
     testevent.setParams(23, 24);
     myEventStore->putEvent(&testevent);
+
+    Event testevent1(now, (Severity)2);
+    testevent1.setEventId(2);
+    testevent1.setObjectId(1000);
+    testevent1.setObjectName("Bla");
+    testevent1.setParams(23, 24);
+    myEventStore->putEvent(&testevent1);
+
+    Event testevent2(now, (Severity)3);
+    testevent2.setEventId(3);
+    testevent2.setObjectId(1000);
+    testevent2.setObjectName("Engä");
+    testevent2.setParams(23, 24);
+    myEventStore->putEvent(&testevent2);
+
+    /* <<- remove */
+
+    // The RegEx Filters for the EventStores
+    connect(ui->lineEdit_3, SIGNAL(textChanged(QString)),myEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
+    connect(ui->lineEdit_2, SIGNAL(textChanged(QString)),mySqlEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
 }
 
 MainWindow::~MainWindow()

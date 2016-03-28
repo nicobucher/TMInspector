@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QStandardItem>
 #include <QStandardItemModel>
-#include <QSortFilterProxyModel>
+#include "treeviewfilterproxymodel.h"
 
 class Store : public QObject
 {
@@ -31,7 +31,7 @@ public:
 
 protected:
     QStandardItemModel* model;
-    QSortFilterProxyModel* proxy_model;
+    TreeViewFilterProxyModel* proxy_model;
 
 public slots:
     virtual void loadTranslationTable() {

@@ -2,7 +2,12 @@
 
 AnimatedStandardItem::AnimatedStandardItem(const QString text) : QStandardItem(text)
 {
+    myAnimatioGroup = new QSequentialAnimationGroup;
+}
 
+AnimatedStandardItem::~AnimatedStandardItem()
+{
+    delete myAnimatioGroup;
 }
 
 void
@@ -22,8 +27,8 @@ AnimatedStandardItem::setAnimation(QColor color)
     animation_1->setStartValue(QColor(250, 250, 250));
     animation_1->setEndValue(color);
     animation_2->setDuration(400);
-    animation_2->setStartValue(QColor(240, 0, 0));
-    animation_2->setEndValue(color);
+    animation_2->setStartValue(color);
+    animation_2->setEndValue(QColor(250, 250, 250));
     animation_3->setDuration(400);
     animation_3->setStartValue(QColor(250, 250, 250));
     animation_3->setEndValue(color);
@@ -40,7 +45,6 @@ AnimatedStandardItem::setAnimation(QColor color)
     animation_7->setStartValue(QColor(250, 250, 250));
     animation_7->setEndValue(color);
 
-    myAnimatioGroup = new QSequentialAnimationGroup;
     myAnimatioGroup->addAnimation(animation_1);
     myAnimatioGroup->addAnimation(animation_2);
     myAnimatioGroup->addAnimation(animation_3);

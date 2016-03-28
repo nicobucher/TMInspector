@@ -139,11 +139,11 @@ QList<QStandardItem*> EventStore::prepareRow(QStandardItem* event_id, const Seve
         severity_item->setText("Low");
         break;
     case Medium:
-        severity_item->setBackground(Qt::yellow);
+        severity_item->setAnimation(Qt::yellow);
         severity_item->setText("Medium");
         break;
     case High:
-        severity_item->setBackground(Qt::red);
+        severity_item->setAnimation(Qt::red);
         severity_item->setText("Alert");
         break;
     }
