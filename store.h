@@ -38,6 +38,8 @@ public slots:
         // Implement this if needed
     }
 
+    virtual void exportToFile(QString filename_);
+
     friend class MainWindow;
     friend class ObjectView;
 };

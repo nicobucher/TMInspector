@@ -61,6 +61,7 @@ private slots:
     void translation_triggered();
     void on_commandLinkButton_clicked();
     void eventMode_triggered();
+    void exportTriggered();
 
 private:
     QMenu *dataMenu;

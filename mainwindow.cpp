@@ -5,6 +5,7 @@
 #include "sqlworker.h"
 #include <QTableView>
 #include <QDateTime>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
     action_EventMode->setCheckable(true);
     action_EventMode->setShortcut(Qt::Key_Tab);
     connect(action_EventMode, SIGNAL(triggered()), this, SLOT(eventMode_triggered()));
+    // Add Export Menu Item
+    dataMenu->addAction("Export", this, SLOT(exportTriggered()));
 
     statusLabel = new QLabel(this);
     statusLabel->setText("Disconneted");
@@ -284,4 +287,16 @@ void MainWindow::translation_triggered()
     transView->show();
     transView->raise();
     transView->activateWindow();
+}
+
+void MainWindow::exportTriggered()
+{
+    QString filename = QFileDialog::getSaveFileName(this, "Save File",
+                               "",
+                               "Type (*.csv)");
+    if (!action_EventMode->isChecked()) {
+        myPacketStore->exportToFile(filename);
+    } else {
+        myEventStore->exportToFile(filename);
+    }
 }
