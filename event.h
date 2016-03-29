@@ -35,6 +35,8 @@ private:
     QStandardItem* param1;
     QStandardItem* param2;
     Severity severity;
+    AnimatedStandardItem* severity_item;
+
 public:
     void setTimestamp(QDateTime ts_) {
         this->timestamp = ts_;
@@ -103,6 +105,28 @@ public:
 
     void setSeverity(Severity sev_) {
         this->severity = sev_;
+        switch (this->severity) {
+        case Info:
+            this->severity_item->setAnimation(Qt::green);
+            this->severity_item->setText("Info");
+            break;
+        case Low:
+            this->severity_item->setAnimation(Qt::cyan);
+            this->severity_item->setText("Low");
+            break;
+        case Medium:
+            this->severity_item->setAnimation(Qt::yellow);
+            this->severity_item->setText("Medium");
+            break;
+        case High:
+            this->severity_item->setAnimation(Qt::red);
+            this->severity_item->setText("Alert");
+            break;
+        }
+    }
+
+    AnimatedStandardItem* getSeverityItem() {
+        return this->severity_item;
     }
 
     void makeEventfromPacketData(unsigned char* pData_);

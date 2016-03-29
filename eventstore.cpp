@@ -91,7 +91,7 @@ void EventStore::addTranslation(QString key_, QString trans_, int list_index_)
 void EventStore::putEvent(Event* e_)
 {
     QStandardItem *root = this->model->invisibleRootItem();
-    QList<QStandardItem*> new_row = prepareRow(e_->getEventId(), e_->getSeverity(), e_->getParam1(), e_->getParam2(), e_->getTimestamp());
+    QList<QStandardItem*> new_row = prepareRow(e_->getEventId(), e_->getSeverityItem(), e_->getParam1(), e_->getParam2(), e_->getTimestamp());
 
     int rawObjectId = e_->getObjectIdAsInt();
     int objRowFound_ = checkChildObjExists(rawObjectId);
@@ -106,6 +106,8 @@ void EventStore::putEvent(Event* e_)
         } else {
             qDebug() << "Can not find " << object_id << " in Object Translation List";
             new_object->setBackground(Qt::lightGray);
+            new_object->setData("Cannot be resolved", Qt::ToolTipRole);
+            new_object->setData(rawObjectId, RawDataRole);
         }
         new_object->appendRow(new_row);
         root->appendRow(new_object);
@@ -125,32 +127,9 @@ int EventStore::checkChildObjExists(int objId_)
     return -1;
 }
 
-QList<QStandardItem*> EventStore::prepareRow(QStandardItem* event_id, const Severity severity, QStandardItem* param1, QStandardItem* param2, const QDateTime timestamp)
+QList<QStandardItem*> EventStore::prepareRow(QStandardItem* event_id, AnimatedStandardItem* severity_item, QStandardItem* param1, QStandardItem* param2, const QDateTime timestamp)
 {
     QList<QStandardItem*> row;
-    AnimatedStandardItem* severity_item = new AnimatedStandardItem("");
-    switch (severity) {
-    case Info:
-        severity_item->setAnimation(Qt::green);
-        severity_item->setText("Info");
-        break;
-    case Low:
-        severity_item->setAnimation(Qt::cyan);
-        severity_item->setText("Low");
-        break;
-    case Medium:
-        severity_item->setAnimation(Qt::yellow);
-        severity_item->setText("Medium");
-        break;
-    case High:
-        severity_item->setAnimation(Qt::red);
-        severity_item->setText("Alert");
-        break;
-    }
-    QDateTime now = QDateTime::currentDateTime();
-    if (timestamp.secsTo(now) < 60*60) { // If the event was generated within the last hour
-        severity_item->animate();
-    }
 
     row << severity_item;
     if (l_event_names.contains(event_id->text())) {

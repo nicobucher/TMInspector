@@ -53,6 +53,7 @@ public slots:
     void displayStatusBarMessage(const QString message);
     void loadObjectView(QModelIndex index);
     void loadObjectView_Arch(QModelIndex index);
+    void animateNewEvent(Event* event);
 
 private slots:
     void on_actionTo_Server_triggered();

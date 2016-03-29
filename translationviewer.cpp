@@ -1,6 +1,7 @@
 #include "translationviewer.h"
 #include "ui_translationviewer.h"
 #include "addtranslationdialog.h"
+#include <QMenu>
 
 TranslationViewer::TranslationViewer(QWidget *parent, EventStore* event_store_) :
     QDialog(parent),
@@ -19,21 +20,33 @@ TranslationViewer::TranslationViewer(QWidget *parent, EventStore* event_store_) 
     connect(ui->comboBox, SIGNAL(activated(int)), this, SLOT(comboBoxSelected(int)));
 
     eventListModel = new QStandardItemModel(this);
+    eventListModelProxy = new QSortFilterProxyModel(this);
+    eventListModelProxy->setSourceModel(eventListModel);
     objectListModel = new QStandardItemModel(this);
+    objectListModelProxy = new QSortFilterProxyModel(this);
+    objectListModelProxy->setSourceModel(objectListModel);
 
     QStringList list;
     list << "Key" << "Value";
     eventListModel->setHorizontalHeaderLabels(list);
     objectListModel->setHorizontalHeaderLabels(list);
 
-    selectedModel = eventListModel;
+    selectedProxy = eventListModelProxy;
     ui->tableView->horizontalHeader()->setStretchLastSection(true);
     ui->tableView->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
     ui->tableView->horizontalHeader()->setSortIndicatorShown(true);
-    ui->tableView->setModel(selectedModel);
+    ui->tableView->setModel(selectedProxy);
 
     reload();
     updateInfoText();
+
+    ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(table_item_right_click(QPoint)));
+}
+
+TranslationViewer::~TranslationViewer()
+{
+    delete ui;
 }
 
 void
@@ -45,7 +58,11 @@ TranslationViewer::updateList(QHash<QString, QString>* hash_, QStandardItemModel
         while (it.hasNext()) {
             it.next();
             QList<QStandardItem*> row;
-            row << new QStandardItem(it.key()) << new QStandardItem(it.value());
+            QStandardItem* key = new QStandardItem();
+            key->setData("0x" + QString::number(it.key().toInt(),16), Qt::DisplayRole);
+            key->setData(it.key(), Qt::ToolTipRole);
+            QStandardItem* value = new QStandardItem(it.value());
+            row << key << value;
             model_->insertRow(0, row);
         }
         model_->sort(0, Qt::AscendingOrder);
@@ -65,20 +82,20 @@ TranslationViewer::comboBoxSelected(int listIndex_)
 {
     switch(listIndex_) {
     case EventListIndex:
-        selectedModel = eventListModel;
+        selectedProxy = eventListModelProxy;
         break;
     case ObjectListIndex:
-        selectedModel = objectListModel;
+        selectedProxy = objectListModelProxy;
         break;
     }
-    ui->tableView->setModel(selectedModel);
+    ui->tableView->setModel(selectedProxy);
     updateInfoText();
 }
 
 void
 TranslationViewer::updateInfoText()
 {
-    ui->label->setText(QString::number(selectedModel->rowCount()) + " Translation(s) found.");
+    ui->label->setText(QString::number(selectedProxy->rowCount()) + " Translation(s) found.");
 }
 
 void
@@ -91,7 +108,36 @@ TranslationViewer::addTranslation()
     dialog->activateWindow();
 }
 
-TranslationViewer::~TranslationViewer()
+void
+TranslationViewer::table_item_right_click(QPoint pos)
 {
-    delete ui;
+    QModelIndex index=ui->tableView->indexAt(pos);
+
+    if (index.column() == 0) {
+        QMenu* menu=new QMenu(this);
+        QAction* hex_dec_switch = new QAction("Hex/Dec Display", this);
+        hex_dec_switch->setData(index);
+        menu->addAction(hex_dec_switch);
+
+        connect(hex_dec_switch, SIGNAL(triggered()), this, SLOT(switch_hex_dec_action()));
+
+        menu->popup(ui->tableView->viewport()->mapToGlobal(pos));
+    }
+}
+
+void
+TranslationViewer::switch_hex_dec_action()
+{
+    // This could be used to determine the item that was clicked...
+    QAction* pAction = qobject_cast<QAction*>(sender());
+    QModelIndex clicked_item_index = pAction->data().toModelIndex();
+
+    for (int i=0; i<selectedProxy->sourceModel()->rowCount(); ++i) {
+        // Switch data format
+        QModelIndex index = selectedProxy->sourceModel()->index(i, 0);
+        QString temp1 = selectedProxy->sourceModel()->data(index, Qt::DisplayRole).toString();
+        QString temp2 = selectedProxy->sourceModel()->data(index, Qt::ToolTipRole).toString();
+        selectedProxy->sourceModel()->setData(index, temp2, Qt::DisplayRole);
+        selectedProxy->sourceModel()->setData(index, temp1, Qt::ToolTipRole);
+    }
 }

@@ -54,9 +54,9 @@ PacketWorker::doWork()
                     qDebug() << "Error reading packet-header";
                     this->quit = true;
                 } else {
-                    qDebug() << "Header: " << header_buffer.toHex();
+//                    qDebug() << "Header: " << header_buffer.toHex();
                     int data_length = ((unsigned char)header_buffer.at(4) << 8) + (unsigned char)header_buffer.at(5) + 1;
-                    qDebug() << "Reading header, packet has length " << data_length-1;
+//                    qDebug() << "Reading header, packet has length " << data_length-1;
                     QByteArray data_buffer = this->socket->read(data_length);
                     if (data_buffer.size() != data_length) {
                         qDebug() << "Error reading packet-data";
@@ -73,12 +73,12 @@ PacketWorker::doWork()
                             // If the packet contains an event (Events have Service Type 5)
                             if (packet.hasDataFieldHeader()) {
                                 if (packet.getDataFieldHeader()->getServiceType() == 5) {
-                                    Event event(packet.getDataFieldHeader()->getTimestamp(), (Severity)packet.getDataFieldHeader()->getSubServiceType(), (unsigned char*)packet.getData().data());
+                                    Event* event = new Event(packet.getDataFieldHeader()->getTimestamp(), (Severity)packet.getDataFieldHeader()->getSubServiceType(), (unsigned char*)packet.getData().data());
                                     // Put the event into the event store
-                                    event_store->putEvent(&event);
+                                    event_store->putEvent(event);
+                                    emit(eventAdded(event));
                                 }
                             }
-
                         } else {
                             // If the packet is either bad or an idle packet...
 //                            qDebug() << data_buffer.toHex();

@@ -27,6 +27,7 @@ public:
     static const int APID_TIMEPACKET = 0x000;
     static const int APID_IDLEPACKET = 0x7FF;
     static const int HEADER_SIZE = 6;
+    static const int MAX_PACKET_SIZE = 2048;
 
 private:
     int version;
@@ -123,6 +124,7 @@ public:
     }
 
     void setData(unsigned char* d_, int length_) {
+        this->dataLength = length_;
         this->data = (unsigned char*)malloc(length_);
         memcpy(this->data, d_, length_);
     }

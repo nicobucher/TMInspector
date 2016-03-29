@@ -9,6 +9,7 @@ Event::Event()
     this->event_msg = new QStandardItem("");
     this->param1 = new QStandardItem("");
     this->param2 = new QStandardItem("");
+    this->severity_item = new AnimatedStandardItem("");
 }
 
 Event::Event(QDateTime ts_, Severity sev_) : timestamp(ts_), severity(sev_)
@@ -18,15 +19,19 @@ Event::Event(QDateTime ts_, Severity sev_) : timestamp(ts_), severity(sev_)
     this->event_msg = new QStandardItem("");
     this->param2 = new QStandardItem("");
     this->param1 = new QStandardItem("");
+    this->severity_item = new AnimatedStandardItem("");
+    setSeverity(sev_);
 }
 
-Event::Event(QDateTime ts_, Severity sev_, unsigned char* data_) : timestamp(ts_), severity(sev_)
+Event::Event(QDateTime ts_, Severity sev_, unsigned char* data_) : timestamp(ts_)
 {
     this->event_id = new QStandardItem("");
     this->object_id = new QStandardItem("");
     this->event_msg = new QStandardItem("");
     this->param1 = new QStandardItem("");
     this->param2 = new QStandardItem("");
+    this->severity_item = new AnimatedStandardItem("");
+    setSeverity(sev_);
     makeEventfromPacketData(data_);
 }
 
@@ -39,6 +44,7 @@ void
 Event::makeEventfromPacketData(unsigned char* pData_)
 {
     unsigned int value;
+    pData_ = pData_ + 12; // Skip the DFH
 //    qDebug() << (int)pData_[12] << (int)pData_[13] << (int)pData_[14] << (int)pData_[15] << (int)pData_[16]<< (int)pData_[17];
     value = (pData_[0] << 8) + pData_[1];
     this->event_id->setData(QString::number(value), Qt::DisplayRole);

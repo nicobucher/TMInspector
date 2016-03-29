@@ -27,7 +27,7 @@ public:
     QHash<QString,QString> l_object_names;
 
 private:
-    QList<QStandardItem*> prepareRow(QStandardItem* event_id, const Severity severity, QStandardItem* param1, QStandardItem* param2, const QDateTime timestamp);
+    QList<QStandardItem*> prepareRow(QStandardItem* event_id, AnimatedStandardItem* severity_item, QStandardItem* param1, QStandardItem* param2, const QDateTime timestamp);
     void populateEventHash(QSqlDatabase* db_);
     void populateObjectHash(QSqlDatabase* db_);
 

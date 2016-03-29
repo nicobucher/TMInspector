@@ -11,7 +11,7 @@ class AnimatedStandardItem : public QObject, public QStandardItem
     Q_OBJECT
     Q_PROPERTY(QColor color READ color WRITE setColor)
 
-  public:
+public:
     AnimatedStandardItem(const QString text);
     ~AnimatedStandardItem();
     void setColor (QColor color){
@@ -24,6 +24,8 @@ class AnimatedStandardItem : public QObject, public QStandardItem
     void animate();
 private:
     QSequentialAnimationGroup* myAnimatioGroup;
+private slots:
+    void text_ouput(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state);
 };
 
 #endif // ANIMATEDSTANDARDITEM_H

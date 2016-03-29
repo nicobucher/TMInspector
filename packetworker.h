@@ -34,6 +34,7 @@ public slots:
 
 signals:
     void hasError(const QString& errormessage);
+    void eventAdded(Event*);
 
 private:
     QTcpSocket* socket;

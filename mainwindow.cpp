@@ -152,6 +152,7 @@ void MainWindow::on_actionTo_Server_triggered()
 
     myPacketWorker = new PacketWorker(myPacketStore, myEventStore);
     connect(myPacketWorker, SIGNAL(hasError(const QString&)), this, SLOT(displayPacketWorkerError(const QString&)));
+    connect(myPacketWorker, SIGNAL(eventAdded(Event*)), this, SLOT(animateNewEvent(Event*)));
     connect(this, SIGNAL(clientSetup(QThread*,QString,int)), myPacketWorker, SLOT(setup(QThread*,QString,int)));
     myPacketWorkerThread = new QThread();
 
@@ -224,18 +225,25 @@ void MainWindow::on_commandLinkButton_clicked()
     retrievedPackets = worker.fetchPackets(begin_, end_);
     if (retrievedPackets.size() > 0) {
         mySqlPacketStore->emptyStore();
+        unsigned char* complete_packet_data = (unsigned char*) malloc(SourcePacket::MAX_PACKET_SIZE); // Maximum TM packet size
         for (int i = 0; i < retrievedPackets.size(); ++i) {
             SourcePacket* packet = retrievedPackets.at(i);
             mySqlPacketStore->putPacket(packet);
 
             if (packet->hasDataFieldHeader()) {
                 if (packet->getDataFieldHeader()->getServiceType() == 5) {
-                    Event* event = new Event(packet->getDataFieldHeader()->getTimestamp(), (Severity)packet->getDataFieldHeader()->getSubServiceType(), (unsigned char*)packet->getData().data());
+                    Event* event = new Event(packet->getDataFieldHeader()->getTimestamp(), (Severity)packet->getDataFieldHeader()->getSubServiceType());
+                    int data_length = packet->getDataLength();
+                    if ( data_length > 0 && data_length < SourcePacket::MAX_PACKET_SIZE ) {
+                        memcpy(complete_packet_data+12, packet->getData(), packet->getDataLength());
+                        event->makeEventfromPacketData(complete_packet_data);
+                    }
                     // Put the event into the event store
                     mySqlEventStore->putEvent(event);
                 }
             }
         }
+        free(complete_packet_data);
     }
 }
 
@@ -298,5 +306,13 @@ void MainWindow::exportTriggered()
         myPacketStore->exportToFile(filename);
     } else {
         myEventStore->exportToFile(filename);
+    }
+}
+
+void MainWindow::animateNewEvent(Event* event)
+{
+    QDateTime now = QDateTime::currentDateTime();
+    if (event->getTimestamp().secsTo(now) < 60*60) { // If the event was generated within the last hour
+        event->getSeverityItem()->animate();
     }
 }

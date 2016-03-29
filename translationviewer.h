@@ -24,7 +24,9 @@ private:
 
     QStandardItemModel* eventListModel;
     QStandardItemModel* objectListModel;
-    QStandardItemModel* selectedModel;
+    QSortFilterProxyModel* eventListModelProxy;
+    QSortFilterProxyModel* objectListModelProxy;
+    QSortFilterProxyModel* selectedProxy;
 
     EventStore* event_store;
 
@@ -35,6 +37,8 @@ private slots:
     void comboBoxSelected(int listIndex_);
     void reload();
     void addTranslation();
+    void table_item_right_click(QPoint pos);
+    void switch_hex_dec_action();
 
 };
 
