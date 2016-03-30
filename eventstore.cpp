@@ -1,90 +1,12 @@
 #include "eventstore.h"
 #include <QDebug>
-#include "filehelpers.h"
+#include "mainwindow.h"
 
-EventStore::EventStore(QObject* parent, QSettings* set_) : Store(parent), settings(set_)
+EventStore::EventStore(QObject* parent, QSettings* set_, QHash<QString,QString>* l_objn_, QHash<QString,QString>* l_evn_) : Store(parent), settings(set_), l_object_names(l_objn_), l_event_names(l_evn_)
 {
     QStringList labels;
     labels << "Object ID" << "Event ID" << "Param 1" << "Param 2" << "Timestamp";
     this->model->setHorizontalHeaderLabels(labels);
-
-    this->l_event_names = FileHelpers::loadHash("event_names.dat");
-    this->l_object_names = FileHelpers::loadHash("object_names.dat");
-    // --> Todo: Test Code (remove)
-    l_object_names.insert("Test-Event","Test-Object");
-    l_event_names.insert("1","Test-Event");
-    // <--
-}
-
-void EventStore::loadTranslationTable()
-{
-    // Get the translation data from the database
-    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
-
-    db.setHostName(settings->value("db/host").toString());
-    db.setPort(settings->value("db/port").toInt());
-    db.setDatabaseName(settings->value("mib/db").toString());
-    db.setUserName(settings->value("mib/user").toString());
-    db.setPassword(settings->value("mib/pw").toString());
-
-    if (db.open()) {
-        populateEventHash(&db);
-        populateObjectHash(&db);
-        db.close();
-    } else {
-        qDebug() << "SQL Error";
-        return;
-    }
-
-    // Save the hash tables for reuse upon application start
-    if (!FileHelpers::saveHash("event_names.dat", l_event_names)) {
-        qWarning() << "Can not save hash in event_names.dat";
-    }
-    if (!FileHelpers::saveHash("object_names.dat", l_object_names)) {
-        qWarning() << "Can not save hash in object_names.dat";
-    }
-    emit hashUpdated();
-}
-
-void EventStore::populateEventHash(QSqlDatabase* db_)
-{
-    QString str;
-    QTextStream(&str) << "SELECT Failure_Event_ID, Failure_Event_Name FROM obsw_events;";
-    QSqlQuery query(str, *db_);
-    if (query.size() > 0) {
-        l_event_names.clear();
-        while (query.next()) {
-            QSqlRecord rec = query.record();
-            l_event_names.insert(rec.value(0).toString(), rec.value(1).toString());
-        }
-    }
-}
-
-void EventStore::populateObjectHash(QSqlDatabase* db_)
-{
-    QString str;
-    QTextStream(&str) << "SELECT TXP_FROM, TXP_ALTXT FROM txp WHERE TXP_NUMBR = 'YMX00005';"; // <- All Object-IDs have the calibration id 'YMX00005'
-    QSqlQuery query(str, *db_);
-    if (query.size() > 0) {
-        l_object_names.clear();
-        while (query.next()) {
-            QSqlRecord rec = query.record();
-            l_object_names.insert(rec.value(0).toString(), rec.value(1).toString());
-        }
-    }
-}
-
-void EventStore::addTranslation(QString key_, QString trans_, int list_index_)
-{
-    switch(list_index_) {
-    case EventListIndex:
-        l_event_names.insert(key_, trans_);
-        break;
-    case ObjectListIndex:
-        l_object_names.insert(key_, trans_);
-        break;
-    }
-    emit hashUpdated();
 }
 
 void EventStore::putEvent(Event* e_)
@@ -98,9 +20,9 @@ void EventStore::putEvent(Event* e_)
         QString object_id = QString::number(rawObjectId);
         // If it does not exist, add a new object to the root item
         QStandardItem* new_object = new QStandardItem("0x" + e_->getObjectIdAsString());
-        if (l_object_names.contains(object_id)) {
+        if (l_object_names->contains(object_id)) {
             new_object->setData("0x" + e_->getObjectIdAsString(), Qt::ToolTipRole);
-            new_object->setData(l_object_names.value(object_id), Qt::DisplayRole);
+            new_object->setData(l_object_names->value(object_id), Qt::DisplayRole);
             new_object->setData(rawObjectId, RawDataRole);
         } else {
             qDebug() << "Can not find " << object_id << " in Object Translation List";
@@ -131,9 +53,9 @@ QList<QStandardItem*> EventStore::prepareRow(QStandardItem* event_id, AnimatedSt
     QList<QStandardItem*> row;
 
     row << severity_item;
-    if (l_event_names.contains(event_id->text())) {
+    if (l_event_names->contains(event_id->text())) {
         event_id->setData(event_id->text(), Qt::ToolTipRole);
-        event_id->setData(l_event_names.value(event_id->text()), Qt::DisplayRole);
+        event_id->setData(l_event_names->value(event_id->text()), Qt::DisplayRole);
     } else {
         qDebug() << "Can not find " << event_id->text() << " in Event Translation List";
         event_id->setBackground(Qt::lightGray);

@@ -2,10 +2,10 @@
 #define TRANSLATIONVIEWER_H
 
 #include <QDialog>
-#include "eventstore.h"
 #include "packetstore.h"
 #include <QStandardItem>
 #include <QStandardItemModel>
+#include "mainwindow.h"
 
 namespace Ui {
 class TranslationViewer;
@@ -16,7 +16,7 @@ class TranslationViewer : public QDialog
     Q_OBJECT
 
 public:
-    explicit TranslationViewer(QWidget *parent = 0, EventStore *event_store_ = 0);
+    explicit TranslationViewer(QWidget *parent = 0, QHash<QString, QString> *l_objn_ = 0, QHash<QString, QString> *l_evn_ = 0);
     ~TranslationViewer();
 
 private:
@@ -28,7 +28,10 @@ private:
     QSortFilterProxyModel* objectListModelProxy;
     QSortFilterProxyModel* selectedProxy;
 
-    EventStore* event_store;
+    MainWindow* pMainWindow;
+
+    QHash<QString,QString>* l_object_names;
+    QHash<QString,QString>* l_event_names;
 
     void updateInfoText();
     void updateList(QHash<QString, QString>* hash_, QStandardItemModel* model_);
@@ -37,6 +40,7 @@ private slots:
     void comboBoxSelected(int listIndex_);
     void reload();
     void addTranslation();
+    void clearTranslationTable();
     void table_item_right_click(QPoint pos);
     void switch_hex_dec_action();
 

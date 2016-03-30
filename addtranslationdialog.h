@@ -2,7 +2,7 @@
 #define ADDTRANSLATIONDIALOG_H
 
 #include <QDialog>
-#include "eventstore.h"
+#include "mainwindow.h"
 
 namespace Ui {
 class AddTranslationDialog;
@@ -13,7 +13,7 @@ class AddTranslationDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AddTranslationDialog(QWidget *parent = 0, EventStore* st_ = 0, int index_ = 0);
+    explicit AddTranslationDialog(QWidget *parent = 0, MainWindow* mw_ = 0, int index_ = 0);
     ~AddTranslationDialog();
 
 private slots:
@@ -21,7 +21,7 @@ private slots:
 
 private:
     Ui::AddTranslationDialog *ui;
-    EventStore* eventStore;
+    MainWindow* pMainWindow;
     int list_index;
 };
 

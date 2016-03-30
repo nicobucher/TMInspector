@@ -3,6 +3,7 @@
 #include "objectview.h"
 #include "translationviewer.h"
 #include "sqlworker.h"
+#include "filehelpers.h"
 #include <QTableView>
 #include <QDateTime>
 #include <QFileDialog>
@@ -12,6 +13,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    settings = new QSettings();
 
     // Add the Connect Menu Entry
     dataMenu = menuBar()->addMenu("Data");
@@ -36,8 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     myPacketStore = new PacketStore(this);
     mySqlPacketStore = new PacketStore(this);
-    myEventStore = new EventStore(this, settings);
-    mySqlEventStore = new EventStore(this, settings);
+    myEventStore = new EventStore(this, settings, &l_object_names, &l_event_names);
+    mySqlEventStore = new EventStore(this, settings, &l_object_names, &l_event_names);
 
     dataMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
 
@@ -45,7 +48,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QCoreApplication::setOrganizationDomain("www.irs.uni-stuttgart.de");
     QCoreApplication::setApplicationName("TMInspector");
 
-    settings = new QSettings();
     readSettings();
     ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->treeView_arch->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -107,7 +109,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->lineEdit_3, SIGNAL(textChanged(QString)),myEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
     connect(ui->lineEdit_2, SIGNAL(textChanged(QString)),mySqlEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
 
-    connect(myPacketWorker, SIGNAL(eventAdded(Event*)), this, SLOT(animateNewEvent(Event*)));
+    this->l_event_names = FileHelpers::loadHash("event_names.dat");
+    this->l_object_names = FileHelpers::loadHash("object_names.dat");
+
+    // --> Todo: Test Code (remove)
+    l_object_names.insert("Test-Event","Test-Object");
+    l_event_names.insert("1","Test-Event");
+    // <--
 }
 
 MainWindow::~MainWindow()
@@ -154,6 +162,7 @@ void MainWindow::on_actionTo_Server_triggered()
 
     myPacketWorker = new PacketWorker(myPacketStore, myEventStore);
     connect(myPacketWorker, SIGNAL(hasError(const QString&)), this, SLOT(displayPacketWorkerError(const QString&)));
+    connect(myPacketWorker, SIGNAL(eventAdded(Event*)), this, SLOT(animateNewEvent(Event*)));
     connect(this, SIGNAL(clientSetup(QThread*,QString,int)), myPacketWorker, SLOT(setup(QThread*,QString,int)));
     myPacketWorkerThread = new QThread();
 
@@ -291,7 +300,7 @@ void MainWindow::loadObjectView_Arch(QModelIndex index)
 
 void MainWindow::translation_triggered()
 {
-    TranslationViewer* transView = new TranslationViewer(this, myEventStore);
+    TranslationViewer* transView = new TranslationViewer(this, &l_object_names, &l_event_names);
     transView->setAttribute(Qt::WA_DeleteOnClose);
     transView->show();
     transView->raise();
@@ -308,6 +317,77 @@ void MainWindow::exportTriggered()
     } else {
         myEventStore->exportToFile(filename);
     }
+}
+
+void MainWindow::loadTranslationTable()
+{
+    // Get the translation data from the database
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+
+    db.setHostName(settings->value("db/host").toString());
+    db.setPort(settings->value("db/port").toInt());
+    db.setDatabaseName(settings->value("mib/db").toString());
+    db.setUserName(settings->value("mib/user").toString());
+    db.setPassword(settings->value("mib/pw").toString());
+
+    if (db.open()) {
+        populateEventHash(&db);
+        populateObjectHash(&db);
+        db.close();
+    } else {
+        qDebug() << "SQL Error";
+        return;
+    }
+
+    // Save the hash tables for reuse upon application start
+    if (!FileHelpers::saveHash("event_names.dat", l_event_names)) {
+        qWarning() << "Can not save hash in event_names.dat";
+    }
+    if (!FileHelpers::saveHash("object_names.dat", l_object_names)) {
+        qWarning() << "Can not save hash in object_names.dat";
+    }
+    emit hashUpdated();
+}
+
+void MainWindow::populateEventHash(QSqlDatabase* db_)
+{
+    QString str;
+    QTextStream(&str) << "SELECT Failure_Event_ID, Failure_Event_Name FROM obsw_events;";
+    QSqlQuery query(str, *db_);
+    if (query.size() > 0) {
+        l_event_names.clear();
+        while (query.next()) {
+            QSqlRecord rec = query.record();
+            l_event_names.insert(rec.value(0).toString(), rec.value(1).toString());
+        }
+    }
+}
+
+void MainWindow::populateObjectHash(QSqlDatabase* db_)
+{
+    QString str;
+    QTextStream(&str) << "SELECT TXP_FROM, TXP_ALTXT FROM txp WHERE TXP_NUMBR = 'YMX00005';"; // <- All Object-IDs have the calibration id 'YMX00005'
+    QSqlQuery query(str, *db_);
+    if (query.size() > 0) {
+        l_object_names.clear();
+        while (query.next()) {
+            QSqlRecord rec = query.record();
+            l_object_names.insert(rec.value(0).toString(), rec.value(1).toString());
+        }
+    }
+}
+
+void MainWindow::addTranslation(QString key_, QString trans_, int list_index_)
+{
+    switch(list_index_) {
+    case EventListIndex:
+        l_event_names.insert(key_, trans_);
+        break;
+    case ObjectListIndex:
+        l_object_names.insert(key_, trans_);
+        break;
+    }
+    emit hashUpdated();
 }
 
 void MainWindow::animateNewEvent(Event* event)

@@ -22,6 +22,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+    void addTranslation(QString key_, QString trans_, int list_index_);
     ~MainWindow();
 
 private:
@@ -42,17 +43,25 @@ private:
     // Popup Dialogue Windows
     ServerSettings* serverSettingsWindow;
 
+    QHash<QString,QString> l_event_names;
+    QHash<QString,QString> l_object_names;
+
     void writeSettings();
     void readSettings();
 
+    void populateEventHash(QSqlDatabase* db_);
+    void populateObjectHash(QSqlDatabase* db_);
+
 signals:
     void clientSetup(QThread* t_, QString host, int port);
+    void hashUpdated();
 
 public slots:
     void displayPacketWorkerError(const QString errormessage);
     void displayStatusBarMessage(const QString message);
     void loadObjectView(QModelIndex index);
     void loadObjectView_Arch(QModelIndex index);
+    void loadTranslationTable();
     void animateNewEvent(Event* event);
 
 private slots:

@@ -3,16 +3,20 @@
 #include "addtranslationdialog.h"
 #include <QMenu>
 
-TranslationViewer::TranslationViewer(QWidget *parent, EventStore* event_store_) :
+TranslationViewer::TranslationViewer(QWidget *parent, QHash<QString,QString>* l_objn_, QHash<QString,QString>* l_evn_) :
     QDialog(parent),
     ui(new Ui::TranslationViewer),
-    event_store(event_store_)
+    l_object_names(l_objn_),
+    l_event_names(l_evn_)
 {
     ui->setupUi(this);
 
-    connect(ui->pushButton_2, SIGNAL(clicked(bool)), event_store, SLOT(loadTranslationTable()));
+    pMainWindow = (MainWindow*)parent;
+
+    connect(ui->pushButton_2, SIGNAL(clicked(bool)), pMainWindow, SLOT(loadTranslationTable()));
     connect(ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(addTranslation()));
-    connect(event_store, SIGNAL(hashUpdated()), this, SLOT(reload()));
+    connect(ui->pushButton_clr, SIGNAL(clicked(bool)), this, SLOT(clearTranslationTable()));
+    connect(pMainWindow, SIGNAL(hashUpdated()), this, SLOT(reload()));
 
     ui->comboBox->insertItem(EventListIndex, "Event-ID Translation List");
     ui->comboBox->insertItem(ObjectListIndex, "Object-ID Translation List");
@@ -73,8 +77,8 @@ TranslationViewer::updateList(QHash<QString, QString>* hash_, QStandardItemModel
 void
 TranslationViewer::reload()
 {
-    updateList(&event_store->l_event_names, this->eventListModel);
-    updateList(&event_store->l_object_names, this->objectListModel);
+    updateList(l_event_names, this->eventListModel);
+    updateList(l_object_names, this->objectListModel);
 }
 
 void
@@ -101,7 +105,7 @@ TranslationViewer::updateInfoText()
 void
 TranslationViewer::addTranslation()
 {
-    AddTranslationDialog* dialog = new AddTranslationDialog(this, event_store, ui->comboBox->currentIndex());
+    AddTranslationDialog* dialog = new AddTranslationDialog(this, pMainWindow, ui->comboBox->currentIndex());
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
     dialog->raise();
@@ -123,6 +127,12 @@ TranslationViewer::table_item_right_click(QPoint pos)
 
         menu->popup(ui->tableView->viewport()->mapToGlobal(pos));
     }
+}
+
+void
+TranslationViewer::clearTranslationTable() {
+
+    reload();
 }
 
 void

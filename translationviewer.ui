@@ -52,6 +52,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButton_clr">
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="pushButton">
        <property name="text">
         <string>Add</string>

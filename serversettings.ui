@@ -207,6 +207,18 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit</tabstop>
+  <tabstop>lineEdit_2</tabstop>
+  <tabstop>server</tabstop>
+  <tabstop>port</tabstop>
+  <tabstop>db</tabstop>
+  <tabstop>user</tabstop>
+  <tabstop>pw</tabstop>
+  <tabstop>mib_db</tabstop>
+  <tabstop>mib_user</tabstop>
+  <tabstop>mib_pw</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

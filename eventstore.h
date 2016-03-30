@@ -20,25 +20,21 @@ class EventStore : public Store
 {
     Q_OBJECT
 public:
-    EventStore(QObject *parent, QSettings *set_);
+    EventStore(QObject *parent, QSettings *set_, QHash<QString, QString> *l_objn_, QHash<QString, QString> *l_evn_);
     void putEvent(Event* e_);    
     int checkChildObjExists(int objId_);
-    void addTranslation(QString key_, QString trans_, int list_index_);
-    QHash<QString,QString> l_event_names;
-    QHash<QString,QString> l_object_names;
 
 private:
     QList<QStandardItem*> prepareRow(QStandardItem* event_id, AnimatedStandardItem* severity_item, QStandardItem* param1, QStandardItem* param2, const QDateTime timestamp);
-    void populateEventHash(QSqlDatabase* db_);
-    void populateObjectHash(QSqlDatabase* db_);
+    QHash<QString,QString>* l_object_names;
+    QHash<QString,QString>* l_event_names;
 
     QSettings* settings;
 
 public slots:
-    void loadTranslationTable();
 
 signals:
-    void hashUpdated();
+
 };
 
 #endif // EVENTSTORE_H
