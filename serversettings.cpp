@@ -15,8 +15,13 @@ ServerSettings::ServerSettings(QWidget *parent, QSettings* pSettings) :
     ui->db->setText(settings->value("db/database").toString());
     ui->user->setText(settings->value("db/username").toString());
 
+    ui->mib_db->setText(settings->value("mib/db").toString());
+    ui->mib_user->setText(settings->value("mib/user").toString());
+
     ui->pw->setEchoMode(QLineEdit::Password);
+    ui->mib_pw->setEchoMode(QLineEdit::Password);
     ui->pw->setText(settings->value("db/pw").toString());
+    ui->mib_pw->setText(settings->value("mib/pw").toString());
 }
 
 ServerSettings::~ServerSettings()
@@ -34,6 +39,11 @@ void ServerSettings::accept()
     settings->setValue("db/database", ui->db->text());
     settings->setValue("db/username", ui->user->text());
     settings->setValue("db/pw", ui->pw->text());
+
+    settings->setValue("mib/db", ui->mib_db->text());
+    settings->setValue("mib/user", ui->mib_user->text());
+    settings->setValue("mib/pw", ui->mib_pw->text());
+
 
     this->QDialog::accept();
 }

@@ -7,6 +7,7 @@
 #include <QSqlRecord>
 #include <QSqlError>
 #include <QSqlQueryModel>
+#include <QSettings>
 #include "store.h"
 #include "event.h"
 
@@ -19,7 +20,7 @@ class EventStore : public Store
 {
     Q_OBJECT
 public:
-    EventStore(QObject *parent);
+    EventStore(QObject *parent, QSettings *set_);
     void putEvent(Event* e_);    
     int checkChildObjExists(int objId_);
     void addTranslation(QString key_, QString trans_, int list_index_);
@@ -30,6 +31,8 @@ private:
     QList<QStandardItem*> prepareRow(QStandardItem* event_id, AnimatedStandardItem* severity_item, QStandardItem* param1, QStandardItem* param2, const QDateTime timestamp);
     void populateEventHash(QSqlDatabase* db_);
     void populateObjectHash(QSqlDatabase* db_);
+
+    QSettings* settings;
 
 public slots:
     void loadTranslationTable();

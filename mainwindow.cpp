@@ -36,8 +36,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     myPacketStore = new PacketStore(this);
     mySqlPacketStore = new PacketStore(this);
-    myEventStore = new EventStore(this);
-    mySqlEventStore = new EventStore(this);
+    myEventStore = new EventStore(this, settings);
+    mySqlEventStore = new EventStore(this, settings);
 
     dataMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
 
@@ -106,6 +106,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // The RegEx Filters for the EventStores
     connect(ui->lineEdit_3, SIGNAL(textChanged(QString)),myEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
     connect(ui->lineEdit_2, SIGNAL(textChanged(QString)),mySqlEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
+
+    connect(myPacketWorker, SIGNAL(eventAdded(Event*)), this, SLOT(animateNewEvent(Event*)));
 }
 
 MainWindow::~MainWindow()
@@ -152,7 +154,6 @@ void MainWindow::on_actionTo_Server_triggered()
 
     myPacketWorker = new PacketWorker(myPacketStore, myEventStore);
     connect(myPacketWorker, SIGNAL(hasError(const QString&)), this, SLOT(displayPacketWorkerError(const QString&)));
-    connect(myPacketWorker, SIGNAL(eventAdded(Event*)), this, SLOT(animateNewEvent(Event*)));
     connect(this, SIGNAL(clientSetup(QThread*,QString,int)), myPacketWorker, SLOT(setup(QThread*,QString,int)));
     myPacketWorkerThread = new QThread();
 

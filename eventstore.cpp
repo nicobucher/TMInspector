@@ -1,9 +1,8 @@
 #include "eventstore.h"
 #include <QDebug>
-#include <QSettings>
 #include "filehelpers.h"
 
-EventStore::EventStore(QObject* parent) : Store(parent)
+EventStore::EventStore(QObject* parent, QSettings* set_) : Store(parent), settings(set_)
 {
     QStringList labels;
     labels << "Object ID" << "Event ID" << "Param 1" << "Param 2" << "Timestamp";
@@ -22,11 +21,11 @@ void EventStore::loadTranslationTable()
     // Get the translation data from the database
     QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
 
-    db.setHostName("192.168.197.100");
-    db.setPort(3306);
-    db.setDatabaseName("flpmib");
-    db.setUserName("tmtcrs");
-    db.setPassword("tmtcrs");
+    db.setHostName(settings->value("db/host").toString());
+    db.setPort(settings->value("db/port").toInt());
+    db.setDatabaseName(settings->value("mib/db").toString());
+    db.setUserName(settings->value("mib/user").toString());
+    db.setPassword(settings->value("mib/pw").toString());
 
     if (db.open()) {
         populateEventHash(&db);
