@@ -46,6 +46,9 @@ private:
     QHash<QString,QString> l_event_names;
     QHash<QString,QString> l_object_names;
 
+    bool treeviewExpanded;
+    bool treeviewExpanded_Arch;
+
     void writeSettings();
     void readSettings();
 
@@ -72,6 +75,10 @@ private slots:
     void on_commandLinkButton_clicked();
     void eventMode_triggered();
     void exportTriggered();
+
+    void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
 
 private:
     QMenu *dataMenu;

@@ -116,6 +116,9 @@ MainWindow::MainWindow(QWidget *parent) :
     l_object_names.insert("Test-Event","Test-Object");
     l_event_names.insert("1","Test-Event");
     // <--
+
+    treeviewExpanded = false;
+    treeviewExpanded_Arch = false;
 }
 
 MainWindow::~MainWindow()
@@ -395,5 +398,35 @@ void MainWindow::animateNewEvent(Event* event)
     QDateTime now = QDateTime::currentDateTime();
     if (event->getTimestamp().secsTo(now) < 60*60) { // If the event was generated within the last hour
         event->getSeverityItem()->animate();
+    }
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    treeviewExpanded = !treeviewExpanded;
+    QModelIndex index;
+    for (int row = 0; row < myEventStore->model->rowCount(); ++row) {
+        index = myEventStore->proxy_model->index(row, 0);
+        ui->treeView->setExpanded(index, treeviewExpanded);
+    }
+    if (treeviewExpanded) {
+        ui->pushButton->setText("CloseAll");
+    } else {
+        ui->pushButton->setText("ExpandAll");
+    }
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    treeviewExpanded_Arch = !treeviewExpanded_Arch;
+    QModelIndex index;
+    for (int row = 0; row < mySqlEventStore->model->rowCount(); ++row) {
+        index = mySqlEventStore->proxy_model->index(row, 0);
+        ui->treeView_arch->setExpanded(index, treeviewExpanded_Arch);
+    }
+    if (treeviewExpanded_Arch) {
+        ui->pushButton_2->setText("CloseAll");
+    } else {
+        ui->pushButton_2->setText("ExpandAll");
     }
 }
