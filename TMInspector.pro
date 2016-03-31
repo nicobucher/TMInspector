@@ -50,7 +50,8 @@ HEADERS  += mainwindow.h \
     addtranslationdialog.h \
     animatedstandarditem.h \
     treeviewfilterproxymodel.h \
-    packetcontentview.h
+    packetcontentview.h \
+    definitions.h
 
 FORMS    += mainwindow.ui \
     serversettings.ui \

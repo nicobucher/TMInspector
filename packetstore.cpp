@@ -16,8 +16,8 @@ PacketStore::putPacket(SourcePacket* p_) {
     this->model->insertRow(0);
     model->setData(model->index(0, 0), p_->getSourceSequenceCount());
     // This is the hidden key information to find the item in the packet list
-    model->setData(model->index(0, 0), id, PacketListIndex);
-    model->setData(model->index(0, 3), p_->getDataLength());
+    model->setData(model->index(0, 0), id, ListIndexRole);
+    model->setData(model->index(0, 3), p_->getDataLength()+1);
     if (p_->hasDataFieldHeader()) {
         model->setData(model->index(0, 4), p_->getDataFieldHeader()->getTimestamp());
         model->setData(model->index(0, 1), p_->getDataFieldHeader()->getServiceType());

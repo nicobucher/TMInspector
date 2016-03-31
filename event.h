@@ -5,17 +5,13 @@
 #include <QStandardItem>
 #include <QDateTime>
 #include "animatedstandarditem.h"
+#include "definitions.h"
 
 enum Severity {
     Info = 1,
     Low,
     Medium,
     High
-};
-
-enum ExtraRoles {
-    ReadableTextRole = Qt::UserRole + 1,
-    RawDataRole
 };
 
 class Event : public QObject, public QStandardItem

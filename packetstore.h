@@ -4,10 +4,7 @@
 #include <QObject>
 #include "store.h"
 #include "sourcepacket.h"
-
-enum Index {
-    PacketListIndex = 0,
-};
+#include "definitions.h"
 
 class PacketStore : public Store
 {

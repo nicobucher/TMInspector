@@ -20,7 +20,7 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, int idx_
         ui->apid_label->setText(QString::number(selectedPacket->getApid()));
         ui->dfh_label->setText(QString::number(selectedPacket->hasDataFieldHeader()));
         ui->sequence_label->setText(QString::number(selectedPacket->getSequence()));
-        ui->bytes_label->setText(QString::number(selectedPacket->getDataLength()) + " byte(s)");
+        ui->bytes_label->setText(QString::number(selectedPacket->getDataLength()+1) + " byte(s)");
         ui->data_line_edit->setText(selectedPacket->getData().toHex());
     } else {
         qDebug() << "Selected Packet not found";

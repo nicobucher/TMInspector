@@ -230,6 +230,7 @@ void MainWindow::displayPacketWorkerError(const QString errormessage)
     delete myPacketWorker;
     myPacketWorkerThread = 0;
     myPacketWorker = 0;
+    statusLabel->setStyleSheet("");
     statusLabel->setText(tr("Disconnected"));
     action_Connect->setText("Connect");
 }
@@ -300,7 +301,7 @@ void MainWindow::loadObjectView(QModelIndex index)
         selectedStore = (Store*)index.model()->parent();
         // Get the index from the item in column zero... This can then be used to look up the packet in the stores packet-list
         QModelIndex pktIndex = index.model()->index(index.row(),0);
-        int pkt_id = pktIndex.data(PacketListIndex).toInt();
+        int pkt_id = pktIndex.data(ListIndexRole).toInt();
         PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);
         pktView->setAttribute(Qt::WA_DeleteOnClose);
         pktView->show();

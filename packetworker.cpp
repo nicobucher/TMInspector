@@ -63,17 +63,17 @@ PacketWorker::doWork()
                         this->quit = true;
                     } else {
                         // Create the packet
-                        SourcePacket packet;
-                        packet.makePacketFromData((unsigned char*)header_buffer.data(), (unsigned char*)data_buffer.data(), data_length);
+                        SourcePacket* packet = new SourcePacket();
+                        packet->makePacketFromData((unsigned char*)header_buffer.data(), (unsigned char*)data_buffer.data(), data_length);
 
-                        if (packet.getQuality() == GOOD && packet.getApid() != SourcePacket::APID_IDLEPACKET) {
+                        if (packet->getQuality() == GOOD && packet->getApid() != SourcePacket::APID_IDLEPACKET) {
 
-                            store->putPacket(&packet);
+                            store->putPacket(packet);
 
                             // If the packet contains an event (Events have Service Type 5)
-                            if (packet.hasDataFieldHeader()) {
-                                if (packet.getDataFieldHeader()->getServiceType() == 5) {
-                                    Event* event = new Event(packet.getDataFieldHeader()->getTimestamp(), (Severity)packet.getDataFieldHeader()->getSubServiceType(), (unsigned char*)packet.getData().data());
+                            if (packet->hasDataFieldHeader()) {
+                                if (packet->getDataFieldHeader()->getServiceType() == 5) {
+                                    Event* event = new Event(packet->getDataFieldHeader()->getTimestamp(), (Severity)packet->getDataFieldHeader()->getSubServiceType(), (unsigned char*)packet->getData().data());
                                     // Put the event into the event store
                                     event_store->putEvent(event);
                                     emit(eventAdded(event));
