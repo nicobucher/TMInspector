@@ -4,7 +4,7 @@
 AnimatedStandardItem::AnimatedStandardItem(const QString text) : QStandardItem(text)
 {
     myAnimatioGroup = new QSequentialAnimationGroup(this);
-    connect(myAnimatioGroup, SIGNAL(stateChanged(QAbstractAnimation::State,QAbstractAnimation::State)), this, SLOT(text_ouput(QAbstractAnimation::State,QAbstractAnimation::State)));
+//    connect(myAnimatioGroup, SIGNAL(stateChanged(QAbstractAnimation::State,QAbstractAnimation::State)), this, SLOT(text_ouput(QAbstractAnimation::State,QAbstractAnimation::State)));
 }
 
 AnimatedStandardItem::~AnimatedStandardItem()

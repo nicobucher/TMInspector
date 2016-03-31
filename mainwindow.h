@@ -63,7 +63,6 @@ public slots:
     void displayPacketWorkerError(const QString errormessage);
     void displayStatusBarMessage(const QString message);
     void loadObjectView(QModelIndex index);
-    void loadObjectView_Arch(QModelIndex index);
     void loadTranslationTable();
     void animateNewEvent(Event* event);
 

@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "objectview.h"
 #include "translationviewer.h"
+#include "packetcontentview.h"
 #include "sqlworker.h"
 #include "filehelpers.h"
 #include <QTableView>
@@ -31,6 +32,9 @@ MainWindow::MainWindow(QWidget *parent) :
     dataMenu->addAction("Export", this, SLOT(exportTriggered()));
 
     statusLabel = new QLabel(this);
+    QPalette pal;
+    pal.setColor(QPalette::Background, Qt::green);
+    statusLabel->setPalette(pal);
     statusLabel->setText("Disconneted");
     this->statusBar()->addPermanentWidget(statusLabel);
 
@@ -68,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
-    connect(ui->treeView_arch, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView_Arch(QModelIndex)));
+    connect(ui->treeView_arch, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
 
     // Initialize the DateTime Pickers
     ui->dateTimeEdit_start->setCalendarPopup(true);
@@ -159,6 +163,7 @@ void MainWindow::on_actionTo_Server_triggered()
             myPacketWorker->quit = true;
         }
         statusLabel->setText(tr("Disconnected"));
+        statusLabel->setStyleSheet("");
         action_Connect->setText("Connect");
         return;
     }
@@ -174,7 +179,8 @@ void MainWindow::on_actionTo_Server_triggered()
         if (myPacketWorker->isReady) {
             myPacketWorker->moveToThread(myPacketWorkerThread);
             myPacketWorkerThread->start();
-            statusLabel->setText(tr("Connected"));
+            statusLabel->setText("Connected");
+            statusLabel->setStyleSheet("background-color:#00CC00;");
             action_Connect->setText("Disconnect");
         } else {
             QString str;
@@ -275,29 +281,31 @@ void MainWindow::eventMode_triggered()
 
 void MainWindow::loadObjectView(QModelIndex index)
 {
-    if (myEventStore->itemInStore(index.data().toString())) {
-        // The mapping to the source model is required because index is of the proxy_model and needs to be mapped to the source model in order to be resolved
-        QModelIndex sourceIndex = myEventStore->proxy_model->mapToSource(index);
-        // Then pass the mapped sourceIndex to the ObjectView
-        ObjectView* objView = new ObjectView(this, sourceIndex, myEventStore->model);
-        objView->setAttribute(Qt::WA_DeleteOnClose);
-        objView->show();
-        objView->raise();
-        objView->activateWindow();
+    Store* selectedStore;
+    if (index.model() == myEventStore->proxy_model || index.model() == mySqlEventStore->proxy_model) {
+        selectedStore = (Store*)index.model()->parent();
+        if (selectedStore->itemInStore(index.data().toString())) {
+            // The mapping to the source model is required because index is of the proxy_model and needs to be mapped to the source model in order to be resolved
+            QModelIndex sourceIndex = selectedStore->proxy_model->mapToSource(index);
+            // Then pass the mapped sourceIndex to the ObjectView
+            ObjectView* objView = new ObjectView(this, sourceIndex, selectedStore->model);
+            objView->setAttribute(Qt::WA_DeleteOnClose);
+            objView->show();
+            objView->raise();
+            objView->activateWindow();
+        }
+        return;
     }
-}
-
-void MainWindow::loadObjectView_Arch(QModelIndex index)
-{
-    if (mySqlEventStore->itemInStore(index.data().toString())) {
-        // The mapping to the source model is required because index is of the proxy_model and needs to be mapped to the source model in order to be resolved
-        QModelIndex sourceIndex = mySqlEventStore->proxy_model->mapToSource(index);
-        // Then pass the mapped sourceIndex to the ObjectView
-        ObjectView* objView = new ObjectView(this, sourceIndex, mySqlEventStore->model);
-        objView->setAttribute(Qt::WA_DeleteOnClose);
-        objView->show();
-        objView->raise();
-        objView->activateWindow();
+    if (index.model() == myPacketStore->proxy_model || index.model() == mySqlPacketStore->proxy_model) {
+        selectedStore = (Store*)index.model()->parent();
+        // Get the index from the item in column zero... This can then be used to look up the packet in the stores packet-list
+        QModelIndex pktIndex = index.model()->index(index.row(),0);
+        int pkt_id = pktIndex.data(PacketListIndex).toInt();
+        PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);
+        pktView->setAttribute(Qt::WA_DeleteOnClose);
+        pktView->show();
+        pktView->raise();
+        pktView->activateWindow();
     }
 }
 

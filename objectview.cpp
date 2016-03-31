@@ -6,7 +6,8 @@ ObjectView::ObjectView(QWidget *parent, QModelIndex clickedIndex, QStandardItemM
     ui(new Ui::ObjectView)
 {
     this->ui->setupUi(this);
-    this->ui->label->setText(clickedIndex.data().toString());
+    this->setWindowTitle(clickedIndex.data(Qt::DisplayRole).toString());
+    this->ui->label->setText("Object-Adress: " + clickedIndex.data(Qt::ToolTipRole).toString());
 
     this->ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     this->ui->treeView->setRootIsDecorated(false);

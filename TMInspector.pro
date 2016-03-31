@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     translationviewer.cpp \
     addtranslationdialog.cpp \
     animatedstandarditem.cpp \
-    treeviewfilterproxymodel.cpp
+    treeviewfilterproxymodel.cpp \
+    packetcontentview.cpp
 
 HEADERS  += mainwindow.h \
     serversettings.h \
@@ -48,10 +49,12 @@ HEADERS  += mainwindow.h \
     translationviewer.h \
     addtranslationdialog.h \
     animatedstandarditem.h \
-    treeviewfilterproxymodel.h
+    treeviewfilterproxymodel.h \
+    packetcontentview.h
 
 FORMS    += mainwindow.ui \
     serversettings.ui \
     objectview.ui \
     translationviewer.ui \
-    addtranslationdialog.ui
+    addtranslationdialog.ui \
+    packetcontentview.ui

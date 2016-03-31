@@ -33,6 +33,8 @@ protected:
     QStandardItemModel* model;
     TreeViewFilterProxyModel* proxy_model;
 
+    QString export_file_header;
+
 public slots:
     virtual void loadTranslationTable() {
         // Implement this if needed
