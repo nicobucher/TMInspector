@@ -120,7 +120,7 @@ public:
     }
 
     QByteArray getData() {
-        return QByteArray((const char*)this->data);
+        return QByteArray((const char*)this->data, this->dataLength);
     }
 
     void setData(unsigned char* d_, int length_) {

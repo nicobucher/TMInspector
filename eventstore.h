@@ -25,7 +25,7 @@ public:
     int checkChildObjExists(int objId_);
 
 private:
-    QList<QStandardItem*> prepareRow(QStandardItem* event_id, AnimatedStandardItem* severity_item, QStandardItem* param1, QStandardItem* param2, const QDateTime timestamp);
+    QList<QStandardItem*> prepareRow(Event* e_);
     QHash<QString,QString>* l_object_names;
     QHash<QString,QString>* l_event_names;
 

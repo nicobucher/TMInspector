@@ -10,7 +10,7 @@ PacketStore::PacketStore(QObject* parent) : Store(parent)
     id = 0;
 }
 
-void
+int
 PacketStore::putPacket(SourcePacket* p_) {
     id++;
     this->model->insertRow(0);
@@ -24,6 +24,7 @@ PacketStore::putPacket(SourcePacket* p_) {
         model->setData(model->index(0, 2), p_->getDataFieldHeader()->getSubServiceType());
     }
     l_packets.insert(id, p_);
+    return id;
 }
 
 SourcePacket*

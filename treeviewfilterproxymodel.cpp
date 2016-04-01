@@ -21,10 +21,5 @@ bool
 TreeViewFilterProxyModel::filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const
 {
     return true;
-//    if (source_column == 1) {
-//        return true;
-//    } else {
-//        return false;
-//    }
 }
 

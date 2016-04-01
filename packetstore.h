@@ -10,7 +10,9 @@ class PacketStore : public Store
 {
 public:
     PacketStore(QObject *parent);
-    void putPacket(SourcePacket* p_);
+
+    // Returns the allocated packet reference id
+    int putPacket(SourcePacket* p_);
     SourcePacket* getPacket(int pkt_id);
 
 private:

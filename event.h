@@ -33,6 +33,8 @@ private:
     Severity severity;
     AnimatedStandardItem* severity_item;
 
+    int packet_reference;
+
 public:
     void setTimestamp(QDateTime ts_) {
         this->timestamp = ts_;
@@ -123,6 +125,14 @@ public:
 
     AnimatedStandardItem* getSeverityItem() {
         return this->severity_item;
+    }
+
+    void setPacketReference(int id_) {
+        this->packet_reference = id_;
+    }
+
+    int getPacketReference() {
+        return this->packet_reference;
     }
 
     void makeEventfromPacketData(unsigned char* pData_);

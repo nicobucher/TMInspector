@@ -13,6 +13,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    QCoreApplication::setOrganizationName("Institute of Space Systems");
+    QCoreApplication::setOrganizationDomain("www.irs.uni-stuttgart.de");
+    QCoreApplication::setApplicationName("TMInspector");
+
     ui->setupUi(this);
 
     settings = new QSettings();
@@ -48,11 +52,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     dataMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
 
-    QCoreApplication::setOrganizationName("Institute of Space Systems");
-    QCoreApplication::setOrganizationDomain("www.irs.uni-stuttgart.de");
-    QCoreApplication::setApplicationName("TMInspector");
-
+    // Read the global settings
     readSettings();
+
+    // Setup the treeviews
     ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->treeView_arch->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->treeView->setRootIsDecorated(true);
@@ -71,8 +74,16 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->treeView->setModel(myPacketStore->proxy_model);
     }
 
+    // Double Click actions
     connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
     connect(ui->treeView_arch, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+
+    // Right Click menu
+    ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->treeView_arch->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->treeView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tree_item_right_click(QPoint)));
+    connect(ui->treeView_arch, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tree_item_right_click(QPoint)));
+
 
     // Initialize the DateTime Pickers
     ui->dateTimeEdit_start->setCalendarPopup(true);
@@ -84,28 +95,30 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* Initial Data for both models (for testing ->>*/
     SourcePacket test_packet(0, 3, 53);
-    myPacketStore->putPacket(&test_packet);
+//    myPacketStore->putPacket(&test_packet);
 
     Event testevent(now, (Severity)1);
     testevent.setEventId(1);
     testevent.setObjectId(1000);
     testevent.setObjectName("Test-Event");
     testevent.setParams(23, 24);
-    myEventStore->putEvent(&testevent);
+    testevent.setPacketReference(1);
+//    myEventStore->putEvent(&testevent);
 
     Event testevent1(now, (Severity)2);
     testevent1.setEventId(2);
     testevent1.setObjectId(1000);
     testevent1.setObjectName("Bla");
     testevent1.setParams(23, 24);
-    myEventStore->putEvent(&testevent1);
+    testevent1.setPacketReference(1);
+//    myEventStore->putEvent(&testevent1);
 
     Event testevent2(now, (Severity)3);
     testevent2.setEventId(3);
     testevent2.setObjectId(1000);
     testevent2.setObjectName("Engä");
     testevent2.setParams(23, 24);
-    myEventStore->putEvent(&testevent2);
+//    myEventStore->putEvent(&testevent2);
 
     /* <<- remove */
 
@@ -248,7 +261,7 @@ void MainWindow::on_commandLinkButton_clicked()
         unsigned char* complete_packet_data = (unsigned char*) malloc(SourcePacket::MAX_PACKET_SIZE); // Maximum TM packet size
         for (int i = 0; i < retrievedPackets.size(); ++i) {
             SourcePacket* packet = retrievedPackets.at(i);
-            mySqlPacketStore->putPacket(packet);
+            int ref_ = mySqlPacketStore->putPacket(packet);
 
             if (packet->hasDataFieldHeader()) {
                 if (packet->getDataFieldHeader()->getServiceType() == 5) {
@@ -258,6 +271,7 @@ void MainWindow::on_commandLinkButton_clicked()
                         memcpy(complete_packet_data+12, packet->getData(), packet->getDataLength());
                         event->makeEventfromPacketData(complete_packet_data);
                     }
+                    event->setPacketReference(ref_);
                     // Put the event into the event store
                     mySqlEventStore->putEvent(event);
                 }
@@ -329,6 +343,47 @@ void MainWindow::exportTriggered()
     } else {
         myEventStore->exportToFile(filename);
     }
+}
+
+void MainWindow::tree_item_right_click(QPoint p_)
+{
+    QModelIndexList l_indexes;
+    if(ui->tabWidget->currentIndex() == 0) {
+        l_indexes=ui->treeView_arch->selectionModel()->selectedIndexes();
+    } else if (ui->tabWidget->currentIndex() == 1) {
+        l_indexes=ui->treeView->selectionModel()->selectedIndexes();
+    }
+    if (l_indexes.count() > 0) {
+        QMenu* menu=new QMenu(this);
+        QAction* packet_inspect = new QAction("Show Packet", this);
+        packet_inspect->setData(l_indexes.at(0));
+        menu->addAction(packet_inspect);
+
+        connect(packet_inspect, SIGNAL(triggered()), this, SLOT(show_packet_action()));
+
+        menu->popup(ui->treeView->viewport()->mapToGlobal(p_));
+    }
+}
+
+void MainWindow::show_packet_action()
+{
+    Store* selectedStore;
+    if(ui->tabWidget->currentIndex() == 0) {
+        selectedStore = mySqlPacketStore;
+    } else if (ui->tabWidget->currentIndex() == 1) {
+        selectedStore = myPacketStore;
+    }
+
+    // This is used to determine the item that was clicked...
+    QAction* pAction = qobject_cast<QAction*>(sender());
+    QModelIndex clicked_item_index = pAction->data().toModelIndex();
+
+    int pkt_id = clicked_item_index.data(ListIndexRole).toInt();
+    PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);
+    pktView->setAttribute(Qt::WA_DeleteOnClose);
+    pktView->show();
+    pktView->raise();
+    pktView->activateWindow();
 }
 
 void MainWindow::loadTranslationTable()

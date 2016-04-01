@@ -38,7 +38,6 @@ SourcePacket* SourcePacket::makePacketFromData(unsigned char* pHeader_, unsigned
     // byte 4 & 5
     this->setData(pData_, length_);
     this->setHeader(pHeader_);
-    this->dataLength = length_;
 
     this->setVersion((part1 >> 13) & 0x7);
 
@@ -80,7 +79,7 @@ SourcePacket* SourcePacket::makePacketFromData(unsigned char* pHeader_, unsigned
         dataFieldHeader = new TMSourcePacketDataFieldHeader();
         dataFieldHeader->makeDataFieldHeaderFromData(pData_);
         // Move data pointer
-        this->dataLength -= 2;
+//        this->dataLength -= 2;
     }
 
     return this;

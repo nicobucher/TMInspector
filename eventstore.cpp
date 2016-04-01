@@ -22,7 +22,7 @@ EventStore::EventStore(QObject* parent, QSettings* set_, QHash<QString,QString>*
 void EventStore::putEvent(Event* e_)
 {
     QStandardItem *root = this->model->invisibleRootItem();
-    QList<QStandardItem*> new_row = prepareRow(e_->getEventId(), e_->getSeverityItem(), e_->getParam1(), e_->getParam2(), e_->getTimestamp());
+    QList<QStandardItem*> new_row = prepareRow(e_);
 
     int rawObjectId = e_->getObjectIdAsInt();
     int objRowFound_ = checkChildObjExists(rawObjectId);
@@ -33,13 +33,13 @@ void EventStore::putEvent(Event* e_)
         if (l_object_names->contains(object_id)) {
             new_object->setData("0x" + e_->getObjectIdAsString(), Qt::ToolTipRole);
             new_object->setData(l_object_names->value(object_id), Qt::DisplayRole);
-            new_object->setData(rawObjectId, RawDataRole);
         } else {
             qDebug() << "Can not find " << object_id << " in Object Translation List";
             new_object->setBackground(Qt::lightGray);
             new_object->setData("Cannot be resolved", Qt::ToolTipRole);
-            new_object->setData(rawObjectId, RawDataRole);
         }
+        new_object->setData(rawObjectId, RawDataRole);
+        new_object->setData(-1, ListIndexRole);
         new_object->appendRow(new_row);
         root->appendRow(new_object);
     } else {
@@ -58,21 +58,24 @@ int EventStore::checkChildObjExists(int objId_)
     return -1;
 }
 
-QList<QStandardItem*> EventStore::prepareRow(QStandardItem* event_id, AnimatedStandardItem* severity_item, QStandardItem* param1, QStandardItem* param2, const QDateTime timestamp)
+QList<QStandardItem*> EventStore::prepareRow(Event* e_)
 {
     QList<QStandardItem*> row;
+    QStandardItem* event_id = e_->getEventId();
+    QStandardItem* severity_item = e_->getSeverityItem();
+    severity_item->setData(e_->getPacketReference(), ListIndexRole);
 
     row << severity_item;
     if (l_event_names->contains(event_id->text())) {
-        event_id->setData(event_id->text(), Qt::ToolTipRole);
+        event_id->setData(e_->getEventId()->text(), Qt::ToolTipRole);
         event_id->setData(l_event_names->value(event_id->text()), Qt::DisplayRole);
     } else {
         qDebug() << "Can not find " << event_id->text() << " in Event Translation List";
         event_id->setBackground(Qt::lightGray);
     }
     row << event_id;
-    row << param1;
-    row << param2;
-    row << new QStandardItem(timestamp.toString());
+    row << e_->getParam1();
+    row << e_->getParam2();
+    row << new QStandardItem(e_->getTimestamp().toString());
     return row;
 }

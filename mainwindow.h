@@ -74,9 +74,10 @@ private slots:
     void on_commandLinkButton_clicked();
     void eventMode_triggered();
     void exportTriggered();
+    void tree_item_right_click(QPoint p_);
+    void show_packet_action();
 
     void on_pushButton_clicked();
-
     void on_pushButton_2_clicked();
 
 private:
