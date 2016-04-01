@@ -338,10 +338,18 @@ void MainWindow::exportTriggered()
     QString filename = QFileDialog::getSaveFileName(this, "Save File",
                                "",
                                "Type (*.csv)");
-    if (!action_EventMode->isChecked()) {
-        myPacketStore->exportToFile(filename);
-    } else {
-        myEventStore->exportToFile(filename);
+    if (ui->tabWidget->currentIndex() == 0) { // Archive Tab
+        if (!action_EventMode->isChecked()) {
+            mySqlPacketStore->exportToFile(filename);
+        } else {
+            mySqlEventStore->exportToFile(filename);
+        }
+    } else if (ui->tabWidget->currentIndex() == 1) { // Live Tab
+        if (!action_EventMode->isChecked()) {
+            myPacketStore->exportToFile(filename);
+        } else {
+            myEventStore->exportToFile(filename);
+        }
     }
 }
 

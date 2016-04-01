@@ -32,6 +32,7 @@ private:
     QSettings* settings;
 
 public slots:
+    void exportToFile(QString filename_);
 
 signals:
 

@@ -27,18 +27,15 @@ Store::exportToFile(QString filename_)
         fileout << export_file_header.toStdString();
         QDateTime now = QDateTime::currentDateTime();
 
-        QStandardItem* parent;
-        QStandardItem* child;
+        QStandardItem* print_item;
         for (int i=0; i < model->rowCount(); ++i) {
-            parent = model->item(i, 0);
-            for (int ii=0; ii < parent->rowCount(); ++ii) {
-                fileout << setfill(' ') << setw(30) << parent->data(Qt::DisplayRole).toString().toStdString();
-                for (int iii = 0; iii < model->columnCount(); ++iii) {
-                    child = parent->child(ii, iii);
-                    fileout << setfill(' ') << setw(30) << child->data(Qt::DisplayRole).toString().toStdString();
-                }
-                fileout << endl;
+            print_item = model->item(i, 0);
+            fileout << setfill(' ') << setw(5) << print_item->data(Qt::DisplayRole).toString().toStdString();
+            for (int iii = 1; iii < model->columnCount(); ++iii) {
+                print_item = model->item(i, iii);
+                fileout << setfill(' ') << setw(30) << print_item->data(Qt::DisplayRole).toString().toStdString();
             }
+            fileout << endl;
         }
         fileout << "# Generation Time: " << now.toString("ddd MMMM d yyyy").toStdString() << ", " << now.toString("hh:mm:ss").toStdString() << endl;
         fileout.flush();

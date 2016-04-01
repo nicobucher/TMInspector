@@ -1,6 +1,10 @@
 #include "eventstore.h"
 #include <QDebug>
 #include "mainwindow.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+using namespace std;
 
 EventStore::EventStore(QObject* parent, QSettings* set_, QHash<QString,QString>* l_objn_, QHash<QString,QString>* l_evn_) : Store(parent), l_object_names(l_objn_), l_event_names(l_evn_), settings(set_)
 {
@@ -17,6 +21,36 @@ EventStore::EventStore(QObject* parent, QSettings* set_, QHash<QString,QString>*
                                      << "                        Param2"
                                      << "                     Timestamp" << endl;
     QTextStream(&export_file_header) << "#" << endl;
+}
+
+void
+EventStore::exportToFile(QString filename_)
+{
+    ofstream fileout;
+    fileout.open(filename_.toStdString(), ios::out| ios::trunc);
+    if (fileout.is_open()) {
+        fileout << export_file_header.toStdString();
+        QDateTime now = QDateTime::currentDateTime();
+
+        QStandardItem* parent;
+        QStandardItem* child;
+        for (int i=0; i < model->rowCount(); ++i) {
+            parent = model->item(i, 0);
+            for (int ii=0; ii < parent->rowCount(); ++ii) {
+                fileout << setfill(' ') << setw(30) << parent->data(Qt::DisplayRole).toString().toStdString();
+                for (int iii = 0; iii < model->columnCount(); ++iii) {
+                    child = parent->child(ii, iii);
+                    fileout << setfill(' ') << setw(30) << child->data(Qt::DisplayRole).toString().toStdString();
+                }
+                fileout << endl;
+            }
+        }
+        fileout << "# Generation Time: " << now.toString("ddd MMMM d yyyy").toStdString() << ", " << now.toString("hh:mm:ss").toStdString() << endl;
+        fileout.flush();
+        fileout.close();
+    } else {
+        qDebug() << "Error opening file: " << filename_;
+    }
 }
 
 void EventStore::putEvent(Event* e_)
