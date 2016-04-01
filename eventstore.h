@@ -23,6 +23,7 @@ public:
     EventStore(QObject *parent, QSettings *set_, QHash<QString, QString> *l_objn_, QHash<QString, QString> *l_evn_);
     void putEvent(Event* e_);    
     int checkChildObjExists(int objId_);
+    void clear_hash(int list_);
 
 private:
     QList<QStandardItem*> prepareRow(Event* e_);

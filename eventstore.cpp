@@ -92,6 +92,18 @@ int EventStore::checkChildObjExists(int objId_)
     return -1;
 }
 
+void EventStore::clear_hash(int list_)
+{
+    switch(list_) {
+    case EventListIndex:
+        l_event_names->clear();
+        break;
+    case ObjectListIndex:
+        l_object_names->clear();
+        break;
+    }
+}
+
 QList<QStandardItem*> EventStore::prepareRow(Event* e_)
 {
     QList<QStandardItem*> row;

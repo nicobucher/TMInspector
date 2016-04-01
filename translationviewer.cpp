@@ -56,21 +56,19 @@ TranslationViewer::~TranslationViewer()
 void
 TranslationViewer::updateList(QHash<QString, QString>* hash_, QStandardItemModel* model_)
 {
-    if (hash_->size() > 0) {
-        model_->removeRows(0, model_->rowCount());
-        QHashIterator<QString, QString> it(*hash_);
-        while (it.hasNext()) {
-            it.next();
-            QList<QStandardItem*> row;
-            QStandardItem* key = new QStandardItem();
-            key->setData("0x" + QString::number(it.key().toInt(),16), Qt::DisplayRole);
-            key->setData(it.key(), Qt::ToolTipRole);
-            QStandardItem* value = new QStandardItem(it.value());
-            row << key << value;
-            model_->insertRow(0, row);
-        }
-        model_->sort(0, Qt::AscendingOrder);
+    model_->removeRows(0, model_->rowCount());
+    QHashIterator<QString, QString> it(*hash_);
+    while (it.hasNext()) {
+        it.next();
+        QList<QStandardItem*> row;
+        QStandardItem* key = new QStandardItem();
+        key->setData("0x" + QString::number(it.key().toInt(),16), Qt::DisplayRole);
+        key->setData(it.key(), Qt::ToolTipRole);
+        QStandardItem* value = new QStandardItem(it.value());
+        row << key << value;
+        model_->insertRow(0, row);
     }
+    model_->sort(0, Qt::AscendingOrder);
     updateInfoText();
 }
 
@@ -131,7 +129,14 @@ TranslationViewer::table_item_right_click(QPoint pos)
 
 void
 TranslationViewer::clearTranslationTable() {
-
+    switch(ui->comboBox->currentIndex()) {
+    case EventListIndex:
+        l_event_names->clear();
+        break;
+    case ObjectListIndex:
+        l_object_names->clear();
+        break;
+    }
     reload();
 }
 
