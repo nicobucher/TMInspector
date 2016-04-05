@@ -33,9 +33,11 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     case QtFatalMsg:
         fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
         fprintf(file_l_out, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), context.file, context.line, context.function);
+        fflush(stderr);
         fflush(file_l_out);
         abort();
     }
+    fflush(stderr);
     fflush(file_l_out);
 }
 
