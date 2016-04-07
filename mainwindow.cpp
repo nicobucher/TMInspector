@@ -258,6 +258,7 @@ void MainWindow::on_commandLinkButton_clicked()
     retrievedPackets = worker.fetchPackets(begin_, end_);
     if (retrievedPackets.size() > 0) {
         mySqlPacketStore->emptyStore();
+        mySqlEventStore->emptyStore();
         unsigned char* complete_packet_data = (unsigned char*) malloc(SourcePacket::MAX_PACKET_SIZE); // Maximum TM packet size
         for (int i = 0; i < retrievedPackets.size(); ++i) {
             SourcePacket* packet = retrievedPackets.at(i);
