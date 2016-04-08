@@ -22,7 +22,7 @@ void
 Store::exportToFile(QString filename_)
 {
     ofstream fileout;
-    fileout.open(filename_.toStdString(), ios::out| ios::trunc);
+    fileout.open(filename_.toStdString().c_str(), ios::out| ios::trunc);
     if (fileout.is_open()) {
         fileout << export_file_header.toStdString();
         QDateTime now = QDateTime::currentDateTime();
