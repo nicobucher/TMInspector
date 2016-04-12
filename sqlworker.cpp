@@ -40,6 +40,7 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
 
         int i = 0;
         while (query.next()) {
+            qApp->processEvents();
             if (this->quit) {
                 break;
             }
@@ -91,6 +92,7 @@ SqlWorker::doWork() {
         emit newText("Adding Packets...");
         unsigned char* complete_packet_data = (unsigned char*) malloc(SourcePacket::MAX_PACKET_SIZE); // Maximum TM packet size
         for (int i = 0; i < retrievedPackets.size(); ++i) {
+            qApp->processEvents();
             if (this->quit) {
                 break;
             }
@@ -119,7 +121,7 @@ SqlWorker::doWork() {
 }
 
 void
-SqlWorker::cancel() {
+SqlWorker::abortWork() {
     this->quit = true;
 }
 

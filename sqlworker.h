@@ -37,7 +37,7 @@ signals:
     void finished();
 public slots:
     void doWork();
-    void cancel();
+    void abortWork();
 };
 
 #endif // SQLWORKER_H

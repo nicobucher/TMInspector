@@ -258,7 +258,7 @@ void MainWindow::on_commandLinkButton_clicked()
     mySqlPacketStore->emptyStore();
     mySqlEventStore->emptyStore();
 
-    progress_ = new QProgressDialog("Loading Packets from Database","Cancel", 0, 2000);
+    progress_ = new QProgressDialog("Loading Packets from Database","Cancel",0,100);
     progress_->setMinimumDuration(0);
     progress_->reset();
     progress_->show();
@@ -270,13 +270,13 @@ void MainWindow::on_commandLinkButton_clicked()
     connect(worker, SIGNAL(progressMade(int)), progress_, SLOT(setValue(int)));
     connect(worker, SIGNAL(newMaxProgress(int)), progress_, SLOT(setMaximum(int)));
     connect(worker, SIGNAL(newText(QString)), progress_, SLOT(setLabelText(QString)));
-    connect(progress_, SIGNAL(canceled()), worker, SLOT(cancel()));
     connect(worker, SIGNAL(finished()), this, SLOT(sqlWorkerFinished()));
 
     mySqlWorkerThread = new QThread();
 
     worker->moveToThread(mySqlWorkerThread);
     connect(mySqlWorkerThread, SIGNAL(started()), worker, SLOT(doWork()));
+    connect(progress_, SIGNAL(canceled()), worker, SLOT(abortWork()));
     mySqlWorkerThread->start();
 
     ui->commandLinkButton->setEnabled(true);
