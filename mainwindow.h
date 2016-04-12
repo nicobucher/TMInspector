@@ -7,13 +7,15 @@
 #include <QLabel>
 #include <QSettings>
 #include <QThread>
+#include <QProgressDialog>
 #include "serversettings.h"
 #include "packetworker.h"
 #include "packetstore.h"
 #include "eventstore.h"
+#include "custommodels.h"
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
 class MainWindow : public QMainWindow
@@ -25,10 +27,13 @@ public:
     void addTranslation(QString key_, QString trans_, int list_index_);
     ~MainWindow();
 
+    void addObjectToWatchList(QString object_name_);
+
 private:
     Ui::MainWindow *ui;
     PacketWorker* myPacketWorker;
     QThread* myPacketWorkerThread;
+    QThread* mySqlWorkerThread;
 
     PacketStore* myPacketStore;
     PacketStore* mySqlPacketStore;
@@ -46,6 +51,9 @@ private:
     QHash<QString,QString> l_event_names;
     QHash<QString,QString> l_object_names;
 
+    // Object WatchList Model
+    StringList* watch_list_model;
+
     bool treeviewExpanded;
     bool treeviewExpanded_Arch;
 
@@ -53,7 +61,9 @@ private:
     void readSettings();
 
     void populateEventHash(QSqlDatabase* db_);
-    void populateObjectHash(QSqlDatabase* db_);
+    void populateObjectHash(QSqlDatabase* db_); 
+
+    QProgressDialog* progress_;
 
 signals:
     void clientSetup(QThread* t_, QString host, int port);
@@ -61,6 +71,7 @@ signals:
 
 public slots:
     void displayPacketWorkerError(const QString errormessage);
+    void sqlWorkerFinished();
     void displayStatusBarMessage(const QString message);
     void loadObjectView(QModelIndex index);
     void loadTranslationTable();
@@ -79,6 +90,8 @@ private slots:
 
     void on_pushButton_clicked();
     void on_pushButton_2_clicked();
+
+    void addToWatchlist_clicked();
 
 private:
     QMenu *dataMenu;

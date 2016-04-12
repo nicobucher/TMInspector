@@ -12,25 +12,19 @@ class Store : public QObject
 public:
     Store(QObject *parent);
 
-    bool itemInStore(QString obj_id) {
-        QList<QStandardItem*> list = this->model->findItems(obj_id);
-        if(list.length() > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    virtual bool itemInStore(QString obj_id) = 0;
 
-    int getNumberOfItems() {
-        return this->model->rowCount();
-    }
+    virtual int getNumberOfItems() = 0;
 
-    void emptyStore() {
-        this->model->removeRows(0, this->model->rowCount());
+    virtual void emptyStore() = 0;
+
+    virtual QStandardItemModel* getModel() = 0;
+
+    virtual void setSourceModel(QAbstractItemModel* src_) {
+        this->proxy_model->setSourceModel(src_);
     }
 
 protected:
-    QStandardItemModel* model;
     TreeViewFilterProxyModel* proxy_model;
 
     QString export_file_header;
@@ -40,7 +34,7 @@ public slots:
         // Implement this if needed
     }
 
-    virtual void exportToFile(QString filename_);
+    virtual void exportToFile(QString filename_) = 0;
 
     friend class MainWindow;
     friend class ObjectView;

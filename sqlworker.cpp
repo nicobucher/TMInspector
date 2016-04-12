@@ -6,30 +6,45 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-SqlWorker::SqlWorker(QObject* parent, QSettings* settings) : QObject(parent)
+SqlWorker::SqlWorker(QSettings* settings, QDateTime begin_, QDateTime end_, PacketStore* st_, EventStore *evst_, QProgressDialog* prg_) : begin(begin_), end(end_), mySqlPacketStore(st_), mySqlEventStore(evst_), progress(prg_)
 {
     db = QSqlDatabase::addDatabase("QMYSQL");
 
-//    db->setConnectOptions(); // <- if connection options are required
+    db.setConnectOptions("MYSQL_OPT_CONNECT_TIMEOUT=3"); // <- if connection options are required
     db.setHostName(settings->value("db/host").toString());
     db.setPort(settings->value("db/port").toInt());
     db.setDatabaseName(settings->value("db/database").toString());
     db.setUserName(settings->value("db/username").toString());
     db.setPassword(settings->value("db/pw").toString());
 
-    connect(this, SIGNAL(dbAccessError(QString)), parent, SLOT(displayStatusBarMessage(QString)));
+    this->foundPackets = 0;
+    this->quit = false;
 }
 
 QList<SourcePacket*>
 SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
 {
     QList<SourcePacket*> list;
+    emit newText("Connecting to " + db.databaseName() + "...");
     if (db.open()) {
+        emit newText("Connected to " + db.databaseName() + "...");
         QString str;
         QTextStream(&str) << "SELECT * FROM SourcePacket WHERE generationTimestamp < " << e_.toUTC().toMSecsSinceEpoch() << " AND generationTimestamp > " << b_.toUTC().toMSecsSinceEpoch() << " ORDER BY generationTimestamp";
         QSqlQuery query(str);
 
+        this->foundPackets = query.size();
+
+        if (query.size() > 0) {
+            emit newMaxProgress(2*foundPackets);
+        }
+
+        int i = 0;
         while (query.next()) {
+            if (this->quit) {
+                break;
+            }
+
+            emit progressMade(i++);
 
             QSqlRecord rec = query.record();
             qDebug() << "Found a packet... scc=" << query.value(rec.indexOf("sequenceCount"));
@@ -37,7 +52,7 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             SourcePacket* packet = new SourcePacket();
             QByteArray data = query.value(rec.indexOf("data")).toByteArray();
 
-            packet->setData((unsigned char*)data.data(), data.length());
+            packet->setDataField((unsigned char*)data.data(), data.length());
             packet->setApid(query.value(rec.indexOf("applicationProcessId")).toInt());
             packet->setSourceSequenceCount(query.value(rec.indexOf("sequenceCount")).toInt());
             packet->setSequence((Sequence)query.value(rec.indexOf("sequenceFlags")).toInt());
@@ -61,11 +76,51 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
         db.close();
     } else {
         qWarning() << db.lastError().text();
-        emit dbAccessError("DB Error");
+        emit dbAccessError(db.lastError().text());
 
 //        qDebug() << QCoreApplication::libraryPaths(); // <- Lists the used library path, can be used for debugging if the qmysql plugin can not be found
     }
     return list;
+}
+
+void
+SqlWorker::doWork() {
+    QList<SourcePacket*> retrievedPackets;
+    retrievedPackets = fetchPackets(begin, end);
+    if (retrievedPackets.size() > 0) {
+        emit newText("Adding Packets...");
+        unsigned char* complete_packet_data = (unsigned char*) malloc(SourcePacket::MAX_PACKET_SIZE); // Maximum TM packet size
+        for (int i = 0; i < retrievedPackets.size(); ++i) {
+            if (this->quit) {
+                break;
+            }
+            emit progressMade(foundPackets+i);
+
+            SourcePacket* packet = retrievedPackets.at(i);
+            int ref_ = mySqlPacketStore->putPacket(packet);
+
+            if (packet->hasDataFieldHeader()) {
+                if (packet->getDataFieldHeader()->getServiceType() == 5) {
+                    Event* event = new Event(packet->getDataFieldHeader()->getTimestamp(), (Severity)packet->getDataFieldHeader()->getSubServiceType());
+                    int data_length = packet->getDataLength();
+                    if ( data_length > 0 && data_length < SourcePacket::MAX_PACKET_SIZE ) {
+                        memcpy(complete_packet_data+12, packet->getData(), packet->getDataLength());
+                        event->makeEventfromPacketData(complete_packet_data);
+                    }
+                    event->setPacketReference(ref_);
+                    // Put the event into the event store
+                    mySqlEventStore->putEvent(event);
+                }
+            }
+        }
+        free(complete_packet_data);
+    }
+    emit finished();
+}
+
+void
+SqlWorker::cancel() {
+    this->quit = true;
 }
 
 SqlWorker::~SqlWorker() {

@@ -51,7 +51,8 @@ HEADERS  += mainwindow.h \
     animatedstandarditem.h \
     treeviewfilterproxymodel.h \
     packetcontentview.h \
-    definitions.h
+    definitions.h \
+    custommodels.h
 
 FORMS    += mainwindow.ui \
     serversettings.ui \

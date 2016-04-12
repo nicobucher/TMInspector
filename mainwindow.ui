@@ -14,7 +14,7 @@
    <string>TMInspector</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -42,18 +42,21 @@
        <number>0</number>
       </property>
       <property name="elideMode">
-       <enum>Qt::ElideRight</enum>
+       <enum>Qt::ElideNone</enum>
       </property>
       <property name="usesScrollButtons">
        <bool>false</bool>
       </property>
       <property name="documentMode">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="tabsClosable">
        <bool>false</bool>
       </property>
       <property name="movable">
+       <bool>false</bool>
+      </property>
+      <property name="tabBarAutoHide">
        <bool>false</bool>
       </property>
       <widget class="QWidget" name="tab">
@@ -115,9 +118,9 @@
            <widget class="QDateTimeEdit" name="dateTimeEdit_stop"/>
           </item>
           <item>
-           <widget class="QCommandLinkButton" name="commandLinkButton">
+           <widget class="QToolButton" name="commandLinkButton">
             <property name="text">
-             <string>Retrieve Data</string>
+             <string>Get</string>
             </property>
            </widget>
           </item>
@@ -261,9 +264,51 @@
      <x>0</x>
      <y>0</y>
      <width>658</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="minimumSize">
+    <size>
+     <width>122</width>
+     <height>155</height>
+    </size>
+   </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
+   <property name="windowTitle">
+    <string notr="true">Watch List</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>5</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>5</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QListView" name="listView"/>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <action name="actionTo_Server">
    <property name="text">

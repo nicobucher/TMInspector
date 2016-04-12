@@ -8,6 +8,8 @@ using namespace std;
 
 EventStore::EventStore(QObject* parent, QSettings* set_, QHash<QString,QString>* l_objn_, QHash<QString,QString>* l_evn_) : Store(parent), l_object_names(l_objn_), l_event_names(l_evn_), settings(set_)
 {
+    this->model = new QStandardItemModel();
+    this->setSourceModel(this->model);
     QStringList labels;
     labels << "Object ID" << "Event ID" << "Param 1" << "Param 2" << "Timestamp";
     this->model->setHorizontalHeaderLabels(labels);

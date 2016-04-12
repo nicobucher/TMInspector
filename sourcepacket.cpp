@@ -7,7 +7,7 @@ SourcePacket::SourcePacket() : sequence(STANDALONE_PACKET), quality(GOOD)
     //
     this->sourceSequenceCount = 0;
     this->dataFieldHeaderIsPresent = false;
-    this->setData(NULL, 0);
+    this->setDataField(NULL, 0);
 }
 
 SourcePacket::SourcePacket(int type_, int version_, int apid_) : sequence(STANDALONE_PACKET), quality(GOOD)
@@ -19,7 +19,7 @@ SourcePacket::SourcePacket(int type_, int version_, int apid_) : sequence(STANDA
     this->version = version_;
     this->SourcePacketType = type_;
 
-    this->setData(NULL, 0);
+    this->setDataField(NULL, 0);
 }
 
 SourcePacket::~SourcePacket()
@@ -36,7 +36,7 @@ SourcePacket* SourcePacket::makePacketFromData(unsigned char* pHeader_, unsigned
     short part2 = (pHeader_[2] << 8) + pHeader_[3];
 
     // byte 4 & 5
-    this->setData(pData_, length_);
+    this->setDataField(pData_, length_);
     this->setHeader(pHeader_);
 
     this->setVersion((part1 >> 13) & 0x7);
