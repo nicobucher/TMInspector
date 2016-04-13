@@ -93,34 +93,34 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->dateTimeEdit_stop->setDateTime(now);
 
 
-    /* Initial Data for both models (for testing ->>*/
-    SourcePacket test_packet(0, 3, 53);
-//    myPacketStore->putPacket(&test_packet);
+//    /* Initial Data for both models (for testing ->>*/
+//    SourcePacket test_packet(0, 3, 53);
+////    myPacketStore->putPacket(&test_packet);
 
-    Event testevent(now, (Severity)1);
-    testevent.setEventId(1);
-    testevent.setObjectId(1000);
-    testevent.setObjectName("Test-Event");
-    testevent.setParams(23, 24);
-    testevent.setPacketReference(1);
-//    myEventStore->putEvent(&testevent);
+//    Event testevent(now, (Severity)1);
+//    testevent.setEventId(1);
+//    testevent.setObjectId(1000);
+//    testevent.setObjectName("Test-Event");
+//    testevent.setParams(23, 24);
+//    testevent.setPacketReference(1);
+////    myEventStore->putEvent(&testevent);
 
-    Event testevent1(now, (Severity)2);
-    testevent1.setEventId(2);
-    testevent1.setObjectId(1000);
-    testevent1.setObjectName("Bla");
-    testevent1.setParams(23, 24);
-    testevent1.setPacketReference(1);
-//    myEventStore->putEvent(&testevent1);
+//    Event testevent1(now, (Severity)2);
+//    testevent1.setEventId(2);
+//    testevent1.setObjectId(1000);
+//    testevent1.setObjectName("Bla");
+//    testevent1.setParams(23, 24);
+//    testevent1.setPacketReference(1);
+////    myEventStore->putEvent(&testevent1);
 
-    Event testevent2(now, (Severity)3);
-    testevent2.setEventId(3);
-    testevent2.setObjectId(1000);
-    testevent2.setObjectName("Engä");
-    testevent2.setParams(23, 24);
-//    myEventStore->putEvent(&testevent2);
+//    Event testevent2(now, (Severity)3);
+//    testevent2.setEventId(3);
+//    testevent2.setObjectId(1000);
+//    testevent2.setObjectName("Engä");
+//    testevent2.setParams(23, 24);
+////    myEventStore->putEvent(&testevent2);
 
-    /* <<- remove */
+//    /* <<- remove */
 
     // The RegEx Filters for the EventStores
     connect(ui->lineEdit_3, SIGNAL(textChanged(QString)),myEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
@@ -250,6 +250,7 @@ void MainWindow::displayPacketWorkerError(const QString errormessage)
 
 void MainWindow::on_commandLinkButton_clicked()
 {
+    ui->commandLinkButton->setDisabled(true);
     SqlWorker worker(qobject_cast<QObject*>(this), settings);
     QDateTime begin_ = ui->dateTimeEdit_start->dateTime();
     QDateTime end_ = ui->dateTimeEdit_stop->dateTime();
@@ -280,6 +281,7 @@ void MainWindow::on_commandLinkButton_clicked()
         }
         free(complete_packet_data);
     }
+    ui->commandLinkButton->setDisabled(false);
 }
 
 void MainWindow::eventMode_triggered()

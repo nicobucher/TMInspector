@@ -45,6 +45,9 @@ int main(int argc, char *argv[])
 {
     file_l_out = fopen("log.txt", "w+");
 
+//    fprintf(stderr,"argc=%i\n", argc);
+//    fprintf(stderr,"argv=%s\n", *argv);
+
     qInstallMessageHandler(myMessageOutput);
     QApplication a(argc, argv);
     MainWindow w;
