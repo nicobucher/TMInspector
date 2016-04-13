@@ -2,6 +2,7 @@
 #define SOURCEPACKET_H
 
 #include "sourcepacketdatafieldheader.h"
+#include <QStandardItem>
 #include <QObject>
 
 enum Quality {
@@ -16,7 +17,7 @@ enum Sequence{
     STANDALONE_PACKET
 };
 
-class SourcePacket : public QObject
+class SourcePacket : public QObject, public QStandardItem
 {
     Q_OBJECT
 public:
@@ -123,7 +124,7 @@ public:
         return QByteArray((const char*)this->data, this->dataLength);
     }
 
-    void setData(unsigned char* d_, int length_) {
+    void setDataField(unsigned char* d_, int length_) {
         this->dataLength = length_;
         this->data = (unsigned char*)malloc(length_);
         memcpy(this->data, d_, length_);

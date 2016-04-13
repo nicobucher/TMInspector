@@ -92,7 +92,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->dateTimeEdit_start->setDate(now.date());
     ui->dateTimeEdit_stop->setDateTime(now);
 
-
 //    /* Initial Data for both models (for testing ->>*/
 //    SourcePacket test_packet(0, 3, 53);
 ////    myPacketStore->putPacket(&test_packet);
@@ -120,8 +119,6 @@ MainWindow::MainWindow(QWidget *parent) :
 //    testevent2.setParams(23, 24);
 ////    myEventStore->putEvent(&testevent2);
 
-//    /* <<- remove */
-
     // The RegEx Filters for the EventStores
     connect(ui->lineEdit_3, SIGNAL(textChanged(QString)),myEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
     connect(ui->lineEdit_2, SIGNAL(textChanged(QString)),mySqlEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
@@ -136,6 +133,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     treeviewExpanded = false;
     treeviewExpanded_Arch = false;
+
+    watch_list_model = new StringList();
+    ui->listView->setModel(watch_list_model);
 }
 
 MainWindow::~MainWindow()
@@ -250,38 +250,40 @@ void MainWindow::displayPacketWorkerError(const QString errormessage)
 
 void MainWindow::on_commandLinkButton_clicked()
 {
-    ui->commandLinkButton->setDisabled(true);
-    SqlWorker worker(qobject_cast<QObject*>(this), settings);
+    ui->commandLinkButton->setEnabled(false);
+
+    mySqlPacketStore->emptyStore();
+    mySqlEventStore->emptyStore();
+
+    progress_ = new QProgressDialog("Loading Packets from Database","Cancel",0,100);
+    progress_->setMinimumDuration(0);
+    progress_->reset();
+    progress_->show();
+
     QDateTime begin_ = ui->dateTimeEdit_start->dateTime();
     QDateTime end_ = ui->dateTimeEdit_stop->dateTime();
+    SqlWorker* worker = new SqlWorker(settings, begin_, end_, mySqlPacketStore, mySqlEventStore, progress_);
+    connect(worker, SIGNAL(dbAccessError(QString)), this, SLOT(displayStatusBarMessage(QString)));
+    connect(worker, SIGNAL(progressMade(int)), progress_, SLOT(setValue(int)));
+    connect(worker, SIGNAL(newMaxProgress(int)), progress_, SLOT(setMaximum(int)));
+    connect(worker, SIGNAL(newText(QString)), progress_, SLOT(setLabelText(QString)));
+    connect(worker, SIGNAL(finished()), this, SLOT(sqlWorkerFinished()));
 
-    QList<SourcePacket*> retrievedPackets;
-    retrievedPackets = worker.fetchPackets(begin_, end_);
-    if (retrievedPackets.size() > 0) {
-        mySqlPacketStore->emptyStore();
-        mySqlEventStore->emptyStore();
-        unsigned char* complete_packet_data = (unsigned char*) malloc(SourcePacket::MAX_PACKET_SIZE); // Maximum TM packet size
-        for (int i = 0; i < retrievedPackets.size(); ++i) {
-            SourcePacket* packet = retrievedPackets.at(i);
-            int ref_ = mySqlPacketStore->putPacket(packet);
+    mySqlWorkerThread = new QThread();
 
-            if (packet->hasDataFieldHeader()) {
-                if (packet->getDataFieldHeader()->getServiceType() == 5) {
-                    Event* event = new Event(packet->getDataFieldHeader()->getTimestamp(), (Severity)packet->getDataFieldHeader()->getSubServiceType());
-                    int data_length = packet->getDataLength();
-                    if ( data_length > 0 && data_length < SourcePacket::MAX_PACKET_SIZE ) {
-                        memcpy(complete_packet_data+12, packet->getData(), packet->getDataLength());
-                        event->makeEventfromPacketData(complete_packet_data);
-                    }
-                    event->setPacketReference(ref_);
-                    // Put the event into the event store
-                    mySqlEventStore->putEvent(event);
-                }
-            }
-        }
-        free(complete_packet_data);
-    }
-    ui->commandLinkButton->setDisabled(false);
+    worker->moveToThread(mySqlWorkerThread);
+    connect(mySqlWorkerThread, SIGNAL(started()), worker, SLOT(doWork()));
+    connect(progress_, SIGNAL(canceled()), worker, SLOT(abortWork()));
+    mySqlWorkerThread->start();
+
+    ui->commandLinkButton->setEnabled(true);
+}
+
+void MainWindow::sqlWorkerFinished()
+{
+    progress_->hide();
+    mySqlWorkerThread->quit();
+    mySqlWorkerThread->wait();
 }
 
 void MainWindow::eventMode_triggered()
@@ -306,7 +308,7 @@ void MainWindow::loadObjectView(QModelIndex index)
             // The mapping to the source model is required because index is of the proxy_model and needs to be mapped to the source model in order to be resolved
             QModelIndex sourceIndex = selectedStore->proxy_model->mapToSource(index);
             // Then pass the mapped sourceIndex to the ObjectView
-            ObjectView* objView = new ObjectView(this, sourceIndex, selectedStore->model);
+            ObjectView* objView = new ObjectView(this, sourceIndex, selectedStore->getModel());
             objView->setAttribute(Qt::WA_DeleteOnClose);
             objView->show();
             objView->raise();
@@ -366,14 +368,39 @@ void MainWindow::tree_item_right_click(QPoint p_)
     }
     if (l_indexes.count() > 0) {
         QMenu* menu=new QMenu(this);
-        QAction* packet_inspect = new QAction("Show Packet", this);
-        packet_inspect->setData(l_indexes.at(0));
-        menu->addAction(packet_inspect);
+        Store* selectedStore = (Store*)l_indexes.at(0).model()->parent();
+        // Check if the user clicked on an object or an event (check if the item is in the store)
+        if (selectedStore->itemInStore(l_indexes.at(0).data().toString())) {
+            QAction* add_watchlist = new QAction("Add to Watch List", this);
+            add_watchlist->setData(l_indexes.at(0));
+            menu->addAction(add_watchlist);
 
-        connect(packet_inspect, SIGNAL(triggered()), this, SLOT(show_packet_action()));
+            connect(add_watchlist, SIGNAL(triggered()), this, SLOT(addToWatchlist_clicked()));
+        } else {
+            // Item not found in store -> means we have not clicked on an object
+            QAction* packet_inspect = new QAction("Show Packet", this);
+            packet_inspect->setData(l_indexes.at(0));
+            menu->addAction(packet_inspect);
+
+            connect(packet_inspect, SIGNAL(triggered()), this, SLOT(show_packet_action()));
+        }
 
         menu->popup(ui->treeView->viewport()->mapToGlobal(p_));
     }
+}
+
+void MainWindow::addToWatchlist_clicked()
+{
+    // This is used to determine the item that was clicked...
+    QAction* pAction = qobject_cast<QAction*>(sender());
+    QModelIndex clicked_item_index = pAction->data().toModelIndex();
+
+    addObjectToWatchList(clicked_item_index.data(Qt::DisplayRole).toString());
+}
+
+void MainWindow::addObjectToWatchList(const QString object_name_)
+{
+    *watch_list_model << object_name_;
 }
 
 void MainWindow::show_packet_action()
@@ -383,6 +410,8 @@ void MainWindow::show_packet_action()
         selectedStore = mySqlPacketStore;
     } else if (ui->tabWidget->currentIndex() == 1) {
         selectedStore = myPacketStore;
+    } else {
+        return;
     }
 
     // This is used to determine the item that was clicked...
@@ -480,7 +509,7 @@ void MainWindow::on_pushButton_clicked()
 {
     treeviewExpanded = !treeviewExpanded;
     QModelIndex index;
-    for (int row = 0; row < myEventStore->model->rowCount(); ++row) {
+    for (int row = 0; row < myEventStore->getNumberOfItems(); ++row) {
         index = myEventStore->proxy_model->index(row, 0);
         ui->treeView->setExpanded(index, treeviewExpanded);
     }
@@ -495,7 +524,7 @@ void MainWindow::on_pushButton_2_clicked()
 {
     treeviewExpanded_Arch = !treeviewExpanded_Arch;
     QModelIndex index;
-    for (int row = 0; row < mySqlEventStore->model->rowCount(); ++row) {
+    for (int row = 0; row < mySqlEventStore->getNumberOfItems(); ++row) {
         index = mySqlEventStore->proxy_model->index(row, 0);
         ui->treeView_arch->setExpanded(index, treeviewExpanded_Arch);
     }
