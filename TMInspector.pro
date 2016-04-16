@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     addtranslationdialog.cpp \
     animatedstandarditem.cpp \
     treeviewfilterproxymodel.cpp \
-    packetcontentview.cpp
+    packetcontentview.cpp \
+    eventmodel.cpp
 
 HEADERS  += mainwindow.h \
     serversettings.h \
@@ -52,7 +53,8 @@ HEADERS  += mainwindow.h \
     treeviewfilterproxymodel.h \
     packetcontentview.h \
     definitions.h \
-    custommodels.h
+    custommodels.h \
+    eventmodel.h
 
 FORMS    += mainwindow.ui \
     serversettings.ui \

@@ -10,7 +10,7 @@ SqlWorker::SqlWorker(QSettings* settings, QDateTime begin_, QDateTime end_, Pack
 {
     db = QSqlDatabase::addDatabase("QMYSQL");
 
-    db.setConnectOptions("MYSQL_OPT_CONNECT_TIMEOUT=3"); // <- if connection options are required
+    db.setConnectOptions("MYSQL_OPT_CONNECT_TIMEOUT=3"); // set timeout for database connection
     db.setHostName(settings->value("db/host").toString());
     db.setPort(settings->value("db/port").toInt());
     db.setDatabaseName(settings->value("db/database").toString());

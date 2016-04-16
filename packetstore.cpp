@@ -9,31 +9,29 @@ PacketStore::PacketStore(QObject* parent) : Store(parent)
 {   
     this->model = new PacketModel();
     this->setSourceModel(this->model);
-    QStringList labels;
-    labels << "SSC" << "Type" << "Subtype" << "Byte" << "Timestamp";
-    this->model->setHorizontalHeaderLabels(labels);
     // Initialize the hash key
-    id = 0;
+//    id = 0;
 }
 
 int
 PacketStore::putPacket(SourcePacket* p_) {
-    id++;
-    this->model->insertRow(0);
+//    id++;
+//    this->model->insertRow(0);
 
-//    *this->model << p_;
+    *this->model << p_;
 
-    model->setData(model->index(0, 0), p_->getSourceSequenceCount());
-    // This is the hidden key information to find the item in the packet list
-    model->setData(model->index(0, 0), id, ListIndexRole);
-    model->setData(model->index(0, 3), p_->getDataLength()+1);
-    if (p_->hasDataFieldHeader()) {
-        model->setData(model->index(0, 4), p_->getDataFieldHeader()->getTimestamp());
-        model->setData(model->index(0, 1), p_->getDataFieldHeader()->getServiceType());
-        model->setData(model->index(0, 2), p_->getDataFieldHeader()->getSubServiceType());
-    }
-    l_packets.insert(id, p_);
-    return id;
+//    model->setData(model->index(0, 0), p_->getSourceSequenceCount());
+//    // This is the hidden key information to find the item in the packet list
+//    model->setData(model->index(0, 0), id, ListIndexRole);
+//    model->setData(model->index(0, 3), p_->getDataLength()+1);
+//    if (p_->hasDataFieldHeader()) {
+//        model->setData(model->index(0, 4), p_->getDataFieldHeader()->getTimestamp());
+//        model->setData(model->index(0, 1), p_->getDataFieldHeader()->getServiceType());
+//        model->setData(model->index(0, 2), p_->getDataFieldHeader()->getSubServiceType());
+//    }
+    int id_ = this->model->getCurrentId();
+    l_packets.insert(id_, p_);
+    return id_;
 }
 
 void
