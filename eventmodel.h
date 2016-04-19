@@ -11,6 +11,7 @@ class EventStore;
  */
 class EventModel : public QStandardItemModel
 {
+    Q_OBJECT
 public:
     EventModel(EventStore* parentStore_);
 
@@ -23,6 +24,9 @@ public:
 
 private:
     EventStore* parentStore;
+
+public slots:
+    void datachanged_debug1(QModelIndex topleft,QModelIndex bottomright);
 };
 
 #endif // EVENTMODEL_H

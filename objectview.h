@@ -22,6 +22,9 @@ private:
     Ui::ObjectView *ui;
     ObjectFilterProxyModel *proxyModel;
 
+public slots:
+    void update_view(const QModelIndex& parent, int start, int end);
+
 };
 
 #endif // OBJECTVIEW_H

@@ -22,9 +22,17 @@ ObjectView::ObjectView(QWidget *parent, QModelIndex clickedIndex, QStandardItemM
         index = proxyModel->index(sourceIndex.row(), sourceIndex.column());
     }
     this->ui->treeView->setRootIndex(index);
+
+    connect(proxyModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(update_view(QModelIndex,int,int)));
 }
 
 ObjectView::~ObjectView()
 {
     delete ui;
+}
+
+void
+ObjectView::update_view(const QModelIndex& parent, int start, int end)
+{
+    this->ui->treeView->scrollToBottom();
 }

@@ -5,6 +5,8 @@ EventModel::EventModel(EventStore* parentStore_) : parentStore(parentStore_) {
     QStringList labels;
     labels << "Object ID" << "Event ID" << "Param 1" << "Param 2" << "Timestamp";
     setHorizontalHeaderLabels(labels);
+
+//    connect(this,SIGNAL(dataChanged(QModelIndex,QModelIndex)),this,SLOT(datachanged_debug1(QModelIndex,QModelIndex)));
 }
 
 EventModel&
@@ -35,6 +37,8 @@ EventModel::operator<<(Event* event_) {
         root->child(objRowFound_)->appendRow(new_row);
     }
 
+//    emit dataChanged();
+
     return *this;
 }
 
@@ -59,4 +63,10 @@ EventModel::prepareRow(Event* event_)
     row << event_->getParam2();
     row << new QStandardItem(event_->getTimestamp().toString());
     return row;
+}
+
+void
+EventModel::datachanged_debug1(QModelIndex topleft,QModelIndex bottomright)
+{
+    qDebug() << "Data changed in row " << topleft.row() << " to " << bottomright.row();
 }
