@@ -13,6 +13,9 @@
 #include "packetstore.h"
 #include "eventstore.h"
 #include "custommodels.h"
+#include <QLineEdit>
+#include <QPushButton>
+#include <QHBoxLayout>
 
 namespace Ui {
     class MainWindow;
@@ -41,6 +44,54 @@ private:
     EventStore* mySqlEventStore;
 
     QLabel* statusLabel;
+
+    // Filter Elements
+    QHBoxLayout* SqlEventFilterLayout;
+    QHBoxLayout* LiveEventFilterLayout;
+
+    QHBoxLayout* LivePacketFilterLayout;
+    QHBoxLayout* SqlPacketFilterLayout;
+
+    QLineEdit* SqlRegFilter;
+    QLineEdit* LiveRegFilter;
+
+    QLineEdit* SqlTypeFilter;
+    QLineEdit* LiveTypeFilter;
+
+    QLineEdit* LiveSubTypeFilter;
+    QLineEdit* SqlSubTypeFilter;
+
+    QPushButton* LiveExpandAll;
+    QPushButton* SqlExpandAll;
+
+    QString currentSqlRegEx;
+    QString currentSqlType;
+    QString currentSqlSubType;
+    QString currentLiveRegEx;
+    QString currentLiveType;
+    QString currentLiveSubType;
+
+private slots:
+    void set_currentSqlRegEx(QString txt_){
+        currentSqlRegEx = txt_;
+    }
+    void set_currentSqlType(QString txt_){
+        currentSqlType = txt_;
+    }
+    void set_currentSqlSubType(QString txt_){
+        currentSqlSubType = txt_;
+    }
+    void set_currentLiveRegEx(QString txt_){
+        currentLiveRegEx = txt_;
+    }
+    void set_currentLiveType(QString txt_){
+        currentLiveType = txt_;
+    }
+    void set_currentLiveSubType(QString txt_){
+        currentLiveSubType = txt_;
+    }
+
+private:
 
     // Permanent Settings
     QSettings* settings;
@@ -88,8 +139,8 @@ private slots:
     void tree_item_right_click(QPoint p_);
     void show_packet_action();
 
-    void on_pushButton_clicked();
-    void on_pushButton_2_clicked();
+    void live_expand_all_clicked();
+    void sql_expand_all_clicked();
 
     void addToWatchlist_clicked();
 
@@ -98,6 +149,9 @@ private:
     QAction *action_Connect;
     QAction *action_EventMode;
 
+    void setupEventFilters();
+    void setupPacketFilters();
+    void removeAndeDeleteLayout(QLayout *layout_);
 };
 
 #endif // MAINWINDOW_H

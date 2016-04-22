@@ -65,13 +65,19 @@ MainWindow::MainWindow(QWidget *parent) :
     // todo: this can be enabled if required...
 //    ui->treeView->setAlternatingRowColors(true);
 //    ui->treeView->setSortingEnabled(true);
+    setupEventFilters();
+    setupPacketFilters();
     if (settings->value("ui/eventmode").toBool()) {
         ui->treeView->setModel(myEventStore->proxy_model);
         ui->treeView_arch->setModel(mySqlEventStore->proxy_model);
         action_EventMode->setChecked(true);
+        ui->groupBox->setLayout(LiveEventFilterLayout);
+        ui->groupBox_2->setLayout(SqlEventFilterLayout);
     } else {
         ui->treeView_arch->setModel(mySqlPacketStore->proxy_model);
         ui->treeView->setModel(myPacketStore->proxy_model);
+        ui->groupBox->setLayout(LivePacketFilterLayout);
+        ui->groupBox_2->setLayout(SqlPacketFilterLayout);
     }
 
     // Double Click actions
@@ -83,7 +89,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeView_arch->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tree_item_right_click(QPoint)));
     connect(ui->treeView_arch, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tree_item_right_click(QPoint)));
-
 
     // Initialize the DateTime Pickers
     ui->dateTimeEdit_start->setCalendarPopup(true);
@@ -119,17 +124,8 @@ MainWindow::MainWindow(QWidget *parent) :
 //    testevent2.setParams(23, 24);
 ////    myEventStore->putEvent(&testevent2);
 
-    // The RegEx Filters for the EventStores
-    connect(ui->lineEdit_3, SIGNAL(textChanged(QString)),myEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
-    connect(ui->lineEdit_2, SIGNAL(textChanged(QString)),mySqlEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
-
     this->l_event_names = FileHelpers::loadHash("event_names.dat");
     this->l_object_names = FileHelpers::loadHash("object_names.dat");
-
-    // --> Todo: Test Code (remove)
-    l_object_names.insert("Test-Event","Test-Object");
-    l_event_names.insert("1","Test-Event");
-    // <--
 
     treeviewExpanded = false;
     treeviewExpanded_Arch = false;
@@ -288,15 +284,129 @@ void MainWindow::sqlWorkerFinished()
 
 void MainWindow::eventMode_triggered()
 {
+    removeAndeDeleteLayout(SqlEventFilterLayout);
+    removeAndeDeleteLayout(LiveEventFilterLayout);
+    removeAndeDeleteLayout(SqlPacketFilterLayout);
+    removeAndeDeleteLayout(LivePacketFilterLayout);
+    setupPacketFilters();
+    setupEventFilters();
     if (!action_EventMode->isChecked()) {
         ui->treeView->setModel(myPacketStore->proxy_model);
         ui->treeView_arch->setModel(mySqlPacketStore->proxy_model);
         settings->setValue("ui/eventmode", false);
+        ui->groupBox->setLayout(LivePacketFilterLayout);
+        ui->groupBox_2->setLayout(SqlPacketFilterLayout);
     } else {
         ui->treeView->setModel(myEventStore->proxy_model);
         ui->treeView_arch->setModel(mySqlEventStore->proxy_model);
         settings->setValue("ui/eventmode", true);
+        ui->groupBox->setLayout(LiveEventFilterLayout);
+        ui->groupBox_2->setLayout(SqlEventFilterLayout);
     }
+}
+
+void MainWindow::removeAndeDeleteLayout(QLayout* layout_)
+{
+    QLayoutItem *item;
+    while ((item = layout_->takeAt(0)) != 0) {
+        layout_->removeItem (item);
+        item->widget()->hide();
+    }
+    delete layout_;
+}
+
+void MainWindow::setupEventFilters()
+{
+    // Create the Sql Archive Event Filter Group Layout
+
+    SqlEventFilterLayout = new QHBoxLayout;
+    SqlEventFilterLayout->setAlignment(Qt::AlignLeft);
+
+    QLabel* liveRegLabel = new QLabel("Expression");
+    liveRegLabel->setMaximumWidth(70);
+    SqlEventFilterLayout->addWidget(liveRegLabel);
+
+    SqlRegFilter = new QLineEdit(currentSqlRegEx);
+    SqlRegFilter->setFixedWidth(100);
+    connect(SqlRegFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlRegEx(QString)));
+    SqlEventFilterLayout->addWidget(SqlRegFilter);
+
+    SqlExpandAll = new QPushButton("Expand all");
+    SqlExpandAll->setFixedWidth(100);
+    SqlEventFilterLayout->addWidget(SqlExpandAll);
+
+    // Create the Live Event Filter Group Layout
+
+    LiveEventFilterLayout = new QHBoxLayout;
+    LiveEventFilterLayout->setAlignment(Qt::AlignLeft);
+
+    QLabel* sqlRegLabel = new QLabel("Expression");
+    sqlRegLabel->setMaximumWidth(70);
+    LiveEventFilterLayout->addWidget(sqlRegLabel);
+
+    LiveRegFilter = new QLineEdit(currentLiveRegEx);
+    LiveRegFilter->setFixedWidth(100);
+    connect(LiveRegFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentLiveRegEx(QString)));
+    LiveEventFilterLayout->addWidget(LiveRegFilter);
+
+    LiveExpandAll = new QPushButton("Expand all");
+    LiveExpandAll->setFixedWidth(100);
+
+    LiveEventFilterLayout->addWidget(LiveExpandAll);
+
+    // The RegEx Filters for the EventStores
+    connect(LiveRegFilter, SIGNAL(textChanged(QString)),myEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
+    connect(SqlRegFilter, SIGNAL(textChanged(QString)),mySqlEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
+
+    // Connect the expand all button
+    connect(LiveExpandAll, SIGNAL(clicked(bool)), this, SLOT(live_expand_all_clicked()));
+    connect(SqlExpandAll, SIGNAL(clicked(bool)), this, SLOT(sql_expand_all_clicked()));
+}
+
+void MainWindow::setupPacketFilters()
+{
+    SqlPacketFilterLayout = new QHBoxLayout;
+    SqlPacketFilterLayout->setAlignment(Qt::AlignLeft);
+
+    QLabel* sqlTypeLabel = new QLabel("Type");
+    sqlTypeLabel->setMaximumWidth(70);
+    SqlPacketFilterLayout->addWidget(sqlTypeLabel);
+
+    SqlTypeFilter = new QLineEdit(currentSqlType);
+    SqlTypeFilter->setFixedWidth(100);
+    connect(SqlTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlType(QString)));
+    SqlPacketFilterLayout->addWidget(SqlTypeFilter);
+
+    QLabel* sqlSubTypeLabel = new QLabel("SubType");
+    sqlSubTypeLabel->setMaximumWidth(70);
+    SqlPacketFilterLayout->addWidget(sqlSubTypeLabel);
+
+    SqlSubTypeFilter = new QLineEdit(currentSqlSubType);
+    SqlSubTypeFilter->setFixedWidth(100);
+    connect(SqlSubTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlSubType(QString)));
+
+    SqlPacketFilterLayout->addWidget(SqlSubTypeFilter);
+
+    LivePacketFilterLayout = new QHBoxLayout;
+    LivePacketFilterLayout->setAlignment(Qt::AlignLeft);
+
+    QLabel* liveTypeLabel = new QLabel("Type");
+    liveTypeLabel->setMaximumWidth(70);
+    LivePacketFilterLayout->addWidget(liveTypeLabel);
+
+    LiveTypeFilter = new QLineEdit(currentLiveType);
+    LiveTypeFilter->setFixedWidth(100);
+    connect(LiveTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentLiveType(QString)));
+    LivePacketFilterLayout->addWidget(LiveTypeFilter);
+
+    QLabel* liveSubTypeLabel = new QLabel("SubType");
+    liveSubTypeLabel->setMaximumWidth(70);
+    LivePacketFilterLayout->addWidget(liveSubTypeLabel);
+
+    LiveSubTypeFilter = new QLineEdit(currentLiveSubType);
+    LiveSubTypeFilter->setFixedWidth(100);
+    connect(LiveSubTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentLiveSubType(QString)));
+    LivePacketFilterLayout->addWidget(LiveSubTypeFilter);
 }
 
 void MainWindow::loadObjectView(QModelIndex index)
@@ -505,7 +615,7 @@ void MainWindow::animateNewEvent(Event* event)
     }
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::live_expand_all_clicked()
 {
     treeviewExpanded = !treeviewExpanded;
     QModelIndex index;
@@ -514,13 +624,13 @@ void MainWindow::on_pushButton_clicked()
         ui->treeView->setExpanded(index, treeviewExpanded);
     }
     if (treeviewExpanded) {
-        ui->pushButton->setText("CloseAll");
+        LiveExpandAll->setText("CloseAll");
     } else {
-        ui->pushButton->setText("ExpandAll");
+        LiveExpandAll->setText("ExpandAll");
     }
 }
 
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::sql_expand_all_clicked()
 {
     treeviewExpanded_Arch = !treeviewExpanded_Arch;
     QModelIndex index;
@@ -529,8 +639,8 @@ void MainWindow::on_pushButton_2_clicked()
         ui->treeView_arch->setExpanded(index, treeviewExpanded_Arch);
     }
     if (treeviewExpanded_Arch) {
-        ui->pushButton_2->setText("CloseAll");
+        SqlExpandAll->setText("CloseAll");
     } else {
-        ui->pushButton_2->setText("ExpandAll");
+        SqlExpandAll->setText("ExpandAll");
     }
 }
