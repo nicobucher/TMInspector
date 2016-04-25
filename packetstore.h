@@ -5,6 +5,7 @@
 #include "store.h"
 #include "sourcepacket.h"
 #include "definitions.h"
+#include "packetviewfilterproxymodel.h"
 
 /*
  * This PacketModel class is a spcialized QStandardItemModel which tracks also the current id
@@ -80,6 +81,15 @@ public:
     // Returns the allocated packet reference id
     int putPacket(SourcePacket* p_);
     SourcePacket* getPacket(int pkt_id);
+    PacketViewFilterProxyModel* proxy_model;
+
+    void setSourceModel(QAbstractItemModel* src_) {
+        this->proxy_model->setSourceModel(src_);
+    }
+
+    QSortFilterProxyModel* getProxyModel() {
+        return this->proxy_model;
+    }
 
 private:
     PacketModel* model;

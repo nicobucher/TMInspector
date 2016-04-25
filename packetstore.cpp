@@ -8,6 +8,7 @@ using namespace std;
 PacketStore::PacketStore(QObject* parent) : Store(parent)
 {   
     this->model = new PacketModel();
+    this->proxy_model = new PacketViewFilterProxyModel(this);
     this->setSourceModel(this->model);
     // Initialize the hash key
 //    id = 0;

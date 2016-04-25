@@ -20,12 +20,12 @@ public:
 
     virtual QStandardItemModel* getModel() = 0;
 
-    virtual void setSourceModel(QAbstractItemModel* src_) {
-        this->proxy_model->setSourceModel(src_);
-    }
+    virtual void setSourceModel(QAbstractItemModel* src_)=0;
+
+    virtual QSortFilterProxyModel* getProxyModel() = 0;
 
 protected:
-    TreeViewFilterProxyModel* proxy_model;
+//    QSortFilterProxyModel* proxy_model;
 
     QString export_file_header;
 

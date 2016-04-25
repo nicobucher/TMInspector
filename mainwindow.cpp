@@ -328,7 +328,6 @@ void MainWindow::setupEventFilters()
 
     SqlRegFilter = new QLineEdit(currentSqlRegEx);
     SqlRegFilter->setFixedWidth(100);
-    connect(SqlRegFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlRegEx(QString)));
     SqlEventFilterLayout->addWidget(SqlRegFilter);
 
     SqlExpandAll = new QPushButton("Expand all");
@@ -346,7 +345,6 @@ void MainWindow::setupEventFilters()
 
     LiveRegFilter = new QLineEdit(currentLiveRegEx);
     LiveRegFilter->setFixedWidth(100);
-    connect(LiveRegFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentLiveRegEx(QString)));
     LiveEventFilterLayout->addWidget(LiveRegFilter);
 
     LiveExpandAll = new QPushButton("Expand all");
@@ -361,6 +359,10 @@ void MainWindow::setupEventFilters()
     // Connect the expand all button
     connect(LiveExpandAll, SIGNAL(clicked(bool)), this, SLOT(live_expand_all_clicked()));
     connect(SqlExpandAll, SIGNAL(clicked(bool)), this, SLOT(sql_expand_all_clicked()));
+
+    // Connect the Filters Memory
+    connect(SqlRegFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlRegEx(QString)));
+    connect(LiveRegFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentLiveRegEx(QString)));
 }
 
 void MainWindow::setupPacketFilters()
@@ -374,7 +376,6 @@ void MainWindow::setupPacketFilters()
 
     SqlTypeFilter = new QLineEdit(currentSqlType);
     SqlTypeFilter->setFixedWidth(100);
-    connect(SqlTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlType(QString)));
     SqlPacketFilterLayout->addWidget(SqlTypeFilter);
 
     QLabel* sqlSubTypeLabel = new QLabel("SubType");
@@ -383,7 +384,6 @@ void MainWindow::setupPacketFilters()
 
     SqlSubTypeFilter = new QLineEdit(currentSqlSubType);
     SqlSubTypeFilter->setFixedWidth(100);
-    connect(SqlSubTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlSubType(QString)));
 
     SqlPacketFilterLayout->addWidget(SqlSubTypeFilter);
 
@@ -396,7 +396,6 @@ void MainWindow::setupPacketFilters()
 
     LiveTypeFilter = new QLineEdit(currentLiveType);
     LiveTypeFilter->setFixedWidth(100);
-    connect(LiveTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentLiveType(QString)));
     LivePacketFilterLayout->addWidget(LiveTypeFilter);
 
     QLabel* liveSubTypeLabel = new QLabel("SubType");
@@ -405,8 +404,17 @@ void MainWindow::setupPacketFilters()
 
     LiveSubTypeFilter = new QLineEdit(currentLiveSubType);
     LiveSubTypeFilter->setFixedWidth(100);
-    connect(LiveSubTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentLiveSubType(QString)));
     LivePacketFilterLayout->addWidget(LiveSubTypeFilter);
+
+    // The RegEx Filters for the PAcketStores
+    connect(SqlTypeFilter, SIGNAL(textChanged(QString)),mySqlPacketStore->proxy_model, SLOT(setFilterFixedString(QString)));
+    connect(LiveTypeFilter, SIGNAL(textChanged(QString)),myPacketStore->proxy_model, SLOT(setFilterFixedString(QString)));
+
+    // Connect the Filters Memory
+    connect(SqlTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlType(QString)));
+    connect(SqlSubTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlSubType(QString)));
+    connect(LiveTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentLiveType(QString)));
+    connect(LiveSubTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentLiveSubType(QString)));
 }
 
 void MainWindow::loadObjectView(QModelIndex index)
@@ -416,7 +424,7 @@ void MainWindow::loadObjectView(QModelIndex index)
         selectedStore = (Store*)index.model()->parent();
         if (selectedStore->itemInStore(index.data().toString())) {
             // The mapping to the source model is required because index is of the proxy_model and needs to be mapped to the source model in order to be resolved
-            QModelIndex sourceIndex = selectedStore->proxy_model->mapToSource(index);
+            QModelIndex sourceIndex = selectedStore->getProxyModel()->mapToSource(index);
             // Then pass the mapped sourceIndex to the ObjectView
             ObjectView* objView = new ObjectView(this, sourceIndex, selectedStore->getModel());
             objView->setAttribute(Qt::WA_DeleteOnClose);

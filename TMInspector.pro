@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     animatedstandarditem.cpp \
     treeviewfilterproxymodel.cpp \
     packetcontentview.cpp \
-    eventmodel.cpp
+    eventmodel.cpp \
+    packetviewfilterproxymodel.cpp
 
 HEADERS  += mainwindow.h \
     serversettings.h \
@@ -54,7 +55,8 @@ HEADERS  += mainwindow.h \
     packetcontentview.h \
     definitions.h \
     custommodels.h \
-    eventmodel.h
+    eventmodel.h \
+    packetviewfilterproxymodel.h
 
 FORMS    += mainwindow.ui \
     serversettings.ui \

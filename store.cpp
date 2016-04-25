@@ -10,5 +10,5 @@ using namespace std;
 
 Store::Store(QObject* parent) : QObject(parent)
 {
-    this->proxy_model = new TreeViewFilterProxyModel(this);
+
 }

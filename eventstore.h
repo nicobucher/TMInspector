@@ -40,6 +40,16 @@ public:
     QHash<QString,QString>* l_object_names;
     QHash<QString,QString>* l_event_names;
 
+    TreeViewFilterProxyModel* proxy_model;
+
+    void setSourceModel(QAbstractItemModel* src_) {
+        this->proxy_model->setSourceModel(src_);
+    }
+
+    QSortFilterProxyModel* getProxyModel() {
+        return this->proxy_model;
+    }
+
 private:
     EventModel* model;
 
