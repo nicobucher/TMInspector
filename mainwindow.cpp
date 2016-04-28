@@ -128,6 +128,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->l_event_names = FileHelpers::loadHash("event_names.dat");
     this->l_object_names = FileHelpers::loadHash("object_names.dat");
+    this->l_packet_names = FileHelpers::loadHash("packet_names.dat");
+    this->l_spids = FileHelpers::loadHashPI("spids.dat");
+    this->l_types = FileHelpers::loadHashPIC("types.dat");
 
     treeviewExpanded = false;
     treeviewExpanded_Arch = false;
@@ -434,7 +437,7 @@ void MainWindow::loadObjectView(QModelIndex index)
 
 void MainWindow::translation_triggered()
 {
-    TranslationViewer* transView = new TranslationViewer(this, &l_object_names, &l_event_names, &l_packet_names);
+    TranslationViewer* transView = new TranslationViewer(this, &l_object_names, &l_event_names, &l_packet_names, &l_spids, &l_types);
     transView->setAttribute(Qt::WA_DeleteOnClose);
     transView->show();
     transView->raise();
@@ -544,6 +547,8 @@ void MainWindow::loadTranslationTable()
         populateEventHash(&db);
         populateObjectHash(&db);
         populatePacketHash(&db);
+        populateSPIDHash(&db);
+        populateTypesHash(&db);
         db.close();
     } else {
         qDebug() << "SQL Error";
@@ -558,7 +563,13 @@ void MainWindow::loadTranslationTable()
         qWarning() << "Can not save hash in object_names.dat";
     }
     if (!FileHelpers::saveHash("packet_names.dat", l_packet_names)) {
-        qWarning() << "Can not save hash in object_names.dat";
+        qWarning() << "Can not save hash in packet_names.dat";
+    }
+    if (!FileHelpers::saveHash("spids.dat", l_spids)) {
+        qWarning() << "Can not save hash in spids.dat";
+    }
+    if (!FileHelpers::saveHash("types.dat", l_types)) {
+        qWarning() << "Can not save hash in types.dat";
     }
     emit hashUpdated();
 }
@@ -601,6 +612,43 @@ void MainWindow::populatePacketHash(QSqlDatabase* db_)
         while (query.next()) {
             QSqlRecord rec = query.record();
             l_packet_names.insert(rec.value(0).toString(), rec.value(1).toString());
+        }
+    }
+}
+
+void MainWindow::populateSPIDHash(QSqlDatabase* db_)
+{
+    QString str;
+    QTextStream(&str) << "SELECT PID_SPID, PID_PI1_VAL, PID_PI2_VAL FROM pid;";
+    QSqlQuery query(str, *db_);
+    if (query.size() > 0) {
+        l_spids.clear();
+        while (query.next()) {
+            QSqlRecord rec = query.record();
+            PI_VALUES pis_;
+            pis_.PI1_VAL = rec.value(1).toInt();
+            pis_.PI2_VAL = rec.value(2).toInt();
+            l_spids.insert(rec.value(0).toInt(), pis_);
+        }
+    }
+}
+
+void MainWindow::populateTypesHash(QSqlDatabase* db_)
+{
+    QString str;
+    QTextStream(&str) << "SELECT PIC_TYPE, PIC_STYPE, PIC_PI1_OFF, PIC_PI1_WID, PIC_PI2_OFF, PIC_PI2_WID FROM pic;";
+    QSqlQuery query(str, *db_);
+    if (query.size() > 0) {
+        l_types.clear();
+        while (query.next()) {
+            QSqlRecord rec = query.record();
+            int key_ = (rec.value(0).toInt() << 16) + rec.value(1).toInt();
+            PIC_VALUES pics_;
+            pics_.PI1_offset = rec.value(2).toInt();
+            pics_.PI1_width = rec.value(3).toInt();
+            pics_.PI2_offset = rec.value(4).toInt();
+            pics_.PI2_width = rec.value(5).toInt();
+            l_types.insert(key_, pics_);
         }
     }
 }

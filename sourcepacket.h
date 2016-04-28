@@ -17,6 +17,11 @@ enum Sequence{
     STANDALONE_PACKET
 };
 
+struct PI_VALUES {
+    int PI1_VAL;
+    int PI2_VAL;
+} ;
+
 class SourcePacket : public QObject, public QStandardItem
 {
     Q_OBJECT
@@ -35,6 +40,7 @@ private:
     int SourcePacketType;
     int apid;
     int spid;
+    PI_VALUES pi_vals;
     Sequence sequence;
     int sourceSequenceCount;
     bool dataFieldHeaderIsPresent;
@@ -151,6 +157,8 @@ public:
     bool checkCRC();
 
     SourcePacket* makePacketFromData(unsigned char* pHeader, unsigned char* pData_, int length_);
+
+    int makeSPID(QHash<int, PI_VALUES> hash_);
 };
 
 #endif // SOURCEPACKET_H

@@ -109,3 +109,13 @@ SourcePacket::checkCRC()
        return false;
     }
 }
+
+int
+SourcePacket::makeSPID(QHash<int, PI_VALUES> hash_)
+{
+    for (QHash<int, PI_VALUES>::iterator it = hash_.begin(); it != hash_.end(); ++it) {
+        if (pi_vals.PI1_VAL == it.value().PI1_VAL && pi_vals.PI2_VAL == it.value().PI2_VAL)
+            return this->spid = it.key();
+    }
+    return -1;
+}

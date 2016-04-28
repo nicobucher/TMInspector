@@ -13,6 +13,7 @@
 #include "packetstore.h"
 #include "eventstore.h"
 #include "custommodels.h"
+#include "definitions.h"
 #include <QLineEdit>
 #include <QPushButton>
 #include <QHBoxLayout>
@@ -91,6 +92,8 @@ private:
     QHash<QString,QString> l_event_names;
     QHash<QString,QString> l_object_names;
     QHash<QString,QString> l_packet_names;
+    QHash<int,PI_VALUES> l_spids;
+    QHash<int,PIC_VALUES> l_types;
 
     // Object WatchList Model
     StringList* watch_list_model;
@@ -104,6 +107,8 @@ private:
     void populateEventHash(QSqlDatabase* db_);
     void populateObjectHash(QSqlDatabase* db_);
     void populatePacketHash(QSqlDatabase *db_);
+    void populateSPIDHash(QSqlDatabase *db_);
+    void populateTypesHash(QSqlDatabase *db_);
 
     QProgressDialog* progress_;
 
