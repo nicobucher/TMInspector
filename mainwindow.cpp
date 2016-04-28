@@ -65,6 +65,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // todo: this can be enabled if required...
 //    ui->treeView->setAlternatingRowColors(true);
 //    ui->treeView->setSortingEnabled(true);
+    currentLiveType = "*";
+    currentSqlType = "*";
     setupEventFilters();
     setupPacketFilters();
     if (settings->value("ui/eventmode").toBool()) {
@@ -354,7 +356,9 @@ void MainWindow::setupEventFilters()
 
     // The RegEx Filters for the EventStores
     connect(LiveRegFilter, SIGNAL(textChanged(QString)),myEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
+    connect(LiveRegFilter, SIGNAL(returnPressed()),myEventStore->proxy_model, SLOT(invalidate()));
     connect(SqlRegFilter, SIGNAL(textChanged(QString)),mySqlEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
+    connect(SqlRegFilter, SIGNAL(returnPressed()),mySqlEventStore->proxy_model, SLOT(invalidate()));
 
     // Connect the expand all button
     connect(LiveExpandAll, SIGNAL(clicked(bool)), this, SLOT(live_expand_all_clicked()));
@@ -378,15 +382,6 @@ void MainWindow::setupPacketFilters()
     SqlTypeFilter->setFixedWidth(100);
     SqlPacketFilterLayout->addWidget(SqlTypeFilter);
 
-    QLabel* sqlSubTypeLabel = new QLabel("SubType");
-    sqlSubTypeLabel->setMaximumWidth(70);
-    SqlPacketFilterLayout->addWidget(sqlSubTypeLabel);
-
-    SqlSubTypeFilter = new QLineEdit(currentSqlSubType);
-    SqlSubTypeFilter->setFixedWidth(100);
-
-    SqlPacketFilterLayout->addWidget(SqlSubTypeFilter);
-
     LivePacketFilterLayout = new QHBoxLayout;
     LivePacketFilterLayout->setAlignment(Qt::AlignLeft);
 
@@ -398,23 +393,13 @@ void MainWindow::setupPacketFilters()
     LiveTypeFilter->setFixedWidth(100);
     LivePacketFilterLayout->addWidget(LiveTypeFilter);
 
-    QLabel* liveSubTypeLabel = new QLabel("SubType");
-    liveSubTypeLabel->setMaximumWidth(70);
-    LivePacketFilterLayout->addWidget(liveSubTypeLabel);
-
-    LiveSubTypeFilter = new QLineEdit(currentLiveSubType);
-    LiveSubTypeFilter->setFixedWidth(100);
-    LivePacketFilterLayout->addWidget(LiveSubTypeFilter);
-
     // The RegEx Filters for the PAcketStores
     connect(SqlTypeFilter, SIGNAL(textChanged(QString)),mySqlPacketStore->proxy_model, SLOT(setFilterFixedString(QString)));
     connect(LiveTypeFilter, SIGNAL(textChanged(QString)),myPacketStore->proxy_model, SLOT(setFilterFixedString(QString)));
 
     // Connect the Filters Memory
     connect(SqlTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlType(QString)));
-    connect(SqlSubTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlSubType(QString)));
     connect(LiveTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentLiveType(QString)));
-    connect(LiveSubTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentLiveSubType(QString)));
 }
 
 void MainWindow::loadObjectView(QModelIndex index)
@@ -449,7 +434,7 @@ void MainWindow::loadObjectView(QModelIndex index)
 
 void MainWindow::translation_triggered()
 {
-    TranslationViewer* transView = new TranslationViewer(this, &l_object_names, &l_event_names);
+    TranslationViewer* transView = new TranslationViewer(this, &l_object_names, &l_event_names, &l_packet_names);
     transView->setAttribute(Qt::WA_DeleteOnClose);
     transView->show();
     transView->raise();
@@ -558,6 +543,7 @@ void MainWindow::loadTranslationTable()
     if (db.open()) {
         populateEventHash(&db);
         populateObjectHash(&db);
+        populatePacketHash(&db);
         db.close();
     } else {
         qDebug() << "SQL Error";
@@ -569,6 +555,9 @@ void MainWindow::loadTranslationTable()
         qWarning() << "Can not save hash in event_names.dat";
     }
     if (!FileHelpers::saveHash("object_names.dat", l_object_names)) {
+        qWarning() << "Can not save hash in object_names.dat";
+    }
+    if (!FileHelpers::saveHash("packet_names.dat", l_packet_names)) {
         qWarning() << "Can not save hash in object_names.dat";
     }
     emit hashUpdated();
@@ -598,6 +587,20 @@ void MainWindow::populateObjectHash(QSqlDatabase* db_)
         while (query.next()) {
             QSqlRecord rec = query.record();
             l_object_names.insert(rec.value(0).toString(), rec.value(1).toString());
+        }
+    }
+}
+
+void MainWindow::populatePacketHash(QSqlDatabase* db_)
+{
+    QString str;
+    QTextStream(&str) << "SELECT PID_SPID, PID_DESCR FROM pid;";
+    QSqlQuery query(str, *db_);
+    if (query.size() > 0) {
+        l_packet_names.clear();
+        while (query.next()) {
+            QSqlRecord rec = query.record();
+            l_packet_names.insert(rec.value(0).toString(), rec.value(1).toString());
         }
     }
 }

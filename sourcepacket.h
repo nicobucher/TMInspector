@@ -34,6 +34,7 @@ private:
     int version;
     int SourcePacketType;
     int apid;
+    int spid;
     Sequence sequence;
     int sourceSequenceCount;
     bool dataFieldHeaderIsPresent;
@@ -66,6 +67,14 @@ public:
 
     void setApid(int a_) {
         this->apid = a_;
+    }
+
+    int getSpid() {
+        return this->spid;
+    }
+
+    void setSpid(int s_) {
+        this->spid = s_;
     }
 
     Sequence getSequence() {

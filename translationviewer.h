@@ -16,7 +16,7 @@ class TranslationViewer : public QDialog
     Q_OBJECT
 
 public:
-    explicit TranslationViewer(QWidget *parent = 0, QHash<QString, QString> *l_objn_ = 0, QHash<QString, QString> *l_evn_ = 0);
+    explicit TranslationViewer(QWidget *parent = 0, QHash<QString, QString> *l_objn_ = 0, QHash<QString, QString> *l_evn_ = 0, QHash<QString, QString> *l_pac_ = 0);
     ~TranslationViewer();
 
 private:
@@ -24,14 +24,17 @@ private:
 
     QStandardItemModel* eventListModel;
     QStandardItemModel* objectListModel;
+    QStandardItemModel* SPIDListModel;
     QSortFilterProxyModel* eventListModelProxy;
     QSortFilterProxyModel* objectListModelProxy;
+    QSortFilterProxyModel* SPIDListModelProxy;
     QSortFilterProxyModel* selectedProxy;
 
     MainWindow* pMainWindow;
 
     QHash<QString,QString>* l_object_names;
     QHash<QString,QString>* l_event_names;
+    QHash<QString,QString>* l_packet_names;
 
     void updateInfoText();
     void updateList(QHash<QString, QString>* hash_, QStandardItemModel* model_);

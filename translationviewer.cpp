@@ -3,11 +3,12 @@
 #include "addtranslationdialog.h"
 #include <QMenu>
 
-TranslationViewer::TranslationViewer(QWidget *parent, QHash<QString,QString>* l_objn_, QHash<QString,QString>* l_evn_) :
+TranslationViewer::TranslationViewer(QWidget *parent, QHash<QString,QString>* l_objn_, QHash<QString,QString>* l_evn_, QHash<QString,QString>* l_pac_) :
     QDialog(parent),
     ui(new Ui::TranslationViewer),
     l_object_names(l_objn_),
-    l_event_names(l_evn_)
+    l_event_names(l_evn_),
+    l_packet_names(l_pac_)
 {
     ui->setupUi(this);
 
@@ -20,6 +21,7 @@ TranslationViewer::TranslationViewer(QWidget *parent, QHash<QString,QString>* l_
 
     ui->comboBox->insertItem(EventListIndex, "Event-ID Translation List");
     ui->comboBox->insertItem(ObjectListIndex, "Object-ID Translation List");
+    ui->comboBox->insertItem(SPIDListIndex, "Object-ID Translation List");
 
     connect(ui->comboBox, SIGNAL(activated(int)), this, SLOT(comboBoxSelected(int)));
 
@@ -29,11 +31,15 @@ TranslationViewer::TranslationViewer(QWidget *parent, QHash<QString,QString>* l_
     objectListModel = new QStandardItemModel(this);
     objectListModelProxy = new QSortFilterProxyModel(this);
     objectListModelProxy->setSourceModel(objectListModel);
+    SPIDListModel = new QStandardItemModel(this);
+    SPIDListModelProxy = new QSortFilterProxyModel(this);
+    SPIDListModelProxy->setSourceModel(SPIDListModel);
 
     QStringList list;
     list << "Key" << "Value";
     eventListModel->setHorizontalHeaderLabels(list);
     objectListModel->setHorizontalHeaderLabels(list);
+    SPIDListModel->setHorizontalHeaderLabels(list);
 
     selectedProxy = eventListModelProxy;
     ui->tableView->horizontalHeader()->setStretchLastSection(true);
@@ -77,6 +83,7 @@ TranslationViewer::reload()
 {
     updateList(l_event_names, this->eventListModel);
     updateList(l_object_names, this->objectListModel);
+    updateList(l_packet_names, this->SPIDListModel);
 }
 
 void
@@ -88,6 +95,9 @@ TranslationViewer::comboBoxSelected(int listIndex_)
         break;
     case ObjectListIndex:
         selectedProxy = objectListModelProxy;
+        break;
+    case SPIDListIndex:
+        selectedProxy = SPIDListModelProxy;
         break;
     }
     ui->tableView->setModel(selectedProxy);
@@ -136,6 +146,9 @@ TranslationViewer::clearTranslationTable() {
     case ObjectListIndex:
         l_object_names->clear();
         break;
+    case SPIDListIndex:
+        l_packet_names->clear();
+        break;
     }
     reload();
 }
@@ -144,8 +157,8 @@ void
 TranslationViewer::switch_hex_dec_action()
 {
     // This could be used to determine the item that was clicked...
-    QAction* pAction = qobject_cast<QAction*>(sender());
-    QModelIndex clicked_item_index = pAction->data().toModelIndex();
+//    QAction* pAction = qobject_cast<QAction*>(sender());
+//    QModelIndex clicked_item_index = pAction->data().toModelIndex();
 
     for (int i=0; i<selectedProxy->sourceModel()->rowCount(); ++i) {
         // Switch data format

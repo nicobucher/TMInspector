@@ -16,7 +16,7 @@ class PacketModel : public QStandardItemModel
 public:
     PacketModel() {
         QStringList labels;
-        labels << "SSC" << "Type" << "Subtype" << "Byte" << "Timestamp";
+        labels << "SSC" << "Type" << "Subtype" << "Byte" << "Timestamp" << "Description";
         setHorizontalHeaderLabels(labels);
 
         currentId = 0;

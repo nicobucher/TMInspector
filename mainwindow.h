@@ -58,18 +58,13 @@ private:
     QLineEdit* SqlTypeFilter;
     QLineEdit* LiveTypeFilter;
 
-    QLineEdit* LiveSubTypeFilter;
-    QLineEdit* SqlSubTypeFilter;
-
     QPushButton* LiveExpandAll;
     QPushButton* SqlExpandAll;
 
     QString currentSqlRegEx;
     QString currentSqlType;
-    QString currentSqlSubType;
     QString currentLiveRegEx;
     QString currentLiveType;
-    QString currentLiveSubType;
 
 private slots:
     void set_currentSqlRegEx(QString txt_){
@@ -78,17 +73,11 @@ private slots:
     void set_currentSqlType(QString txt_){
         currentSqlType = txt_;
     }
-    void set_currentSqlSubType(QString txt_){
-        currentSqlSubType = txt_;
-    }
     void set_currentLiveRegEx(QString txt_){
         currentLiveRegEx = txt_;
     }
     void set_currentLiveType(QString txt_){
         currentLiveType = txt_;
-    }
-    void set_currentLiveSubType(QString txt_){
-        currentLiveSubType = txt_;
     }
 
 private:
@@ -101,6 +90,7 @@ private:
 
     QHash<QString,QString> l_event_names;
     QHash<QString,QString> l_object_names;
+    QHash<QString,QString> l_packet_names;
 
     // Object WatchList Model
     StringList* watch_list_model;
@@ -112,7 +102,8 @@ private:
     void readSettings();
 
     void populateEventHash(QSqlDatabase* db_);
-    void populateObjectHash(QSqlDatabase* db_); 
+    void populateObjectHash(QSqlDatabase* db_);
+    void populatePacketHash(QSqlDatabase *db_);
 
     QProgressDialog* progress_;
 

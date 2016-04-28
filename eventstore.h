@@ -16,7 +16,8 @@ class EventModel;
 
 enum ListIndex {
     EventListIndex = 0,
-    ObjectListIndex
+    ObjectListIndex,
+    SPIDListIndex
 };
 
 class EventStore : public Store
