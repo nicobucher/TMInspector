@@ -81,6 +81,13 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="PI1_label">
+        <property name="text">
+         <string>PI1 value</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="3">
        <widget class="QLabel" name="dfh_label">
         <property name="text">
@@ -111,6 +118,41 @@
       </item>
       <item row="2" column="3">
        <widget class="QLabel" name="sequence_label">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="PI1_value">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="PI2_label">
+        <property name="text">
+         <string>PI2 value</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QLabel" name="PI2_value">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="SPID_label">
+        <property name="text">
+         <string>SPID</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="SPID">
         <property name="text">
          <string/>
         </property>

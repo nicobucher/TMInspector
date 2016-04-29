@@ -13,7 +13,7 @@ class PacketWorker : public QObject
     Q_OBJECT
 
 public:
-    PacketWorker(PacketStore* st_, EventStore *evst_);
+    PacketWorker(PacketStore* st_, EventStore *evst_, QHash<int, PI_VALUES> &l_spids_, QHash<int, PIC_VALUES> &l_types_);
     ~PacketWorker();
 
     QString getHost() {
@@ -43,6 +43,9 @@ private:
     QMutex mutex;
     QString host;
     int port;
+
+    QHash<int,PI_VALUES> l_spids;
+    QHash<int,PIC_VALUES> l_types;
 };
 
 #endif // PACKETWORKER_H

@@ -111,11 +111,58 @@ SourcePacket::checkCRC()
 }
 
 int
-SourcePacket::makeSPID(QHash<int, PI_VALUES> hash_)
+SourcePacket::makeSPID(QHash<int, PI_VALUES> &PID_hash_)
 {
-    for (QHash<int, PI_VALUES>::iterator it = hash_.begin(); it != hash_.end(); ++it) {
-        if (pi_vals.PI1_VAL == it.value().PI1_VAL && pi_vals.PI2_VAL == it.value().PI2_VAL)
-            return this->spid = it.key();
+    for (QHash<int, PI_VALUES>::iterator it = PID_hash_.begin(); it != PID_hash_.end(); ++it) {
+        if (it.value().type_key == this->dataFieldHeader->getTypeKey()) {
+            if (pi_vals.PI1_VAL == it.value().PI1_VAL && pi_vals.PI2_VAL == it.value().PI2_VAL)
+                return this->spid = it.key();
+        }
     }
-    return -1;
+    return this->spid = -1;
+}
+
+void
+SourcePacket::makePI_VALUES(QHash<int, PIC_VALUES> &PIC_hash_)
+{
+    this->pi_vals.PI1_VAL = 0;
+    this->pi_vals.PI2_VAL = 0;
+    if (!this->dataFieldHeaderIsPresent) {
+        return;
+    }
+
+    int lookup_key_ = (this->dataFieldHeader->getServiceType() << 16) + this->dataFieldHeader->getSubServiceType();
+
+    QHash<int, PIC_VALUES>::iterator it = PIC_hash_.find(lookup_key_);
+    if (it == PIC_hash_.end()) {
+        return;
+    }
+
+    int byte_width = 0;
+    int byte_offset = 0;
+    unsigned char* pos_;
+    // Try to read PI1
+    byte_offset = it.value().PI1_offset;
+    if(byte_offset != -1) {
+        byte_width = it.value().PI1_width/8;
+        pos_ = this->data + byte_offset - 6;
+        for (int i = 0; i<byte_width; ++i) {
+            this->pi_vals.PI1_VAL = this->pi_vals.PI1_VAL + (pos_[byte_width-1-i] << 8*i);
+        }
+    } else {
+        this->pi_vals.PI1_VAL = 0;
+    }
+    // Try to read PI2
+    byte_offset = it.value().PI2_offset;
+    if(byte_offset != -1) {
+        byte_width = it.value().PI2_width/8;
+        pos_ = this->data + byte_offset - 6;
+        for (int i = 0; i<byte_width; ++i) {
+            this->pi_vals.PI2_VAL = this->pi_vals.PI2_VAL + (pos_[byte_width-1-i] << 8*i);
+        }
+    } else {
+        this->pi_vals.PI2_VAL = 0;
+    }
+
+    return;
 }

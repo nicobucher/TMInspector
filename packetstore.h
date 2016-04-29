@@ -14,11 +14,12 @@
 class PacketModel : public QStandardItemModel
 {
 public:
-    PacketModel() {
+    PacketModel(QHash<QString,QString> &names_) {
         QStringList labels;
         labels << "SSC" << "Type" << "Subtype" << "Byte" << "Timestamp" << "Description";
         setHorizontalHeaderLabels(labels);
 
+        l_packet_names = names_;
         currentId = 0;
     }
 
@@ -33,9 +34,16 @@ public:
         setData(index(0, 0), currentId, ListIndexRole);
         setData(index(0, 3), packet_->getDataLength()+1);
         if (packet_->hasDataFieldHeader()) {
-            setData(index(0, 4), packet_->getDataFieldHeader()->getTimestamp());
             setData(index(0, 1), packet_->getDataFieldHeader()->getServiceType());
             setData(index(0, 2), packet_->getDataFieldHeader()->getSubServiceType());
+            setData(index(0, 4), packet_->getDataFieldHeader()->getTimestamp());
+        }
+        QHash<QString, QString>::const_iterator it = l_packet_names.find(QString::number(packet_->getSpid()));
+        if (it != l_packet_names.end()) {
+            QString descr_ = it.value();
+            setData(index(0,5), descr_, Qt::DisplayRole);
+        } else {
+            setData(index(0,5), "no description available", Qt::DisplayRole);
         }
 
         return *this;
@@ -47,6 +55,7 @@ public:
 
 private:
     int currentId;
+    QHash<QString,QString> l_packet_names;
 };
 
 /*
@@ -55,7 +64,7 @@ private:
 class PacketStore : public Store
 {
 public:
-    PacketStore(QObject *parent);
+    PacketStore(QObject *parent, QHash<QString,QString> &names_);
 
     bool itemInStore(QString obj_id) {
         QList<QStandardItem*> list = this->model->findItems(obj_id);
@@ -94,6 +103,7 @@ public:
 private:
     PacketModel* model;
     QHash<int, SourcePacket*> l_packets;
+    QHash<QString,QString> l_packet_names;
 //    int id;
 
 public slots:

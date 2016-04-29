@@ -2,6 +2,7 @@
 #define SOURCEPACKET_H
 
 #include "sourcepacketdatafieldheader.h"
+#include "definitions.h"
 #include <QStandardItem>
 #include <QObject>
 
@@ -18,8 +19,9 @@ enum Sequence{
 };
 
 struct PI_VALUES {
-    int PI1_VAL;
-    int PI2_VAL;
+    unsigned int PI1_VAL;
+    unsigned int PI2_VAL;
+    int type_key;
 } ;
 
 class SourcePacket : public QObject, public QStandardItem
@@ -154,11 +156,28 @@ public:
         return dataLength-1;
     }
 
+    void setPI_1(int pi_) {
+        this->pi_vals.PI1_VAL = pi_;
+    }
+
+    void setPI_2(int pi_) {
+        this->pi_vals.PI2_VAL = pi_;
+    }
+
+    int getPI_1() {
+        return this->pi_vals.PI1_VAL;
+    }
+
+    int getPI_2() {
+        return this->pi_vals.PI2_VAL;
+    }
+
     bool checkCRC();
 
     SourcePacket* makePacketFromData(unsigned char* pHeader, unsigned char* pData_, int length_);
 
-    int makeSPID(QHash<int, PI_VALUES> hash_);
+    int makeSPID(QHash<int, PI_VALUES> &hash_);
+    void makePI_VALUES(QHash<int, PIC_VALUES> &PIC_hash_);
 };
 
 #endif // SOURCEPACKET_H

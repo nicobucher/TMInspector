@@ -42,9 +42,14 @@ public:
         while (it.hasNext()) {
             it.next();
             QStringList sPis_ = it.value().split(",");
+            if (sPis_.size() != 3) {
+                qDebug() << "Wrong file format for file " << filename_ << ", expected 3 PI value entries but got " << sPis_.size();
+                return output_;
+            }
             PI_VALUES pis_;
-            pis_.PI1_VAL = sPis_.at(0).toInt();
-            pis_.PI2_VAL = sPis_.at(1).toInt();
+            pis_.type_key = sPis_.at(0).toInt();
+            pis_.PI1_VAL = sPis_.at(1).toInt();
+            pis_.PI2_VAL = sPis_.at(2).toInt();
             output_.insert(it.key().toInt(), pis_);
         }
 
@@ -69,6 +74,10 @@ public:
         while (it.hasNext()) {
             it.next();
             QStringList sPics_ = it.value().split(",");
+            if (sPics_.size() != 4) {
+                qDebug() << "Wrong file format for file " << filename_ << ", expected 4 PIC value entries but got " << sPics_.size();
+                return output_;
+            }
             PIC_VALUES pics_;
             pics_.PI1_offset = sPics_.at(0).toInt();
             pics_.PI1_width = sPics_.at(1).toInt();
@@ -102,7 +111,7 @@ public:
         QHashIterator<int, PI_VALUES> it(input_);
         while (it.hasNext()) {
             it.next();
-            QString sPis_ = QString::number(it.value().PI1_VAL) + "," + QString::number(it.value().PI2_VAL);
+            QString sPis_ = QString::number(it.value().type_key) + "," + QString::number(it.value().PI1_VAL) + "," + QString::number(it.value().PI2_VAL);
             hash_.insert(QString::number(it.key()), sPis_);
         }
 

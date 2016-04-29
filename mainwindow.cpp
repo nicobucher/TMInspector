@@ -45,8 +45,14 @@ MainWindow::MainWindow(QWidget *parent) :
     myPacketWorker = 0;
     myPacketWorkerThread = 0;
 
-    myPacketStore = new PacketStore(this);
-    mySqlPacketStore = new PacketStore(this);
+    this->l_event_names = FileHelpers::loadHash("event_names.dat");
+    this->l_object_names = FileHelpers::loadHash("object_names.dat");
+    this->l_packet_names = FileHelpers::loadHash("packet_names.dat");
+    this->l_spids = FileHelpers::loadHashPI("spids.dat");
+    this->l_types = FileHelpers::loadHashPIC("types.dat");
+
+    myPacketStore = new PacketStore(this, this->l_packet_names);
+    mySqlPacketStore = new PacketStore(this, this->l_packet_names);
     myEventStore = new EventStore(this, settings, &l_object_names, &l_event_names);
     mySqlEventStore = new EventStore(this, settings, &l_object_names, &l_event_names);
 
@@ -126,12 +132,6 @@ MainWindow::MainWindow(QWidget *parent) :
 //    testevent2.setParams(23, 24);
 ////    myEventStore->putEvent(&testevent2);
 
-    this->l_event_names = FileHelpers::loadHash("event_names.dat");
-    this->l_object_names = FileHelpers::loadHash("object_names.dat");
-    this->l_packet_names = FileHelpers::loadHash("packet_names.dat");
-    this->l_spids = FileHelpers::loadHashPI("spids.dat");
-    this->l_types = FileHelpers::loadHashPIC("types.dat");
-
     treeviewExpanded = false;
     treeviewExpanded_Arch = false;
 
@@ -182,7 +182,7 @@ void MainWindow::on_actionTo_Server_triggered()
         return;
     }
 
-    myPacketWorker = new PacketWorker(myPacketStore, myEventStore);
+    myPacketWorker = new PacketWorker(myPacketStore, myEventStore, l_spids, l_types);
     connect(myPacketWorker, SIGNAL(hasError(const QString&)), this, SLOT(displayPacketWorkerError(const QString&)));
     connect(myPacketWorker, SIGNAL(eventAdded(Event*)), this, SLOT(animateNewEvent(Event*)));
     connect(this, SIGNAL(clientSetup(QThread*,QString,int)), myPacketWorker, SLOT(setup(QThread*,QString,int)));
@@ -619,7 +619,7 @@ void MainWindow::populatePacketHash(QSqlDatabase* db_)
 void MainWindow::populateSPIDHash(QSqlDatabase* db_)
 {
     QString str;
-    QTextStream(&str) << "SELECT PID_SPID, PID_PI1_VAL, PID_PI2_VAL FROM pid;";
+    QTextStream(&str) << "SELECT PID_SPID, PID_PI1_VAL, PID_PI2_VAL, PID_TYPE, PID_STYPE FROM pid WHERE PID_APID=53;";
     QSqlQuery query(str, *db_);
     if (query.size() > 0) {
         l_spids.clear();
@@ -628,6 +628,7 @@ void MainWindow::populateSPIDHash(QSqlDatabase* db_)
             PI_VALUES pis_;
             pis_.PI1_VAL = rec.value(1).toInt();
             pis_.PI2_VAL = rec.value(2).toInt();
+            pis_.type_key = (rec.value(3).toInt() << 16) + rec.value(4).toInt();
             l_spids.insert(rec.value(0).toInt(), pis_);
         }
     }

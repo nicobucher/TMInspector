@@ -101,7 +101,7 @@ TranslationViewer::updateList(QHash<int, PI_VALUES>* hash_, QStandardItemModel* 
         QStandardItem* key = new QStandardItem();
         key->setData("0x" + QString::number(it.key(),16), Qt::DisplayRole);
         key->setData(it.key(), Qt::ToolTipRole);
-        QString sValue_ = QString::number(it.value().PI1_VAL) + ", " + QString::number(it.value().PI2_VAL);
+        QString sValue_ = "Type/Subtype: " + QString::number(it.value().type_key) + ", PI1=" + QString::number(it.value().PI1_VAL) + ", PI=" + QString::number(it.value().PI2_VAL);
         QStandardItem* value = new QStandardItem(sValue_);
         row << key << value;
         model_->insertRow(0, row);
@@ -121,7 +121,7 @@ TranslationViewer::updateList(QHash<int, PIC_VALUES>* hash_, QStandardItemModel*
         QStandardItem* key = new QStandardItem();
         key->setData("0x" + QString::number(it.key(),16), Qt::DisplayRole);
         key->setData(it.key(), Qt::ToolTipRole);
-        QString sValue_ = "PI1 offset:" + QString::number(it.value().PI1_offset) + ", width" + QString::number(it.value().PI1_width) + "PI2 offset:" + QString::number(it.value().PI2_offset) + ", width" + QString::number(it.value().PI2_width);
+        QString sValue_ = "PI1 offset:" + QString::number(it.value().PI1_offset) + ", width" + QString::number(it.value().PI1_width) + " | PI2 offset:" + QString::number(it.value().PI2_offset) + ", width" + QString::number(it.value().PI2_width);
         QStandardItem* value = new QStandardItem(sValue_);
         row << key << value;
         model_->insertRow(0, row);

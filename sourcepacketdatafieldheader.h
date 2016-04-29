@@ -12,6 +12,7 @@ public:
 protected:
     int serviceType;
     int SubServiceType;
+    int type_key;
     int length;
 
 public:
@@ -29,6 +30,10 @@ public:
 
     void setSubServiceType(int subType_) {
         this->SubServiceType = subType_;
+    }
+
+    int getTypeKey() {
+        return this->type_key;
     }
 
     virtual QDateTime getTimestamp() =0;
