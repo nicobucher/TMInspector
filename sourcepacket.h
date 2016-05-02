@@ -18,12 +18,6 @@ enum Sequence{
     STANDALONE_PACKET
 };
 
-struct PI_VALUES {
-    unsigned int PI1_VAL;
-    unsigned int PI2_VAL;
-    int type_key;
-} ;
-
 class SourcePacket : public QObject, public QStandardItem
 {
     Q_OBJECT

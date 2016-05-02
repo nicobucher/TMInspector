@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     treeviewfilterproxymodel.cpp \
     packetcontentview.cpp \
     eventmodel.cpp \
-    packetviewfilterproxymodel.cpp
+    packetviewfilterproxymodel.cpp \
+    translator.cpp
 
 HEADERS  += mainwindow.h \
     serversettings.h \
@@ -56,7 +57,8 @@ HEADERS  += mainwindow.h \
     definitions.h \
     custommodels.h \
     eventmodel.h \
-    packetviewfilterproxymodel.h
+    packetviewfilterproxymodel.h \
+    translator.h
 
 FORMS    += mainwindow.ui \
     serversettings.ui \
