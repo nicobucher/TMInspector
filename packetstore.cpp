@@ -5,9 +5,10 @@
 #include <QDebug>
 using namespace std;
 
-PacketStore::PacketStore(QObject* parent, QHash<QString, QString> &names_) : Store(parent), l_packet_names(names_)
+PacketStore::PacketStore(QObject* parent, SPIDTranslator* trans_) : Store(parent)
 {   
-    this->model = new PacketModel(l_packet_names);
+    this->model = new PacketModel();
+    this->model.setTranslator(trans_);
     this->proxy_model = new PacketViewFilterProxyModel(this);
     this->setSourceModel(this->model);
     // Initialize the hash key

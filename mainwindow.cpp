@@ -45,14 +45,27 @@ MainWindow::MainWindow(QWidget *parent) :
     myPacketWorker = 0;
     myPacketWorkerThread = 0;
 
-    this->l_event_names = FileHelpers::loadHash("event_names.dat");
-    this->l_object_names = FileHelpers::loadHash("object_names.dat");
-    this->l_packet_names = FileHelpers::loadHash("packet_names.dat");
-    this->l_spids = FileHelpers::loadHashPI("spids.dat");
-    this->l_types = FileHelpers::loadHashPIC("types.dat");
+    // Translators
+    mySPIDTranslator = new SPIDTranslator(this);
+    myPICTranslator = new PICTranslator(this);
+    myPITranslator = new PITranslator(this);
+    myObjectTranslator = new ObjectTranslator(this);
+    myEventTranslator = new EventTranslator(this);
 
-    myPacketStore = new PacketStore(this, this->l_packet_names);
-    mySqlPacketStore = new PacketStore(this, this->l_packet_names);
+    mySPIDTranslator->Translator::loadHash(QString("packet_names.dat"));
+    myPICTranslator->Translator::loadHash(QString("types.dat"));
+    myPITranslator->Translator::loadHash(QString("spids.dat"));
+    myObjectTranslator->Translator::loadHash(QString("object_names.dat"));
+    myEventTranslator->Translator::loadHash(QString("event_names.dat"));
+
+//    this->l_event_names = FileHelpers::loadHash("event_names.dat");
+//    this->l_object_names = FileHelpers::loadHash("object_names.dat");
+//    this->l_packet_names = FileHelpers::loadHash("packet_names.dat");
+//    this->l_spids = FileHelpers::loadHashPI("spids.dat");
+//    this->l_types = FileHelpers::loadHashPIC("types.dat");
+
+    myPacketStore = new PacketStore(this, mySPIDTranslator);
+    mySqlPacketStore = new PacketStore(this, mySPIDTranslator);
     myEventStore = new EventStore(this, settings, &l_object_names, &l_event_names);
     mySqlEventStore = new EventStore(this, settings, &l_object_names, &l_event_names);
 
@@ -159,6 +172,14 @@ MainWindow::~MainWindow()
     delete mySqlPacketStore;
     delete settings;
     delete ui;
+
+    delete myObjectTranslator;
+    delete myPICTranslator;
+    delete myPITranslator;
+    delete myEventTranslator;
+    delete mySPIDTranslator;
+
+    delete watch_list_model;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -555,26 +576,26 @@ void MainWindow::loadTranslationTable()
         return;
     }
 
-    // Save the hash tables for reuse upon application start
-    if (!FileHelpers::saveHash("event_names.dat", l_event_names)) {
-        qWarning() << "Can not save hash in event_names.dat";
-    }
-    if (!FileHelpers::saveHash("object_names.dat", l_object_names)) {
-        qWarning() << "Can not save hash in object_names.dat";
-    }
-    if (!FileHelpers::saveHash("packet_names.dat", l_packet_names)) {
-        qWarning() << "Can not save hash in packet_names.dat";
-    }
-    if (!FileHelpers::saveHash("spids.dat", l_spids)) {
-        qWarning() << "Can not save hash in spids.dat";
-    }
-    if (!FileHelpers::saveHash("types.dat", l_types)) {
-        qWarning() << "Can not save hash in types.dat";
-    }
+//    // Save the hash tables for reuse upon application start
+//    if (!FileHelpers::saveHash("event_names.dat", l_event_names)) {
+//        qWarning() << "Can not save hash in event_names.dat";
+//    }
+//    if (!FileHelpers::saveHash("object_names.dat", l_object_names)) {
+//        qWarning() << "Can not save hash in object_names.dat";
+//    }
+//    if (!FileHelpers::saveHash("packet_names.dat", l_packet_names)) {
+//        qWarning() << "Can not save hash in packet_names.dat";
+//    }
+//    if (!FileHelpers::saveHash("spids.dat", l_spids)) {
+//        qWarning() << "Can not save hash in spids.dat";
+//    }
+//    if (!FileHelpers::saveHash("types.dat", l_types)) {
+//        qWarning() << "Can not save hash in types.dat";
+//    }
     emit hashUpdated();
 }
 
-void MainWindow::populateEventHash(QSqlDatabase* db_)
+/*void MainWindow::populateEventHash(QSqlDatabase* db_)
 {
     QString str;
     QTextStream(&str) << "SELECT Failure_Event_ID, Failure_Event_Name FROM obsw_events;";
@@ -652,7 +673,7 @@ void MainWindow::populateTypesHash(QSqlDatabase* db_)
             l_types.insert(key_, pics_);
         }
     }
-}
+}*/
 
 void MainWindow::addTranslation(QString key_, QString trans_, int list_index_)
 {

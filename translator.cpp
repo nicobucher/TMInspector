@@ -9,7 +9,7 @@ Translator::Translator(QObject* parent) : QObject(parent)
 }
 
 bool
-Translator::loadHash(const QString filename_)
+Translator::loadHash(QString filename_)
 {
     QFile filein(filename_);
     if (filein.open(QIODevice::ReadOnly)) {
@@ -41,17 +41,19 @@ Translator::saveHash(const QString filename_)
     return false;
 }
 
-
+QVariant
+Translator::translate(int key_) {
+    QVariant return_value;
+    if (translation_list.contains(key_)) {
+        return_value = translation_list.value(key_);
+    }
+    return return_value;
+}
 
 
 SPIDTranslator::SPIDTranslator(QObject* parent) : Translator(parent)
 {
-
-}
-
-QString
-SPIDTranslator::translate(QString st_) {
-
+    // Anything required here?
 }
 
 bool
@@ -75,12 +77,7 @@ SPIDTranslator::loadHash(QSqlDatabase* db_) {
 
 PITranslator::PITranslator(QObject* parent) : Translator(parent)
 {
-
-}
-
-QString
-PITranslator::translate(QString st_) {
-
+    // Anything required here?
 }
 
 bool
@@ -110,12 +107,7 @@ PITranslator::loadHash(QSqlDatabase* db_) {
 
 PICTranslator::PICTranslator(QObject* parent) : Translator(parent)
 {
-
-}
-
-QString
-PICTranslator::translate(QString st_) {
-
+    // Anything required here?
 }
 
 bool
@@ -147,12 +139,7 @@ PICTranslator::loadHash(QSqlDatabase* db_) {
 
 EventTranslator::EventTranslator(QObject* parent) : Translator(parent)
 {
-
-}
-
-QString
-EventTranslator::translate(QString st_) {
-
+    // Anything required here?
 }
 
 bool
@@ -176,12 +163,7 @@ EventTranslator::loadHash(QSqlDatabase* db_) {
 
 ObjectTranslator::ObjectTranslator(QObject* parent) : Translator(parent)
 {
-
-}
-
-QString
-ObjectTranslator::translate(QString st_) {
-
+    // Anything required here?
 }
 
 bool

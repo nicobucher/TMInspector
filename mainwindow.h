@@ -17,6 +17,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include "translator.h"
 
 namespace Ui {
     class MainWindow;
@@ -89,11 +90,19 @@ private:
     // Popup Dialogue Windows
     ServerSettings* serverSettingsWindow;
 
-    QHash<QString,QString> l_event_names;
-    QHash<QString,QString> l_object_names;
-    QHash<QString,QString> l_packet_names;
-    QHash<int,PI_VALUES> l_spids;
-    QHash<int,PIC_VALUES> l_types;
+    // Object Translators
+    SPIDTranslator* mySPIDTranslator;
+    PICTranslator* myPICTranslator;
+    PITranslator* myPITranslator;
+    ObjectTranslator* myObjectTranslator;
+    EventTranslator* myEventTranslator;
+
+
+//    QHash<QString,QString> l_event_names;
+//    QHash<QString,QString> l_object_names;
+//    QHash<QString,QString> l_packet_names;
+//    QHash<int,PI_VALUES> l_spids;
+//    QHash<int,PIC_VALUES> l_types;
 
     // Object WatchList Model
     StringList* watch_list_model;
@@ -104,11 +113,11 @@ private:
     void writeSettings();
     void readSettings();
 
-    void populateEventHash(QSqlDatabase* db_);
-    void populateObjectHash(QSqlDatabase* db_);
-    void populatePacketHash(QSqlDatabase *db_);
-    void populateSPIDHash(QSqlDatabase *db_);
-    void populateTypesHash(QSqlDatabase *db_);
+//    void populateEventHash(QSqlDatabase* db_);
+//    void populateObjectHash(QSqlDatabase* db_);
+//    void populatePacketHash(QSqlDatabase *db_);
+//    void populateSPIDHash(QSqlDatabase *db_);
+//    void populateTypesHash(QSqlDatabase *db_);
 
     QProgressDialog* progress_;
 

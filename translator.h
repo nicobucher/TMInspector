@@ -24,12 +24,15 @@ public:
         translation_list.remove(key_);
     }
 
-    virtual bool loadHash(const QString filename_); // From File
-    virtual bool saveHash(const QString filename_);    // To File
+    /*
+     * Method which translate an int key into any QVariant
+     * the returned value is not valid (check by using QVariant::isValid())
+     * if no entry in the translation hash-table is found.
+     */
+    virtual QVariant translate(int key_ );
 
-    virtual QString translate( QString st_ ) = 0;
-    virtual bool loadHash(QSqlDatabase* db_) = 0;    // From DB
-
+    virtual bool loadHash(QString filename_);
+    virtual bool loadHash(QSqlDatabase* db_) = 0;       // From DB
 
 protected:
     QHash<int, QVariant> translation_list;
@@ -40,7 +43,6 @@ class SPIDTranslator : public Translator
 public:
     SPIDTranslator(QObject* parent = 0);
 
-    QString translate( QString st_ );
     bool loadHash(QSqlDatabase* db_);    // From DB
 private:
 
@@ -51,7 +53,6 @@ class PITranslator : public Translator
 public:
     PITranslator(QObject* parent = 0);
 
-    QString translate( QString st_ );
     bool loadHash(QSqlDatabase* db_);    // From DB
 private:
 
@@ -62,7 +63,6 @@ class PICTranslator : public Translator
 public:
     PICTranslator(QObject* parent = 0);
 
-    QString translate( QString st_ );
     bool loadHash(QSqlDatabase* db_);    // From DB
 private:
 
@@ -73,7 +73,6 @@ class EventTranslator : public Translator
 public:
     EventTranslator(QObject* parent = 0);
 
-    QString translate( QString st_ );
     bool loadHash(QSqlDatabase* db_);    // From DB
 private:
 
@@ -84,7 +83,6 @@ class ObjectTranslator : public Translator
 public:
     ObjectTranslator(QObject* parent = 0);
 
-    QString translate( QString st_ );
     bool loadHash(QSqlDatabase* db_);    // From DB
 private:
 

@@ -6,6 +6,7 @@
 #include "sourcepacket.h"
 #include "definitions.h"
 #include "packetviewfilterproxymodel.h"
+#include "translator.h"
 
 /*
  * This PacketModel class is a spcialized QStandardItemModel which tracks also the current id
@@ -14,12 +15,10 @@
 class PacketModel : public QStandardItemModel
 {
 public:
-    PacketModel(QHash<QString,QString> &names_) {
+    PacketModel() {
         QStringList labels;
         labels << "SSC" << "Type" << "Subtype" << "Byte" << "Timestamp" << "Description";
         setHorizontalHeaderLabels(labels);
-
-        l_packet_names = names_;
         currentId = 0;
     }
 
@@ -38,10 +37,10 @@ public:
             setData(index(0, 2), packet_->getDataFieldHeader()->getSubServiceType());
             setData(index(0, 4), packet_->getDataFieldHeader()->getTimestamp());
         }
-        QHash<QString, QString>::const_iterator it = l_packet_names.find(QString::number(packet_->getSpid()));
-        if (it != l_packet_names.end()) {
-            QString descr_ = it.value();
-            setData(index(0,5), descr_, Qt::DisplayRole);
+
+        QVariant pkt_name_ = translator->translate(packet_->getSpid());
+        if (pkt_name_.isValid()) {
+            setData(index(0,5), pkt_name_.toString(), Qt::DisplayRole);
         } else {
             setData(index(0,5), "no description available", Qt::DisplayRole);
         }
@@ -53,9 +52,13 @@ public:
         return currentId;
     }
 
+    void setTranslator(SPIDTranslator* trans_) {
+        translator = trans_;
+    }
+
 private:
     int currentId;
-    QHash<QString,QString> l_packet_names;
+    SPIDTranslator* translator;
 };
 
 /*
@@ -64,7 +67,7 @@ private:
 class PacketStore : public Store
 {
 public:
-    PacketStore(QObject *parent, QHash<QString,QString> &names_);
+    PacketStore(QObject *parent, SPIDTranslator* trans_);
 
     bool itemInStore(QString obj_id) {
         QList<QStandardItem*> list = this->model->findItems(obj_id);
@@ -103,7 +106,8 @@ public:
 private:
     PacketModel* model;
     QHash<int, SourcePacket*> l_packets;
-    QHash<QString,QString> l_packet_names;
+
+//    QHash<QString,QString> l_packet_names;
 //    int id;
 
 public slots:
