@@ -66,8 +66,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     myPacketStore = new PacketStore(this, mySPIDTranslator);
     mySqlPacketStore = new PacketStore(this, mySPIDTranslator);
-    myEventStore = new EventStore(this, settings, &l_object_names, &l_event_names);
-    mySqlEventStore = new EventStore(this, settings, &l_object_names, &l_event_names);
+    myEventStore = new EventStore(this, settings, myEventTranslator, myObjectTranslator);
+    mySqlEventStore = new EventStore(this, settings, myEventTranslator, myObjectTranslator);
 
     dataMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
 
@@ -203,7 +203,7 @@ void MainWindow::on_actionTo_Server_triggered()
         return;
     }
 
-    myPacketWorker = new PacketWorker(myPacketStore, myEventStore, l_spids, l_types);
+    myPacketWorker = new PacketWorker(myPacketStore, myEventStore, myPITranslator->getList(), myPICTranslator->getList());
     connect(myPacketWorker, SIGNAL(hasError(const QString&)), this, SLOT(displayPacketWorkerError(const QString&)));
     connect(myPacketWorker, SIGNAL(eventAdded(Event*)), this, SLOT(animateNewEvent(Event*)));
     connect(this, SIGNAL(clientSetup(QThread*,QString,int)), myPacketWorker, SLOT(setup(QThread*,QString,int)));
@@ -458,7 +458,12 @@ void MainWindow::loadObjectView(QModelIndex index)
 
 void MainWindow::translation_triggered()
 {
-    TranslationViewer* transView = new TranslationViewer(this, &l_object_names, &l_event_names, &l_packet_names, &l_spids, &l_types);
+    TranslationViewer* transView = new TranslationViewer(this,
+                                                         myObjectTranslator,
+                                                         myEventTranslator,
+                                                         mySPIDTranslator,
+                                                         myPITranslator,
+                                                         myPICTranslator);
     transView->setAttribute(Qt::WA_DeleteOnClose);
     transView->show();
     transView->raise();
@@ -565,11 +570,16 @@ void MainWindow::loadTranslationTable()
     db.setPassword(settings->value("mib/pw").toString());
 
     if (db.open()) {
-        populateEventHash(&db);
-        populateObjectHash(&db);
-        populatePacketHash(&db);
-        populateSPIDHash(&db);
-        populateTypesHash(&db);
+//        populateEventHash(&db);
+//        populateObjectHash(&db);
+//        populatePacketHash(&db);
+//        populateSPIDHash(&db);
+//        populateTypesHash(&db);
+        myEventTranslator->loadHash(&db);
+        myObjectTranslator->loadHash(&db);
+        mySPIDTranslator->loadHash(&db);
+        myPICTranslator->loadHash(&db);
+        myPITranslator->loadHash(&db);
         db.close();
     } else {
         qDebug() << "SQL Error";
@@ -675,14 +685,14 @@ void MainWindow::populateTypesHash(QSqlDatabase* db_)
     }
 }*/
 
-void MainWindow::addTranslation(QString key_, QString trans_, int list_index_)
+void MainWindow::addTranslation(int key_, QString trans_, int list_index_)
 {
     switch(list_index_) {
     case EventListIndex:
-        l_event_names.insert(key_, trans_);
+        myEventTranslator->addEntry(key_, trans_);
         break;
     case ObjectListIndex:
-        l_object_names.insert(key_, trans_);
+        myObjectTranslator->addEntry(key_, trans_);
         break;
     }
     emit hashUpdated();

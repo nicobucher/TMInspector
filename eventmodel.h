@@ -2,6 +2,7 @@
 #define EVENTMODEL_H
 
 #include "eventstore.h"
+#include "translator.h"
 
 class EventStore;
 
@@ -22,8 +23,18 @@ public:
 
     QList<QStandardItem*> prepareRow(Event* event_);
 
+    void setEventTranslator(EventTranslator* trans_) {
+        event_translator = trans_;
+    }
+
+    void setObjectTranslator(ObjectTranslator* trans_) {
+        object_translator = trans_;
+    }
+
 private:
     EventStore* parentStore;
+    EventTranslator* event_translator;
+    ObjectTranslator* object_translator;
 
 public slots:
     void datachanged_debug1(QModelIndex topleft,QModelIndex bottomright);

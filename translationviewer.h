@@ -6,6 +6,7 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include "mainwindow.h"
+#include "translator.h"
 
 namespace Ui {
 class TranslationViewer;
@@ -16,7 +17,12 @@ class TranslationViewer : public QDialog
     Q_OBJECT
 
 public:
-    explicit TranslationViewer(QWidget *parent = 0, QHash<QString, QString> *l_objn_ = 0, QHash<QString, QString> *l_evn_ = 0, QHash<QString, QString> *l_pac_ = 0, QHash<int, PI_VALUES> *l_spids_ = 0, QHash<int, PIC_VALUES> *l_types_ = 0);
+    explicit TranslationViewer(QWidget *parent = 0,
+                               ObjectTranslator* obj_trans_ = 0,
+                               EventTranslator* event_trans_ = 0,
+                               SPIDTranslator* spid_trans_ = 0,
+                               PITranslator* pi_trans_ = 0,
+                               PICTranslator* pic_trans_ = 0);
     ~TranslationViewer();
 
 private:
@@ -36,16 +42,16 @@ private:
 
     MainWindow* pMainWindow;
 
-    QHash<QString,QString>* l_object_names;
-    QHash<QString,QString>* l_event_names;
-    QHash<QString,QString>* l_packet_names;
-    QHash<int,PI_VALUES>* l_spids;
-    QHash<int,PIC_VALUES>* l_types;
+    ObjectTranslator* myObjectTranslator;
+    EventTranslator* myEventTranslator;
+    SPIDTranslator* mySPIDTranslator;
+    PITranslator* myPITranslator;
+    PICTranslator* myPICTranslator;
 
     void updateInfoText();
-    void updateList(QHash<QString, QString>* hash_, QStandardItemModel* model_);
-    void updateList(QHash<int, PI_VALUES> *hash_, QStandardItemModel *model_);
-    void updateList(QHash<int, PIC_VALUES> *hash_, QStandardItemModel *model_);
+    void updateList(QHash<int, QVariant>* hash_, QStandardItemModel* model_);
+    void updatePIList(QHash<int, QVariant> *hash_, QStandardItemModel *model_);
+    void updatePICList(QHash<int, QVariant> *hash_, QStandardItemModel *model_);
 
 private slots:
     void comboBoxSelected(int listIndex_);

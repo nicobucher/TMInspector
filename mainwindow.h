@@ -29,7 +29,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
-    void addTranslation(QString key_, QString trans_, int list_index_);
+    void addTranslation(int key_, QString trans_, int list_index_);
     ~MainWindow();
 
     void addObjectToWatchList(QString object_name_);

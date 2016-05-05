@@ -6,9 +6,11 @@
 #include <iomanip>
 using namespace std;
 
-EventStore::EventStore(QObject* parent, QSettings* set_, QHash<QString,QString>* l_objn_, QHash<QString,QString>* l_evn_) : Store(parent), l_object_names(l_objn_), l_event_names(l_evn_), settings(set_)
+EventStore::EventStore(QObject* parent, QSettings* set_, EventTranslator *event_trans_, ObjectTranslator *obj_trans_) : Store(parent), settings(set_)
 {
     this->model = new EventModel(this);
+    this->model->setEventTranslator(event_trans_);
+    this->model->setObjectTranslator(obj_trans_);
     this->proxy_model = new TreeViewFilterProxyModel(this);
     this->setSourceModel(this->model);
 
@@ -56,32 +58,6 @@ EventStore::exportToFile(QString filename_)
 void EventStore::putEvent(Event* e_)
 {
     *this->model << e_;
-
-//    QStandardItem *root = this->model->invisibleRootItem();
-//    QList<QStandardItem*> new_row = prepareRow(e_);
-
-//    int rawObjectId = e_->getObjectIdAsInt();
-//    int objRowFound_ = checkChildObjExists(rawObjectId);
-//    if (objRowFound_ < 0) {
-//        QString object_id = QString::number(rawObjectId);
-//        // If it does not exist, add a new object to the root item
-//        QStandardItem* new_object = new QStandardItem("0x" + e_->getObjectIdAsString());
-//        if (l_object_names->contains(object_id)) {
-//            new_object->setData("0x" + e_->getObjectIdAsString(), Qt::ToolTipRole);
-//            new_object->setData(l_object_names->value(object_id), Qt::DisplayRole);
-//        } else {
-//            qDebug() << "Can not find " << object_id << " in Object Translation List";
-//            new_object->setBackground(Qt::lightGray);
-//            new_object->setData("Cannot be resolved", Qt::ToolTipRole);
-//        }
-//        new_object->setData(rawObjectId, RawDataRole);
-//        new_object->setData(-1, ListIndexRole);
-//        new_object->appendRow(new_row);
-//        root->appendRow(new_object);
-//    } else {
-//        // Just add the new event to the already existing object
-//        root->child(objRowFound_)->appendRow(new_row);
-//    }
 }
 
 int EventStore::checkChildObjExists(int objId_)
@@ -92,18 +68,6 @@ int EventStore::checkChildObjExists(int objId_)
         if (test_id == objId_) return i;
     }
     return -1;
-}
-
-void EventStore::clear_hash(int list_)
-{
-    switch(list_) {
-    case EventListIndex:
-        l_event_names->clear();
-        break;
-    case ObjectListIndex:
-        l_object_names->clear();
-        break;
-    }
 }
 
 bool

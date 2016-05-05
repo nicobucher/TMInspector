@@ -17,7 +17,7 @@ AddTranslationDialog::~AddTranslationDialog()
 
 void AddTranslationDialog::on_buttonBox_accepted()
 {
-    QString key = ui->lineEdit->text();
+    int key = ui->lineEdit->text().toInt();
     QString translation = ui->lineEdit_2->text();
     pMainWindow->addTranslation(key, translation, list_index);
 }

@@ -3,14 +3,19 @@
 #include "addtranslationdialog.h"
 #include <QMenu>
 
-TranslationViewer::TranslationViewer(QWidget *parent, QHash<QString,QString>* l_objn_, QHash<QString,QString>* l_evn_, QHash<QString,QString>* l_pac_, QHash<int,PI_VALUES>* l_spids_, QHash<int,PIC_VALUES>* l_types_) :
+TranslationViewer::TranslationViewer(QWidget *parent,
+                                     ObjectTranslator* obj_trans_,
+                                     EventTranslator* event_trans_,
+                                     SPIDTranslator* spid_trans_,
+                                     PITranslator* pi_trans_,
+                                     PICTranslator* pic_trans_) :
     QDialog(parent),
     ui(new Ui::TranslationViewer),
-    l_object_names(l_objn_),
-    l_event_names(l_evn_),
-    l_packet_names(l_pac_),
-    l_spids(l_spids_),
-    l_types(l_types_)
+    myObjectTranslator(obj_trans_),
+    myEventTranslator(event_trans_),
+    mySPIDTranslator(spid_trans_),
+    myPITranslator(pi_trans_),
+    myPICTranslator(pic_trans_)
 {
     ui->setupUi(this);
 
@@ -72,17 +77,17 @@ TranslationViewer::~TranslationViewer()
 }
 
 void
-TranslationViewer::updateList(QHash<QString, QString>* hash_, QStandardItemModel* model_)
+TranslationViewer::updateList(QHash<int, QVariant>* hash_, QStandardItemModel* model_)
 {
     model_->removeRows(0, model_->rowCount());
-    QHashIterator<QString, QString> it(*hash_);
+    QHashIterator<int, QVariant> it(*hash_);
     while (it.hasNext()) {
         it.next();
         QList<QStandardItem*> row;
         QStandardItem* key = new QStandardItem();
-        key->setData("0x" + QString::number(it.key().toInt(),16), Qt::DisplayRole);
+        key->setData("0x" + QString::number(it.key(),16), Qt::DisplayRole);
         key->setData(it.key(), Qt::ToolTipRole);
-        QStandardItem* value = new QStandardItem(it.value());
+        QStandardItem* value = new QStandardItem(it.value().toString());
         row << key << value;
         model_->insertRow(0, row);
     }
@@ -91,17 +96,19 @@ TranslationViewer::updateList(QHash<QString, QString>* hash_, QStandardItemModel
 }
 
 void
-TranslationViewer::updateList(QHash<int, PI_VALUES>* hash_, QStandardItemModel* model_)
+TranslationViewer::updatePIList(QHash<int, QVariant> *hash_, QStandardItemModel* model_)
 {
     model_->removeRows(0, model_->rowCount());
-    QHashIterator<int, PI_VALUES> it(*hash_);
+    QHashIterator<int, QVariant> it(*hash_);
+    PI_VALUES values_;
     while (it.hasNext()) {
         it.next();
+        values_ = it.value().value<PI_VALUES>();
         QList<QStandardItem*> row;
         QStandardItem* key = new QStandardItem();
         key->setData("0x" + QString::number(it.key(),16), Qt::DisplayRole);
         key->setData(it.key(), Qt::ToolTipRole);
-        QString sValue_ = "Type/Subtype: " + QString::number(it.value().type_key) + ", PI1=" + QString::number(it.value().PI1_VAL) + ", PI=" + QString::number(it.value().PI2_VAL);
+        QString sValue_ = "Type/Subtype: " + QString::number(values_.type_key) + ", PI1=" + QString::number(values_.PI1_VAL) + ", PI=" + QString::number(values_.PI2_VAL);
         QStandardItem* value = new QStandardItem(sValue_);
         row << key << value;
         model_->insertRow(0, row);
@@ -111,19 +118,21 @@ TranslationViewer::updateList(QHash<int, PI_VALUES>* hash_, QStandardItemModel* 
 }
 
 void
-TranslationViewer::updateList(QHash<int, PIC_VALUES>* hash_, QStandardItemModel* model_)
+TranslationViewer::updatePICList(QHash<int, QVariant>* hash_, QStandardItemModel* model_)
 {
     model_->removeRows(0, model_->rowCount());
-    QHashIterator<int, PIC_VALUES> it(*hash_);
+    QHashIterator<int, QVariant> it(*hash_);
+    PIC_VALUES values_;
     while (it.hasNext()) {
         it.next();
+        values_ = it.value().value<PIC_VALUES>();
         QList<QStandardItem*> row;
         QStandardItem* key = new QStandardItem();
         key->setData("0x" + QString::number(it.key(),16), Qt::DisplayRole);
         key->setData(it.key(), Qt::ToolTipRole);
-        QString sValue_ = "PI1 offset:" + QString::number(it.value().PI1_offset) + ", width" + QString::number(it.value().PI1_width) + " | PI2 offset:" + QString::number(it.value().PI2_offset) + ", width" + QString::number(it.value().PI2_width);
-        QStandardItem* value = new QStandardItem(sValue_);
-        row << key << value;
+        QString sValue_ = "PI1 offset:" + QString::number(values_.PI1_offset) + ", width" + QString::number(values_.PI1_width) + " | PI2 offset:" + QString::number(values_.PI2_offset) + ", width" + QString::number(values_.PI2_width);
+        QStandardItem* text_ = new QStandardItem(sValue_);
+        row << key << text_;
         model_->insertRow(0, row);
     }
     model_->sort(0, Qt::AscendingOrder);
@@ -133,11 +142,11 @@ TranslationViewer::updateList(QHash<int, PIC_VALUES>* hash_, QStandardItemModel*
 void
 TranslationViewer::reload()
 {
-    updateList(l_event_names, this->eventListModel);
-    updateList(l_object_names, this->objectListModel);
-    updateList(l_packet_names, this->SPIDListModel);
-    updateList(l_spids, this->PI_VALUESListModel);
-    updateList(l_types, this->PIC_VALUESListModel);
+    updateList(myEventTranslator->getList(), this->eventListModel);
+    updateList(myObjectTranslator->getList(), this->objectListModel);
+    updateList(mySPIDTranslator->getList(), this->SPIDListModel);
+    updatePIList(myPITranslator->getList(), this->PI_VALUESListModel);
+    updatePICList(myPICTranslator->getList(), this->PIC_VALUESListModel);
 }
 
 void
@@ -201,19 +210,19 @@ void
 TranslationViewer::clearTranslationTable() {
     switch(ui->comboBox->currentIndex()) {
     case EventListIndex:
-        l_event_names->clear();
+        myEventTranslator->clear();
         break;
     case ObjectListIndex:
-        l_object_names->clear();
+        myObjectTranslator->clear();
         break;
     case SPIDListIndex:
-        l_packet_names->clear();
+        mySPIDTranslator->clear();
         break;
     case PI_VALUESListIndex:
-        l_spids->clear();
+        myPITranslator->clear();
         break;
     case PIC_VALUESListIndex:
-        l_types->clear();
+        myPICTranslator->clear();
         break;
     }
     reload();

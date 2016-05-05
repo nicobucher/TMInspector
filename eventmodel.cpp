@@ -14,21 +14,22 @@ EventModel::operator<<(Event* event_) {
     QStandardItem *root = invisibleRootItem();
     QList<QStandardItem*> new_row = prepareRow(event_);
 
-    int rawObjectId = event_->getObjectIdAsInt();
-    int objRowFound_ = parentStore->checkChildObjExists(rawObjectId);
+    int object_id = event_->getObjectIdAsInt();
+    int objRowFound_ = parentStore->checkChildObjExists(object_id);
     if (objRowFound_ < 0) {
-        QString object_id = QString::number(rawObjectId);
         // If it does not exist, add a new object to the root item
         QStandardItem* new_object = new QStandardItem("0x" + event_->getObjectIdAsString());
-        if (parentStore->l_object_names->contains(object_id)) {
+
+        QVariant obj_name_ = object_translator->translate(object_id);
+        if (obj_name_.isValid()) {
             new_object->setData("0x" + event_->getObjectIdAsString(), Qt::ToolTipRole);
-            new_object->setData(parentStore->l_object_names->value(object_id), Qt::DisplayRole);
+            new_object->setData(obj_name_.toString(), Qt::DisplayRole);
         } else {
             qDebug() << "Can not find " << object_id << " in Object Translation List";
             new_object->setBackground(Qt::lightGray);
             new_object->setData("Cannot be resolved", Qt::ToolTipRole);
         }
-        new_object->setData(rawObjectId, RawDataRole);
+        new_object->setData(obj_name_, RawDataRole);
         new_object->setData(-1, ListIndexRole);
         new_object->appendRow(new_row);
         root->appendRow(new_object);
@@ -51,9 +52,11 @@ EventModel::prepareRow(Event* event_)
     severity_item->setData(event_->getPacketReference(), ListIndexRole);
 
     row << severity_item;
-    if (parentStore->l_event_names->contains(event_id->text())) {
+
+    QVariant event_translation = event_translator->translate(event_id->text().toInt());
+    if (event_translation.isValid()) {
         event_id->setData(event_->getEventId()->text(), Qt::ToolTipRole);
-        event_id->setData(parentStore->l_event_names->value(event_id->text()), Qt::DisplayRole);
+        event_id->setData(event_translation.toString(), Qt::DisplayRole);
     } else {
         qDebug() << "Can not find " << event_id->text() << " in Event Translation List";
         event_id->setBackground(Qt::lightGray);

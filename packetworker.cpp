@@ -4,9 +4,9 @@
 #include <QMutexLocker>
 #include <QDebug>
 
-PacketWorker::PacketWorker(PacketStore *st_, EventStore *evst_, QHash<int,PI_VALUES> &l_spids_, QHash<int,PIC_VALUES> &l_types_)
-    : l_spids(l_spids_),
-      l_types(l_types_)
+PacketWorker::PacketWorker(PacketStore *st_, EventStore *evst_, QHash<int,QVariant>* l_pis_, QHash<int,QVariant>* l_pics_)
+    : l_pis(l_pis_),
+      l_pics(l_pics_)
 {
     socket = new QTcpSocket(this);
     this->isReady = false;
@@ -69,8 +69,8 @@ PacketWorker::doWork()
                         packet->makePacketFromData((unsigned char*)header_buffer.data(), (unsigned char*)data_buffer.data(), data_length);
 
                         if (packet->getQuality() == GOOD && packet->getApid() != SourcePacket::APID_IDLEPACKET) {
-                            packet->makePI_VALUES(l_types);
-                            packet->makeSPID(l_spids);
+                            packet->makePI_VALUES(l_pics);
+                            packet->makeSPID(l_pis);
                             int ref_ = store->putPacket(packet);
 
                             // If the packet contains an event (Events have Service Type 5)

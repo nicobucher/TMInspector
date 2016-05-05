@@ -170,8 +170,8 @@ public:
 
     SourcePacket* makePacketFromData(unsigned char* pHeader, unsigned char* pData_, int length_);
 
-    int makeSPID(QHash<int, PI_VALUES> &hash_);
-    void makePI_VALUES(QHash<int, PIC_VALUES> &PIC_hash_);
+    int makeSPID(QHash<int, QVariant> *PI_hash_);
+    void makePI_VALUES(QHash<int, QVariant> *PIC_hash_);
 };
 
 #endif // SOURCEPACKET_H

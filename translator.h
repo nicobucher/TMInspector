@@ -24,6 +24,10 @@ public:
         translation_list.remove(key_);
     }
 
+    void clear() {
+        translation_list.clear();
+    }
+
     /*
      * Method which translate an int key into any QVariant
      * the returned value is not valid (check by using QVariant::isValid())
@@ -32,7 +36,12 @@ public:
     virtual QVariant translate(int key_ );
 
     virtual bool loadHash(QString filename_);
+    virtual bool saveHash(const QString filename_);
     virtual bool loadHash(QSqlDatabase* db_) = 0;       // From DB
+
+    virtual QHash<int, QVariant>* getList() {
+        return &translation_list;
+    }
 
 protected:
     QHash<int, QVariant> translation_list;
