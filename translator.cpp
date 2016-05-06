@@ -2,16 +2,17 @@
 #include <QtCore>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QMetaType>
 
-Translator::Translator(QObject* parent) : QObject(parent)
+Translator::Translator(QObject* parent, QString filename_) : QObject(parent)
 {
-
+    this->filename = filename_;
 }
 
 bool
-Translator::loadHash(QString filename_)
+Translator::loadHash()
 {
-    QFile filein(filename_);
+    QFile filein(this->filename);
     if (filein.open(QIODevice::ReadOnly)) {
         QDataStream in(&filein);
         in.setVersion(QDataStream::Qt_5_5);
@@ -20,14 +21,14 @@ Translator::loadHash(QString filename_)
         filein.close();
         return true;
     }
-    qDebug() << "Can't open file " << filename_;
+    qDebug() << "Can't open file " << this->filename;
     return false;
 }
 
 bool
-Translator::saveHash(const QString filename_)
+Translator::saveHash()
 {
-    QFile fileout(filename_);
+    QFile fileout(this->filename);
     if (fileout.open(QIODevice::WriteOnly)) {
         QDataStream out(&fileout);
         out.setVersion(QDataStream::Qt_5_5);
@@ -37,7 +38,7 @@ Translator::saveHash(const QString filename_)
         fileout.close();
         return true;
     }
-    qDebug() << "Can't open file " << filename_;
+    qDebug() << "Can't open file " << this->filename;
     return false;
 }
 
@@ -51,7 +52,7 @@ Translator::translate(int key_) {
 }
 
 
-SPIDTranslator::SPIDTranslator(QObject* parent) : Translator(parent)
+SPIDTranslator::SPIDTranslator(QObject* parent, QString filename_) : Translator(parent, filename_)
 {
     // Anything required here?
 }
@@ -67,6 +68,7 @@ SPIDTranslator::loadHash(QSqlDatabase* db_) {
             QSqlRecord rec = query.record();
             translation_list.insert(rec.value(0).toInt(), rec.value(1));
         }
+        saveHash();
         return true;
     }
     return false;
@@ -75,9 +77,10 @@ SPIDTranslator::loadHash(QSqlDatabase* db_) {
 
 
 
-PITranslator::PITranslator(QObject* parent) : Translator(parent)
+PITranslator::PITranslator(QObject* parent, QString filename_) : Translator(parent, filename_)
 {
-    // Anything required here?
+    qRegisterMetaType<PI_VALUES>();
+    qRegisterMetaTypeStreamOperators<PI_VALUES>();
 }
 
 bool
@@ -97,6 +100,7 @@ PITranslator::loadHash(QSqlDatabase* db_) {
             var_pis_.setValue(pis_);
             translation_list.insert(rec.value(0).toInt(), var_pis_);
         }
+        saveHash();
         return true;
     }
     return false;
@@ -105,9 +109,10 @@ PITranslator::loadHash(QSqlDatabase* db_) {
 
 
 
-PICTranslator::PICTranslator(QObject* parent) : Translator(parent)
+PICTranslator::PICTranslator(QObject* parent, QString filename_) : Translator(parent, filename_)
 {
-    // Anything required here?
+    qRegisterMetaType<PIC_VALUES>();
+    qRegisterMetaTypeStreamOperators<PIC_VALUES>();
 }
 
 bool
@@ -129,6 +134,7 @@ PICTranslator::loadHash(QSqlDatabase* db_) {
             var_pics_.setValue(pics_);
             translation_list.insert(key_, var_pics_);
         }
+        saveHash();
         return true;
     }
     return false;
@@ -137,7 +143,7 @@ PICTranslator::loadHash(QSqlDatabase* db_) {
 
 
 
-EventTranslator::EventTranslator(QObject* parent) : Translator(parent)
+EventTranslator::EventTranslator(QObject* parent, QString filename_) : Translator(parent, filename_)
 {
     // Anything required here?
 }
@@ -153,6 +159,7 @@ EventTranslator::loadHash(QSqlDatabase* db_) {
             QSqlRecord rec = query.record();
             translation_list.insert(rec.value(0).toInt(), rec.value(1));
         }
+        saveHash();
         return true;
     }
     return false;
@@ -161,7 +168,7 @@ EventTranslator::loadHash(QSqlDatabase* db_) {
 
 
 
-ObjectTranslator::ObjectTranslator(QObject* parent) : Translator(parent)
+ObjectTranslator::ObjectTranslator(QObject* parent, QString filename_) : Translator(parent, filename_)
 {
     // Anything required here?
 }
@@ -177,6 +184,7 @@ ObjectTranslator::loadHash(QSqlDatabase* db_) {
             QSqlRecord rec = query.record();
             translation_list.insert(rec.value(0).toInt(), rec.value(1));
         }
+        saveHash();
         return true;
     }
     return false;

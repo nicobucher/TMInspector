@@ -34,7 +34,8 @@ SOURCES += main.cpp\
     packetcontentview.cpp \
     eventmodel.cpp \
     packetviewfilterproxymodel.cpp \
-    translator.cpp
+    translator.cpp \
+    definitions.cpp
 
 HEADERS  += mainwindow.h \
     serversettings.h \
@@ -47,7 +48,6 @@ HEADERS  += mainwindow.h \
     eventstore.h \
     store.h \
     objectview.h \
-    filehelpers.h \
     objectfilterproxymodel.h \
     translationviewer.h \
     addtranslationdialog.h \

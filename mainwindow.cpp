@@ -4,7 +4,6 @@
 #include "translationviewer.h"
 #include "packetcontentview.h"
 #include "sqlworker.h"
-#include "filehelpers.h"
 #include <QTableView>
 #include <QDateTime>
 #include <QFileDialog>
@@ -20,20 +19,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     settings = new QSettings();
-
-    // Add the Connect Menu Entry
-    dataMenu = menuBar()->addMenu("Data");
-    action_Connect = dataMenu->addAction("Connect");
-    action_Connect->setShortcut(Qt::Key_F10);
-    connect(action_Connect, SIGNAL(triggered()), this, SLOT(on_actionTo_Server_triggered()));
-    // Add the Switch to Event Mode Menu Entry and set the shortcut key to be Tab
-    dataMenu->addAction("Settings", this, SLOT(on_actionEdit_triggered()));
-    action_EventMode = dataMenu->addAction("Event Mode");
-    action_EventMode->setCheckable(true);
-    action_EventMode->setShortcut(Qt::Key_Tab);
-    connect(action_EventMode, SIGNAL(triggered()), this, SLOT(eventMode_triggered()));
-    // Add Export Menu Item
-    dataMenu->addAction("Export", this, SLOT(exportTriggered()));
 
     statusLabel = new QLabel(this);
     QPalette pal;
@@ -52,24 +37,32 @@ MainWindow::MainWindow(QWidget *parent) :
     myObjectTranslator = new ObjectTranslator(this);
     myEventTranslator = new EventTranslator(this);
 
-    mySPIDTranslator->Translator::loadHash(QString("packet_names.dat"));
-    myPICTranslator->Translator::loadHash(QString("types.dat"));
-    myPITranslator->Translator::loadHash(QString("spids.dat"));
-    myObjectTranslator->Translator::loadHash(QString("object_names.dat"));
-    myEventTranslator->Translator::loadHash(QString("event_names.dat"));
+    mySPIDTranslator->Translator::loadHash();
+    myPICTranslator->Translator::loadHash();
+    myPITranslator->Translator::loadHash();
+    myObjectTranslator->Translator::loadHash();
+    myEventTranslator->Translator::loadHash();
 
-//    this->l_event_names = FileHelpers::loadHash("event_names.dat");
-//    this->l_object_names = FileHelpers::loadHash("object_names.dat");
-//    this->l_packet_names = FileHelpers::loadHash("packet_names.dat");
-//    this->l_spids = FileHelpers::loadHashPI("spids.dat");
-//    this->l_types = FileHelpers::loadHashPIC("types.dat");
-
+    // Stores
     myPacketStore = new PacketStore(this, mySPIDTranslator);
     mySqlPacketStore = new PacketStore(this, mySPIDTranslator);
     myEventStore = new EventStore(this, settings, myEventTranslator, myObjectTranslator);
     mySqlEventStore = new EventStore(this, settings, myEventTranslator, myObjectTranslator);
 
+    // Add the Connect Menu Entry
+    dataMenu = menuBar()->addMenu("Data");
+    action_Connect = dataMenu->addAction("Connect");
+    action_Connect->setShortcut(Qt::Key_F10);
+    connect(action_Connect, SIGNAL(triggered()), this, SLOT(on_actionTo_Server_triggered()));
+    // Add the Switch to Event Mode Menu Entry and set the shortcut key to be Tab
+    action_EventMode = dataMenu->addAction("Event Mode");
+    action_EventMode->setCheckable(true);
+    action_EventMode->setShortcut(Qt::Key_Tab);
+    connect(action_EventMode, SIGNAL(triggered()), this, SLOT(eventMode_triggered()));
     dataMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
+    dataMenu->addAction("Export", this, SLOT(exportTriggered()));
+    dataMenu->addAction("Settings", this, SLOT(on_actionEdit_triggered()));
+
 
     // Read the global settings
     readSettings();
@@ -570,11 +563,6 @@ void MainWindow::loadTranslationTable()
     db.setPassword(settings->value("mib/pw").toString());
 
     if (db.open()) {
-//        populateEventHash(&db);
-//        populateObjectHash(&db);
-//        populatePacketHash(&db);
-//        populateSPIDHash(&db);
-//        populateTypesHash(&db);
         myEventTranslator->loadHash(&db);
         myObjectTranslator->loadHash(&db);
         mySPIDTranslator->loadHash(&db);
@@ -586,104 +574,8 @@ void MainWindow::loadTranslationTable()
         return;
     }
 
-//    // Save the hash tables for reuse upon application start
-//    if (!FileHelpers::saveHash("event_names.dat", l_event_names)) {
-//        qWarning() << "Can not save hash in event_names.dat";
-//    }
-//    if (!FileHelpers::saveHash("object_names.dat", l_object_names)) {
-//        qWarning() << "Can not save hash in object_names.dat";
-//    }
-//    if (!FileHelpers::saveHash("packet_names.dat", l_packet_names)) {
-//        qWarning() << "Can not save hash in packet_names.dat";
-//    }
-//    if (!FileHelpers::saveHash("spids.dat", l_spids)) {
-//        qWarning() << "Can not save hash in spids.dat";
-//    }
-//    if (!FileHelpers::saveHash("types.dat", l_types)) {
-//        qWarning() << "Can not save hash in types.dat";
-//    }
     emit hashUpdated();
 }
-
-/*void MainWindow::populateEventHash(QSqlDatabase* db_)
-{
-    QString str;
-    QTextStream(&str) << "SELECT Failure_Event_ID, Failure_Event_Name FROM obsw_events;";
-    QSqlQuery query(str, *db_);
-    if (query.size() > 0) {
-        l_event_names.clear();
-        while (query.next()) {
-            QSqlRecord rec = query.record();
-            l_event_names.insert(rec.value(0).toString(), rec.value(1).toString());
-        }
-    }
-}
-
-void MainWindow::populateObjectHash(QSqlDatabase* db_)
-{
-    QString str;
-    QTextStream(&str) << "SELECT TXP_FROM, TXP_ALTXT FROM txp WHERE TXP_NUMBR = 'YMX00005';"; // <- All Object-IDs have the calibration id 'YMX00005'
-    QSqlQuery query(str, *db_);
-    if (query.size() > 0) {
-        l_object_names.clear();
-        while (query.next()) {
-            QSqlRecord rec = query.record();
-            l_object_names.insert(rec.value(0).toString(), rec.value(1).toString());
-        }
-    }
-}
-
-void MainWindow::populatePacketHash(QSqlDatabase* db_)
-{
-    QString str;
-    QTextStream(&str) << "SELECT PID_SPID, PID_DESCR FROM pid;";
-    QSqlQuery query(str, *db_);
-    if (query.size() > 0) {
-        l_packet_names.clear();
-        while (query.next()) {
-            QSqlRecord rec = query.record();
-            l_packet_names.insert(rec.value(0).toString(), rec.value(1).toString());
-        }
-    }
-}
-
-void MainWindow::populateSPIDHash(QSqlDatabase* db_)
-{
-    QString str;
-    QTextStream(&str) << "SELECT PID_SPID, PID_PI1_VAL, PID_PI2_VAL, PID_TYPE, PID_STYPE FROM pid WHERE PID_APID=53;";
-    QSqlQuery query(str, *db_);
-    if (query.size() > 0) {
-        l_spids.clear();
-        while (query.next()) {
-            QSqlRecord rec = query.record();
-            PI_VALUES pis_;
-            pis_.PI1_VAL = rec.value(1).toInt();
-            pis_.PI2_VAL = rec.value(2).toInt();
-            pis_.type_key = (rec.value(3).toInt() << 16) + rec.value(4).toInt();
-            l_spids.insert(rec.value(0).toInt(), pis_);
-        }
-    }
-}
-
-void MainWindow::populateTypesHash(QSqlDatabase* db_)
-{
-    QString str;
-    QTextStream(&str) << "SELECT PIC_TYPE, PIC_STYPE, PIC_PI1_OFF, PIC_PI1_WID, PIC_PI2_OFF, PIC_PI2_WID FROM pic;";
-    QSqlQuery query(str, *db_);
-    if (query.size() > 0) {
-        l_types.clear();
-        while (query.next()) {
-            QSqlRecord rec = query.record();
-            int key_ = (rec.value(0).toInt() << 16) + rec.value(1).toInt();
-            PIC_VALUES pics_;
-            pics_.PI1_offset = rec.value(2).toInt();
-            pics_.PI1_width = rec.value(3).toInt();
-            pics_.PI2_offset = rec.value(4).toInt();
-            pics_.PI2_width = rec.value(5).toInt();
-            l_types.insert(key_, pics_);
-        }
-    }
-}*/
 
 void MainWindow::addTranslation(int key_, QString trans_, int list_index_)
 {
