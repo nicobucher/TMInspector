@@ -64,7 +64,7 @@ int EventStore::checkChildObjExists(int objId_)
 {
     QStandardItem *root = this->model->invisibleRootItem();
     for (int i = 0; i < root->rowCount(); i++) {
-        int test_id = root->child(i)->data(RawDataRole).toInt();
+        int test_id = root->child(i)->data(IdentifierRole).toInt();
         if (test_id == objId_) return i;
     }
     return -1;

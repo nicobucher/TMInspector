@@ -5,7 +5,8 @@
 enum ExtraRoles {
     ReadableTextRole = Qt::UserRole + 1,
     RawDataRole,
-    ListIndexRole
+    ListIndexRole,
+    IdentifierRole
 };
 
 struct PIC_VALUES {

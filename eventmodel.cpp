@@ -30,6 +30,7 @@ EventModel::operator<<(Event* event_) {
             new_object->setData("Cannot be resolved", Qt::ToolTipRole);
         }
         new_object->setData(obj_name_, RawDataRole);
+        new_object->setData(object_id, IdentifierRole);
         new_object->setData(-1, ListIndexRole);
         new_object->appendRow(new_row);
         root->appendRow(new_object);
