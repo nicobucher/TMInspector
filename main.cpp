@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
 
     qInstallMessageHandler(myMessageOutput);
     QApplication a(argc, argv);
+    a.setWindowIcon(QIcon("./icon.png"));
     MainWindow w;
 
     w.show();

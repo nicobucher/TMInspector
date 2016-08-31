@@ -33,7 +33,7 @@ PacketWorker::setup(QThread* th_, QString h_, int p_)
 
     this->socket->connectToHost(this->host, this->port);
     if (this->socket->waitForConnected(3000)) {
-        qDebug() << "connected";
+        qDebug() << "connected to " << this->host << " on port " << this->port ;
         this->isReady = true;
     } else {
         qDebug() << "error connecting";
@@ -98,6 +98,7 @@ PacketWorker::doWork()
             this->quit = true;
         }
     }
+    this->socket->abort();
     emit hasError(this->socket->errorString());
     qDebug() << "exiting thread";
 }
