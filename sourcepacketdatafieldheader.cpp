@@ -17,7 +17,8 @@ TMSourcePacketDataFieldHeader::makeDataFieldHeaderFromData(unsigned char *pData_
     this->setVersion((*pData_ & 0x70) >> 4);
     this->setServiceType(*(pData_+1) & 0xff);
     this->setSubServiceType(*(pData_+2) & 0xff);
-    this->type_key = (this->getServiceType() << 16) + this->getSubServiceType();
+    int key_ = (this->getServiceType() << 16) + this->getSubServiceType();
+    this->setTypeKey(key_);
     this->setPacketSubCounter(*(pData_+3) & 0xff);
     unsigned long ts_raw_ = (unsigned long)*(pData_+4);
     QDateTime ts_;

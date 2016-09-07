@@ -16,6 +16,8 @@ class PacketModel : public QStandardItemModel
 {
 public:
     PacketModel() {
+        qRegisterMetaType<QVector<int> >("QVector<int>");
+
         QStringList labels;
         labels << "SSC" << "Type" << "Subtype" << "Byte" << "Timestamp" << "Description";
         setHorizontalHeaderLabels(labels);

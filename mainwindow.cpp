@@ -111,33 +111,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->dateTimeEdit_start->setDate(now.date());
     ui->dateTimeEdit_stop->setDateTime(now);
 
-//    /* Initial Data for both models (for testing ->>*/
-//    SourcePacket test_packet(0, 3, 53);
-////    myPacketStore->putPacket(&test_packet);
-
-//    Event testevent(now, (Severity)1);
-//    testevent.setEventId(1);
-//    testevent.setObjectId(1000);
-//    testevent.setObjectName("Test-Event");
-//    testevent.setParams(23, 24);
-//    testevent.setPacketReference(1);
-////    myEventStore->putEvent(&testevent);
-
-//    Event testevent1(now, (Severity)2);
-//    testevent1.setEventId(2);
-//    testevent1.setObjectId(1000);
-//    testevent1.setObjectName("Bla");
-//    testevent1.setParams(23, 24);
-//    testevent1.setPacketReference(1);
-////    myEventStore->putEvent(&testevent1);
-
-//    Event testevent2(now, (Severity)3);
-//    testevent2.setEventId(3);
-//    testevent2.setObjectId(1000);
-//    testevent2.setObjectName("Engä");
-//    testevent2.setParams(23, 24);
-////    myEventStore->putEvent(&testevent2);
-
     treeviewExpanded = false;
     treeviewExpanded_Arch = false;
 
@@ -277,7 +250,7 @@ void MainWindow::on_commandLinkButton_clicked()
 
     QDateTime begin_ = ui->dateTimeEdit_start->dateTime();
     QDateTime end_ = ui->dateTimeEdit_stop->dateTime();
-    SqlWorker* worker = new SqlWorker(settings, begin_, end_, mySqlPacketStore, mySqlEventStore, progress_);
+    SqlWorker* worker = new SqlWorker(settings, begin_, end_, mySqlPacketStore, mySqlEventStore, progress_, myPITranslator->getList(), myPICTranslator->getList());
     connect(worker, SIGNAL(dbAccessError(QString)), this, SLOT(displayStatusBarMessage(QString)));
     connect(worker, SIGNAL(progressMade(int)), progress_, SLOT(setValue(int)));
     connect(worker, SIGNAL(newMaxProgress(int)), progress_, SLOT(setMaximum(int)));
@@ -398,6 +371,8 @@ void MainWindow::setupPacketFilters()
     SqlTypeFilter = new QLineEdit(currentSqlType);
     SqlTypeFilter->setFixedWidth(100);
     SqlPacketFilterLayout->addWidget(SqlTypeFilter);
+    // Directly set the filter string so that the default value gets applied
+    mySqlPacketStore->proxy_model->setFilterFixedString(currentSqlType);
 
     LivePacketFilterLayout = new QHBoxLayout;
     LivePacketFilterLayout->setAlignment(Qt::AlignLeft);
@@ -409,6 +384,8 @@ void MainWindow::setupPacketFilters()
     LiveTypeFilter = new QLineEdit(currentLiveType);
     LiveTypeFilter->setFixedWidth(100);
     LivePacketFilterLayout->addWidget(LiveTypeFilter);
+    // Directly set the filter string so that the default value gets applied
+    myPacketStore->proxy_model->setFilterFixedString(currentLiveType);
 
     // The RegEx Filters for the PAcketStores
     connect(SqlTypeFilter, SIGNAL(textChanged(QString)),mySqlPacketStore->proxy_model, SLOT(setFilterFixedString(QString)));

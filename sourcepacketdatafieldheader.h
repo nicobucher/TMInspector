@@ -36,6 +36,10 @@ public:
         return this->type_key;
     }
 
+    void setTypeKey(int k_) {
+        this->type_key = k_;
+    }
+
     virtual QDateTime getTimestamp() =0;
     virtual int getLength() =0;
     virtual SourcePacketDataFieldHeader* makeDataFieldHeaderFromData(unsigned char* data_) =0;

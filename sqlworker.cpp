@@ -6,7 +6,14 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-SqlWorker::SqlWorker(QSettings* settings, QDateTime begin_, QDateTime end_, PacketStore* st_, EventStore *evst_, QProgressDialog* prg_) : begin(begin_), end(end_), mySqlPacketStore(st_), mySqlEventStore(evst_), progress(prg_)
+SqlWorker::SqlWorker(QSettings* settings, QDateTime begin_, QDateTime end_, PacketStore* st_, EventStore *evst_, QProgressDialog* prg_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_)
+    : begin(begin_),
+      end(end_),
+      mySqlPacketStore(st_),
+      mySqlEventStore(evst_),
+      progress(prg_),
+      l_pis(l_pis_),
+      l_pics(l_pics_)
 {
     db = QSqlDatabase::addDatabase("QMYSQL");
 
@@ -53,14 +60,18 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             SourcePacket* packet = new SourcePacket();
             QByteArray data = query.value(rec.indexOf("data")).toByteArray();
 
+            packet->setVersion(0);
             packet->setDataField((unsigned char*)data.data(), data.length());
             packet->setApid(query.value(rec.indexOf("applicationProcessId")).toInt());
             packet->setSourceSequenceCount(query.value(rec.indexOf("sequenceCount")).toInt());
             packet->setSequence((Sequence)query.value(rec.indexOf("sequenceFlags")).toInt());
 
             TMSourcePacketDataFieldHeader* header = new TMSourcePacketDataFieldHeader();
+            header->setVersion(1);
             header->setServiceType(query.value(rec.indexOf("serviceType")).toInt());
             header->setSubServiceType(query.value(rec.indexOf("serviceSubtype")).toInt());
+            int key_ = (header->getServiceType() << 16) + header->getSubServiceType();
+            header->setTypeKey(key_);
             QDateTime ts_;
             ts_.setMSecsSinceEpoch(query.value(rec.indexOf("generationTimestamp")).toULongLong());
             header->setTimestamp(ts_);
@@ -70,6 +81,8 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             if (query.value(rec.indexOf("type")).toString() == "TM") {
                 packet->setSourcePacketType(0);
                 packet->setQuality(GOOD);
+                packet->makePI_VALUES(l_pics);
+                packet->makeSPID(l_pis);
                 list << packet;
             }
         }

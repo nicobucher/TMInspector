@@ -14,7 +14,7 @@ class SqlWorker : public QObject
 {
     Q_OBJECT
 public:
-    SqlWorker(QSettings *settings, QDateTime begin_, QDateTime end_, PacketStore *st_, EventStore *evst_, QProgressDialog* prg_);
+    SqlWorker(QSettings *settings, QDateTime begin_, QDateTime end_, PacketStore *st_, EventStore *evst_, QProgressDialog* prg_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_);
     ~SqlWorker();
     QList<SourcePacket*> fetchPackets(QDateTime b_, QDateTime e_);
 private:
@@ -29,6 +29,9 @@ private:
 
     int foundPackets;
     bool quit;
+
+    QHash<int,QVariant>* l_pis;
+    QHash<int,QVariant>* l_pics;
 signals:
     void dbAccessError(QString message);
     void progressMade(int progress);
