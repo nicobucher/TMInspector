@@ -22,6 +22,7 @@ public:
         labels << "SSC" << "Type" << "Subtype" << "Byte" << "Timestamp" << "Description";
         setHorizontalHeaderLabels(labels);
         currentId = 0;
+        lastSequenceCount = -1;
     }
 
     /*
@@ -30,7 +31,12 @@ public:
     PacketModel& operator<<(SourcePacket* packet_) {
         currentId++;
         insertRow(0);
-        setData(index(0, 0), packet_->getSourceSequenceCount());
+        int ssc = packet_->getSourceSequenceCount();
+        setData(index(0, 0), ssc);
+        if (ssc != lastSequenceCount+1) {
+            setData(index(0, 0), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundRole);
+        }
+        lastSequenceCount = ssc;
         // This is the hidden key information to find the item in the packet list
         setData(index(0, 0), currentId, ListIndexRole);
         setData(index(0, 3), packet_->getDataLength()+1);
@@ -60,6 +66,7 @@ public:
 
 private:
     int currentId;
+    int lastSequenceCount;
     SPIDTranslator* translator;
 };
 
