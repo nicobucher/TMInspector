@@ -6,7 +6,6 @@ SourcePacket::SourcePacket() : sequence(STANDALONE_PACKET), quality(GOOD)
 {
     //
     this->sourceSequenceCount = 0;
-    this->dataFieldHeaderIsPresent = false;
     this->setDataField(NULL, 0);
 }
 
@@ -14,7 +13,6 @@ SourcePacket::SourcePacket(int type_, int version_, int apid_) : sequence(STANDA
 {
     // Initialization Constructor
     this->sourceSequenceCount = 0;
-    this->dataFieldHeaderIsPresent = false;
     this->apid = apid_;
     this->version = version_;
     this->SourcePacketType = type_;
@@ -57,7 +55,7 @@ SourcePacket* SourcePacket::makePacketFromData(unsigned char* pHeader_, unsigned
         qDebug() << "SourcePacket::makePacketFromData : Packet Type is not TM (not supported)";
     }
 
-    this->setDataFieldHeaderIsPresent((part1 >> 11) & 0x1);
+    int dataFieldHeaderPresent = (part1 >> 11) & 0x1;
 
     this->setApid(part1 & 0x7ff);
 
@@ -72,9 +70,9 @@ SourcePacket* SourcePacket::makePacketFromData(unsigned char* pHeader_, unsigned
         this->setSequence(STANDALONE_PACKET);
     }
 
-    this->setSourceSequenceCount(part2 & 0x3ff);
+    this->setSourceSequenceCount(part2 & 0x3fff);
 
-    if (this->hasDataFieldHeader()) {
+    if (dataFieldHeaderPresent != 0) {
         // Set datafield header
         dataFieldHeader = new TMSourcePacketDataFieldHeader();
         dataFieldHeader->makeDataFieldHeaderFromData(pData_);
@@ -113,12 +111,14 @@ SourcePacket::checkCRC()
 int
 SourcePacket::makeSPID(QHash<int, QVariant> *PI_hash_)
 {
-    PI_VALUES value_;
-    for (QHash<int, QVariant>::iterator it = PI_hash_->begin(); it != PI_hash_->end(); ++it) {
-        value_ = it.value().value<PI_VALUES>();
-        if (value_.type_key == this->dataFieldHeader->getTypeKey()) {
-            if (pi_vals.PI1_VAL == value_.PI1_VAL && pi_vals.PI2_VAL == value_.PI2_VAL)
-                return this->spid = it.key();
+    if (this->hasDataFieldHeader()) {
+        PI_VALUES value_;
+        for (QHash<int, QVariant>::iterator it = PI_hash_->begin(); it != PI_hash_->end(); ++it) {
+            value_ = it.value().value<PI_VALUES>();
+            if (value_.type_key == this->dataFieldHeader->getTypeKey()) {
+                if (pi_vals.PI1_VAL == value_.PI1_VAL && pi_vals.PI2_VAL == value_.PI2_VAL)
+                    return this->spid = it.key();
+            }
         }
     }
     return this->spid = -1;
@@ -129,7 +129,7 @@ SourcePacket::makePI_VALUES(QHash<int, QVariant>* PIC_hash_)
 {
     this->pi_vals.PI1_VAL = 0;
     this->pi_vals.PI2_VAL = 0;
-    if (!this->dataFieldHeaderIsPresent) {
+    if (!this->hasDataFieldHeader()) {
         return;
     }
 

@@ -39,7 +39,6 @@ private:
     PI_VALUES pi_vals;
     Sequence sequence;
     int sourceSequenceCount;
-    bool dataFieldHeaderIsPresent;
     SourcePacketDataFieldHeader* dataFieldHeader;
     Quality quality;
     unsigned char* header;
@@ -104,15 +103,11 @@ public:
     }
 
     bool hasDataFieldHeader() {
-        if (this->dataFieldHeaderIsPresent != 0) {
+        if (this->dataFieldHeader != NULL) {
             return true;
         } else {
             return false;
         }
-    }
-
-    void setDataFieldHeaderIsPresent(int present_) {
-        this->dataFieldHeaderIsPresent = present_;
     }
 
     SourcePacketDataFieldHeader* getDataFieldHeader() {

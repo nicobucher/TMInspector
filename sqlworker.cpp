@@ -76,7 +76,6 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             ts_.setMSecsSinceEpoch(query.value(rec.indexOf("generationTimestamp")).toULongLong());
             header->setTimestamp(ts_);
             packet->setDataFieldHeader((SourcePacketDataFieldHeader*)header);
-            packet->setDataFieldHeaderIsPresent(1);
 
             if (query.value(rec.indexOf("type")).toString() == "TM") {
                 packet->setSourcePacketType(0);
