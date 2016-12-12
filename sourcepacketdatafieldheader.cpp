@@ -22,16 +22,6 @@ TMSourcePacketDataFieldHeader::makeDataFieldHeaderFromData(unsigned char *pData_
     this->setTypeKey(key_);
     this->setPacketSubCounter(*(pData_+3) & 0xff);
 
-//    unsigned long ts_raw_ = (unsigned long)*(pData_+4);
-//    QDateTime ts_;
-//    ts_.setMSecsSinceEpoch(ts_raw_);
-//    this->setTimestamp(ts_);
-
-//    // Todo: Remove this once timestamps are implemented -->
-//    QDateTime now = QDateTime::currentDateTime();
-//    this->setTimestamp(now);
-//    // <--
-
     this->setTimestamp(makeTimestamp((unsigned long*)(pData_+4)));
 
     return this;
@@ -58,55 +48,22 @@ TMSourcePacketDataFieldHeader::makeTimestamp(unsigned long *ts_field_)
 QDateTime
 TMSourcePacketDataFieldHeader::decodeFromCDS(uint8_t pField, unsigned long *ts_field_)
 {
-//    QDateTime ts_ = QDateTime::currentDateTime();
-//    //Check epoch
-//    if ((pField & 0b1000) != 0) {
-//        qDebug() << "Epoch bit must be zero, or we need some mission defined epoch";
-//        return ts_;
-//    }
-
-//    bool extendedDays = (pField & 0b100) == 0b100;
-
-//    //Check and count days
-//    int days = 0;
-//    unsigned char* pointer = (unsigned char*)ts_field_;
-//    pointer++;
-//    if (extendedDays) {
-//        days = (*(unsigned int*)pointer & 0xFFFFFF00) >> 8;
-//        pointer = pointer + 3;
-//    } else {
-//        days = (*(unsigned int*)pointer & 0xFFFF0000) >> 16;
-//        pointer = pointer + 2;
-//    }
-//    //Move to POSIX epoch.
-//    if (days <= DAYS_CCSDS_TO_UNIX_EPOCH) {
-//        qDebug() << "Cannot move to Unix Epoch";
-//        return ts_;
-//    }
-//    //Convert all time information into a long
-//    //From here on, we can use data from buf to set CCSDSTime.
-//    days -= DAYS_CCSDS_TO_UNIX_EPOCH;
-//    long resultingTimeMs = days * SECONDS_PER_DAY * 1000;
-//    int millisecondsOfDay = *(int*)pointer;
-//    resultingTimeMs += (millisecondsOfDay);
-
-//    ts_.setMSecsSinceEpoch(resultingTimeMs);
-//    return ts_;
-
-
     QDateTime ts_ = QDateTime::currentDateTime();
     unsigned char* pointer = (unsigned char*)ts_field_;
 
+    // Skip first byte, its the pField
     pointer++;
-//Check epoch
+
+    //Check epoch
     if (pField & 0b1000) {
         qDebug() << "Epoch bit must be zero, or we need some mission defined epoch";
         return ts_;
     }
-//Check length
+
+    //Check length
     bool extendedDays = pField & 0b100;
 
-//Check and count days
+    //Check and count days
     uint32_t days = 0;
     if (extendedDays) {
         days = (pointer[0] << 16) + (pointer[1] << 8) + pointer[2];
@@ -115,7 +72,8 @@ TMSourcePacketDataFieldHeader::decodeFromCDS(uint8_t pField, unsigned long *ts_f
         days = (pointer[0] << 8) + pointer[1];
         pointer += 2;
     }
-//Move to POSIX epoch.
+
+    //Move to POSIX epoch.
     if (days <= DAYS_CCSDS_TO_UNIX_EPOCH) {
         qDebug() << "Cannot move to Unix Epoch";
         return ts_;
