@@ -19,7 +19,7 @@ public:
         qRegisterMetaType<QVector<int> >("QVector<int>");
 
         QStringList labels;
-        labels << "APID" << "SSC" << "Type" << "Subtype" << "Byte" << "Timestamp" << "Description";
+        labels << "APID" << "SSC" << "Type" << "Subtype" << "Byte" << "Timestamp (UTC)" << "Description";
         setHorizontalHeaderLabels(labels);
         currentId = 0;
     }
