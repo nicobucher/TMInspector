@@ -19,38 +19,51 @@ public:
         qRegisterMetaType<QVector<int> >("QVector<int>");
 
         QStringList labels;
-        labels << "SSC" << "Type" << "Subtype" << "Byte" << "Timestamp" << "Description";
+        labels << "APID" << "SSC" << "Type" << "Subtype" << "Byte" << "Timestamp" << "Description";
         setHorizontalHeaderLabels(labels);
         currentId = 0;
-        lastSequenceCount = -1;
     }
 
     /*
-     * Convenience operator for putting a new sting into the model list.
+     * Convenience operator for putting a new packet into the model list.
      */
     PacketModel& operator<<(SourcePacket* packet_) {
+        int apid_ = packet_->getApid();
+        int lastSequenceCount_ = -1;
         currentId++;
         insertRow(0);
+
+        // APID
+        setData(index(0, 0), packet_->getApid());
+
+        // SSC
         int ssc = packet_->getSourceSequenceCount();
-        setData(index(0, 0), ssc);
-        if (ssc != lastSequenceCount+1) {
-            setData(index(0, 0), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundRole);
+        setData(index(0, 1), ssc);
+        if (lastSequenceCounts.contains(apid_)) {
+            lastSequenceCount_ = lastSequenceCounts[apid_];
         }
-        lastSequenceCount = ssc;
+        if (ssc != lastSequenceCount_+1) {
+            setData(index(0, 1), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundRole);
+        }
+        lastSequenceCounts[apid_] = ssc;
         // This is the hidden key information to find the item in the packet list
-        setData(index(0, 0), currentId, ListIndexRole);
-        setData(index(0, 3), packet_->getDataLength()+1);
+        setData(index(0, 1), currentId, ListIndexRole);
+
+        // LENGTH
+        setData(index(0, 4), packet_->getDataLength()+1);
+
+        // DATAFIELD HEADER CONTENT
         if (packet_->hasDataFieldHeader()) {
-            setData(index(0, 1), packet_->getDataFieldHeader()->getServiceType());
-            setData(index(0, 2), packet_->getDataFieldHeader()->getSubServiceType());
-            setData(index(0, 4), packet_->getDataFieldHeader()->getTimestamp());
+            setData(index(0, 2), packet_->getDataFieldHeader()->getServiceType());
+            setData(index(0, 3), packet_->getDataFieldHeader()->getSubServiceType());
+            setData(index(0, 5), packet_->getDataFieldHeader()->getTimestamp());
         }
 
         QVariant pkt_name_ = translator->translate(packet_->getSpid());
         if (pkt_name_.isValid()) {
-            setData(index(0,5), pkt_name_.toString(), Qt::DisplayRole);
+            setData(index(0,6), pkt_name_.toString(), Qt::DisplayRole);
         } else {
-            setData(index(0,5), "no description available", Qt::DisplayRole);
+            setData(index(0,6), "no description available", Qt::DisplayRole);
         }
 
         return *this;
@@ -66,7 +79,7 @@ public:
 
 private:
     int currentId;
-    int lastSequenceCount;
+    QHash<int, int> lastSequenceCounts;
     SPIDTranslator* translator;
 };
 

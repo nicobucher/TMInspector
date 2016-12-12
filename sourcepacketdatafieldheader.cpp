@@ -1,4 +1,5 @@
 #include "sourcepacketdatafieldheader.h"
+#include <QDebug>
 
 SourcePacketDataFieldHeader::SourcePacketDataFieldHeader()
 {
@@ -20,15 +21,132 @@ TMSourcePacketDataFieldHeader::makeDataFieldHeaderFromData(unsigned char *pData_
     int key_ = (this->getServiceType() << 16) + this->getSubServiceType();
     this->setTypeKey(key_);
     this->setPacketSubCounter(*(pData_+3) & 0xff);
-    unsigned long ts_raw_ = (unsigned long)*(pData_+4);
-    QDateTime ts_;
-    ts_.setMSecsSinceEpoch(ts_raw_);
-    this->setTimestamp(ts_);
 
-    // Todo: Remove this once timestamps are implemented -->
-    QDateTime now = QDateTime::currentDateTime();
-    this->setTimestamp(now);
-    // <--
+//    unsigned long ts_raw_ = (unsigned long)*(pData_+4);
+//    QDateTime ts_;
+//    ts_.setMSecsSinceEpoch(ts_raw_);
+//    this->setTimestamp(ts_);
+
+//    // Todo: Remove this once timestamps are implemented -->
+//    QDateTime now = QDateTime::currentDateTime();
+//    this->setTimestamp(now);
+//    // <--
+
+    this->setTimestamp(makeTimestamp((unsigned long*)(pData_+4)));
 
     return this;
+}
+
+QDateTime
+TMSourcePacketDataFieldHeader::makeTimestamp(unsigned long *ts_field_)
+{
+    unsigned char pField = *(unsigned char*)ts_field_;
+    unsigned char timeCode = (pField & 0xF0) >> 4;
+    //First, check time code part in pField, it tells us how to go on.
+    switch (timeCode) {
+        case 0b100:
+            return decodeFromCDS(pField, ts_field_);
+        default:
+            // This is for when the P-Field has no value... It can not be a valid
+            // timestamp. Then it is better to just use the current time instead of giving
+            // an error because there are DFHs without a timestamp where the whole
+            // field is zero.
+            return QDateTime::currentDateTime();
+    }
+}
+
+QDateTime
+TMSourcePacketDataFieldHeader::decodeFromCDS(uint8_t pField, unsigned long *ts_field_)
+{
+//    QDateTime ts_ = QDateTime::currentDateTime();
+//    //Check epoch
+//    if ((pField & 0b1000) != 0) {
+//        qDebug() << "Epoch bit must be zero, or we need some mission defined epoch";
+//        return ts_;
+//    }
+
+//    bool extendedDays = (pField & 0b100) == 0b100;
+
+//    //Check and count days
+//    int days = 0;
+//    unsigned char* pointer = (unsigned char*)ts_field_;
+//    pointer++;
+//    if (extendedDays) {
+//        days = (*(unsigned int*)pointer & 0xFFFFFF00) >> 8;
+//        pointer = pointer + 3;
+//    } else {
+//        days = (*(unsigned int*)pointer & 0xFFFF0000) >> 16;
+//        pointer = pointer + 2;
+//    }
+//    //Move to POSIX epoch.
+//    if (days <= DAYS_CCSDS_TO_UNIX_EPOCH) {
+//        qDebug() << "Cannot move to Unix Epoch";
+//        return ts_;
+//    }
+//    //Convert all time information into a long
+//    //From here on, we can use data from buf to set CCSDSTime.
+//    days -= DAYS_CCSDS_TO_UNIX_EPOCH;
+//    long resultingTimeMs = days * SECONDS_PER_DAY * 1000;
+//    int millisecondsOfDay = *(int*)pointer;
+//    resultingTimeMs += (millisecondsOfDay);
+
+//    ts_.setMSecsSinceEpoch(resultingTimeMs);
+//    return ts_;
+
+
+    QDateTime ts_ = QDateTime::currentDateTime();
+    unsigned char* pointer = (unsigned char*)ts_field_;
+
+    pointer++;
+//Check epoch
+    if (pField & 0b1000) {
+        qDebug() << "Epoch bit must be zero, or we need some mission defined epoch";
+        return ts_;
+    }
+//Check length
+    bool extendedDays = pField & 0b100;
+
+//Check and count days
+    uint32_t days = 0;
+    if (extendedDays) {
+        days = (pointer[0] << 16) + (pointer[1] << 8) + pointer[2];
+        pointer += 3;
+    } else {
+        days = (pointer[0] << 8) + pointer[1];
+        pointer += 2;
+    }
+//Move to POSIX epoch.
+    if (days <= DAYS_CCSDS_TO_UNIX_EPOCH) {
+        qDebug() << "Cannot move to Unix Epoch";
+        return ts_;
+    }
+    days -= DAYS_CCSDS_TO_UNIX_EPOCH;
+    unsigned long tv_sec = days * SECONDS_PER_DAY;
+    uint32_t msDay = (pointer[0] << 24) + (pointer[1] << 16) + (pointer[2] << 8) + pointer[3];
+    pointer += 4;
+    tv_sec += (msDay / 1000);
+    unsigned long tv_usec = 0;
+    if ((pField & 0b11) == 0b01) {
+            uint16_t usecs = (pointer[0] << 16) + pointer[1];
+            pointer += 2;
+            if (usecs > 999) {
+                qDebug() << "Invalid Time Format";
+                return ts_;
+            }
+            tv_usec += usecs;
+    } else if ((pField & 0b11) == 0b10) {
+            uint32_t picosecs = (pointer[0] << 24) + (pointer[1] << 16) + (pointer[2] << 8) + pointer[3];
+            pointer += 4;
+            if (picosecs > 999999) {
+                qDebug() << "Invalid Time Format";
+                return ts_;
+            }
+            //Not very useful.
+            tv_usec += (picosecs / 1000);
+    }
+
+    unsigned long resultingTimeMs = (tv_sec * 1000) + tv_usec;
+
+    ts_.setMSecsSinceEpoch(resultingTimeMs);
+    return ts_;
 }

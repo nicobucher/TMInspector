@@ -49,6 +49,8 @@ class TMSourcePacketDataFieldHeader : public SourcePacketDataFieldHeader
 {
     Q_OBJECT
 public:
+    static const int DAYS_CCSDS_TO_UNIX_EPOCH = 4383;
+    static const int SECONDS_PER_DAY = 86400;
     TMSourcePacketDataFieldHeader();
 private:
     int version;
@@ -85,6 +87,8 @@ public:
     }
 
     SourcePacketDataFieldHeader* makeDataFieldHeaderFromData(unsigned char* pData_);
+    QDateTime makeTimestamp(unsigned long *ts_field_);
+    QDateTime decodeFromCDS(uint8_t pField, unsigned long *ts_field_);
 };
 
 #endif // SOURCEPACKETDATAFIELDHEADER_H
