@@ -41,6 +41,7 @@ TMSourcePacketDataFieldHeader::makeUTCTimestamp(unsigned long *ts_field_)
             // timestamp. Then it is better to just use the current time instead of giving
             // an error because there are DFHs without a timestamp where the whole
             // field is zero.
+            this->setTimestampValid(false);
             return QDateTime::currentDateTime().toUTC();
     }
 }
@@ -57,6 +58,7 @@ TMSourcePacketDataFieldHeader::decodeFromCDS(uint8_t pField, unsigned long *ts_f
     //Check epoch
     if (pField & 0b1000) {
         qDebug() << "Epoch bit must be zero, or we need some mission defined epoch";
+        this->setTimestampValid(false);
         return ts_;
     }
 
@@ -76,6 +78,7 @@ TMSourcePacketDataFieldHeader::decodeFromCDS(uint8_t pField, unsigned long *ts_f
     //Move to POSIX epoch.
     if (days <= DAYS_CCSDS_TO_UNIX_EPOCH) {
         qDebug() << "Cannot move to Unix Epoch";
+        this->setTimestampValid(false);
         return ts_;
     }
     days -= DAYS_CCSDS_TO_UNIX_EPOCH;
@@ -89,6 +92,7 @@ TMSourcePacketDataFieldHeader::decodeFromCDS(uint8_t pField, unsigned long *ts_f
             pointer += 2;
             if (usecs > 999) {
                 qDebug() << "Invalid Time Format";
+                this->setTimestampValid(false);
                 return ts_;
             }
             tv_usec += usecs;
@@ -97,6 +101,7 @@ TMSourcePacketDataFieldHeader::decodeFromCDS(uint8_t pField, unsigned long *ts_f
             pointer += 4;
             if (picosecs > 999999) {
                 qDebug() << "Invalid Time Format";
+                this->setTimestampValid(false);
                 return ts_;
             }
             //Not very useful.

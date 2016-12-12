@@ -56,6 +56,7 @@ private:
     int version;
     int packetSubCounter;
     QDateTime timestamp;
+    bool tsval;
 public:
 
     int getVersion(){
@@ -80,6 +81,14 @@ public:
 
     void setTimestamp(QDateTime ts_) {
         this->timestamp = ts_;
+    }
+
+    void setTimestampValid(bool tval_) {
+        this->tsval = tval_;
+    }
+
+    bool timestampValid() {
+        return this->tsval;
     }
 
     int getLength() {
