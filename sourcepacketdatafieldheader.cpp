@@ -22,26 +22,26 @@ TMSourcePacketDataFieldHeader::makeDataFieldHeaderFromData(unsigned char *pData_
     this->setTypeKey(key_);
     this->setPacketSubCounter(*(pData_+3) & 0xff);
 
-    this->setTimestamp(makeTimestamp((unsigned long*)(pData_+4)));
+    this->setTimestamp(makeUTCTimestamp((unsigned long*)(pData_+4)));
 
     return this;
 }
 
 QDateTime
-TMSourcePacketDataFieldHeader::makeTimestamp(unsigned long *ts_field_)
+TMSourcePacketDataFieldHeader::makeUTCTimestamp(unsigned long *ts_field_)
 {
     unsigned char pField = *(unsigned char*)ts_field_;
     unsigned char timeCode = (pField & 0xF0) >> 4;
     //First, check time code part in pField, it tells us how to go on.
     switch (timeCode) {
         case 0b100:
-            return decodeFromCDS(pField, ts_field_);
+            return decodeFromCDS(pField, ts_field_).toUTC();
         default:
             // This is for when the P-Field has no value... It can not be a valid
             // timestamp. Then it is better to just use the current time instead of giving
             // an error because there are DFHs without a timestamp where the whole
             // field is zero.
-            return QDateTime::currentDateTime();
+            return QDateTime::currentDateTime().toUTC();
     }
 }
 

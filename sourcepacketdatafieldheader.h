@@ -87,7 +87,7 @@ public:
     }
 
     SourcePacketDataFieldHeader* makeDataFieldHeaderFromData(unsigned char* pData_);
-    QDateTime makeTimestamp(unsigned long *ts_field_);
+    QDateTime makeUTCTimestamp(unsigned long *ts_field_);
     QDateTime decodeFromCDS(uint8_t pField, unsigned long *ts_field_);
 };
 
