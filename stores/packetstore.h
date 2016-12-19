@@ -59,7 +59,7 @@ public:
             setData(index(0, 3), header_->getSubServiceType());
             setData(index(0, 5), header_->getTimestamp());
 
-            if (!header_->timestampValid()) {
+            if (header_->timestampValid()) {
                 setData(index(0, 5), QVariant(QBrush(QColor(0, 0, 255, 127))), Qt::ForegroundRole);
             }
         }
