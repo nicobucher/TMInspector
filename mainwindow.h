@@ -8,10 +8,10 @@
 #include <QSettings>
 #include <QThread>
 #include <QProgressDialog>
-#include "serversettings.h"
-#include "packetworker.h"
-#include "packetstore.h"
-#include "eventstore.h"
+#include "dialogs/serversettings.h"
+#include "workers/packetworker.h"
+#include "stores/packetstore.h"
+#include "stores/eventstore.h"
 #include "custommodels.h"
 #include "definitions.h"
 #include <QLineEdit>

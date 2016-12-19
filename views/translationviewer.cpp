@@ -1,6 +1,6 @@
-#include "translationviewer.h"
+#include "views/translationviewer.h"
 #include "ui_translationviewer.h"
-#include "addtranslationdialog.h"
+#include "dialogs/addtranslationdialog.h"
 #include <QMenu>
 
 TranslationViewer::TranslationViewer(QWidget *parent,

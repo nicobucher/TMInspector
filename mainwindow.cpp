@@ -1,9 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "objectview.h"
-#include "translationviewer.h"
-#include "packetcontentview.h"
-#include "sqlworker.h"
+#include "views/objectview.h"
+#include "views/translationviewer.h"
+#include "views/packetcontentview.h"
+#include "workers/sqlworker.h"
 #include <QTableView>
 #include <QDateTime>
 #include <QFileDialog>

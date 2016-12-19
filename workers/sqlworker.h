@@ -6,9 +6,9 @@
 #include <QSqlQueryModel>
 #include <QSettings>
 #include <QProgressDialog>
-#include "sourcepacket.h"
-#include "packetstore.h"
-#include "eventstore.h"
+#include "packets/sourcepacket.h"
+#include "stores/packetstore.h"
+#include "stores/eventstore.h"
 
 class SqlWorker : public QObject
 {

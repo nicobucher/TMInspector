@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "store.h"
-#include "sourcepacket.h"
+#include "packets/sourcepacket.h"
 #include "definitions.h"
 #include "packetviewfilterproxymodel.h"
 #include "translator.h"

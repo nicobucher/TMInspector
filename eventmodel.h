@@ -1,7 +1,7 @@
 #ifndef EVENTMODEL_H
 #define EVENTMODEL_H
 
-#include "eventstore.h"
+#include "stores/eventstore.h"
 #include "translator.h"
 
 class EventStore;
