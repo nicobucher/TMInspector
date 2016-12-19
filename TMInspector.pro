@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     eventmodel.cpp \
     packetviewfilterproxymodel.cpp \
     translator.cpp \
-    definitions.cpp
+    definitions.cpp \
+    dumpsummarypacket.cpp
 
 HEADERS  += mainwindow.h \
     serversettings.h \
@@ -58,7 +59,8 @@ HEADERS  += mainwindow.h \
     custommodels.h \
     eventmodel.h \
     packetviewfilterproxymodel.h \
-    translator.h
+    translator.h \
+    dumpsummarypacket.h
 
 FORMS    += mainwindow.ui \
     serversettings.ui \
