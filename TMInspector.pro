@@ -37,18 +37,6 @@ SOURCES += main.cpp\
     views/translationviewer.cpp \
     workers/packetworker.cpp \
     workers/sqlworker.cpp \
-    packets/sourcepacket.cpp \
-    packets/sourcepacketdatafieldheader.cpp \
-    dialogs/addtranslationdialog.cpp \
-    dialogs/serversettings.cpp \
-    stores/eventstore.cpp \
-    stores/packetstore.cpp \
-    stores/store.cpp \
-    views/objectview.cpp \
-    views/packetcontentview.cpp \
-    views/translationviewer.cpp \
-    workers/packetworker.cpp \
-    workers/sqlworker.cpp
 
 HEADERS  += mainwindow.h \
     event.h \
@@ -65,18 +53,6 @@ HEADERS  += mainwindow.h \
     dialogs/serversettings.h \
     packets/sourcepacket.h \
     packets/sourcepacketdatafieldheader.h \
-    stores/eventstore.h \
-    stores/packetstore.h \
-    stores/store.h \
-    views/objectview.h \
-    views/packetcontentview.h \
-    views/translationviewer.h \
-    workers/packetworker.h \
-    workers/sqlworker.h \
-    packets/sourcepacket.h \
-    packets/sourcepacketdatafieldheader.h \
-    dialogs/addtranslationdialog.h \
-    dialogs/serversettings.h \
     stores/eventstore.h \
     stores/packetstore.h \
     stores/store.h \

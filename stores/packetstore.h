@@ -30,7 +30,8 @@ public:
     PacketModel& operator<<(SourcePacket* packet_) {
         int apid_ = packet_->getApid();
         int lastSequenceCount_ = -1;
-        currentId++;
+        TMSourcePacketDataFieldHeader* dfh_ = (TMSourcePacketDataFieldHeader*)packet_->getDataFieldHeader();
+        currentId = ((qulonglong)dfh_->getTimestampSeconds() << 32) + packet_->getSourceSequenceCount();
         insertRow(0);
 
         // APID
@@ -74,7 +75,7 @@ public:
         return *this;
     }
 
-    int getCurrentId() {
+    qulonglong getCurrentId() {
         return currentId;
     }
 
@@ -83,7 +84,7 @@ public:
     }
 
 private:
-    int currentId;
+    qulonglong currentId;
     QHash<int, int> lastSequenceCounts;
     SPIDTranslator* translator;
 };
@@ -133,9 +134,6 @@ public:
 private:
     PacketModel* model;
     QHash<int, SourcePacket*> l_packets;
-
-//    QHash<QString,QString> l_packet_names;
-//    int id;
 
 public slots:
     void exportToFile(QString filename_);

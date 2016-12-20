@@ -79,6 +79,10 @@ public:
         return this->timestamp;
     }
 
+    int getTimestampSeconds() {
+        return this->timestamp.toMSecsSinceEpoch()/1000;
+    }
+
     void setTimestamp(QDateTime ts_) {
         this->timestamp = ts_;
     }
