@@ -7,10 +7,16 @@
 class DumpSummaryPacket : public SourcePacket
 {
 public:
-    DumpSummaryPacket(SourcePacket* packet);
+    DumpSummaryPacket();
+
+    void decode();
+
+    QList<int> getL_sequencecounts() const;
 
 protected:
-    QList<int> apids;
+    QList<int> l_sequencecounts;
+    int dumpcounter;
+    int dumpid;
 };
 
 #endif // DUMPSUMMARYPACKET_H

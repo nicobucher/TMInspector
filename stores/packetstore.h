@@ -30,8 +30,8 @@ public:
     PacketModel& operator<<(SourcePacket* packet_) {
         int apid_ = packet_->getApid();
         int lastSequenceCount_ = -1;
-        TMSourcePacketDataFieldHeader* dfh_ = (TMSourcePacketDataFieldHeader*)packet_->getDataFieldHeader();
-        currentId = ((qulonglong)dfh_->getTimestampSeconds() << 32) + packet_->getSourceSequenceCount();
+
+        currentId = packet_->getId();
         insertRow(0);
 
         // APID
@@ -112,8 +112,8 @@ public:
         QHashIterator<qulonglong, SourcePacket*> it(l_packets);
         while (it.hasNext()) {
             it.next();
-            int ssc_ = (it.key() & 0xFFFFFFFF00000000) >> 32;
-            int ts_ = it.key() & 0x00000000FFFFFFFF;
+            int ts_ = (it.key() & 0xFFFFFFFF00000000) >> 32;
+            int ssc_ = it.key() & 0x00000000FFFFFFFF;
             if (search_ssc_ == ssc_) {
                 if (ts_ > startsecs_ - actuality) {
                     found_ = true;

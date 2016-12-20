@@ -31,7 +31,7 @@ public:
     static const int HEADER_SIZE = 6;
     static const int MAX_PACKET_SIZE = 2048;
 
-private:
+protected:
     int version;
     int SourcePacketType;
     int apid;
@@ -39,11 +39,12 @@ private:
     PI_VALUES pi_vals;
     Sequence sequence;
     int sourceSequenceCount;
-    SourcePacketDataFieldHeader* dataFieldHeader;
+    TMSourcePacketDataFieldHeader* dataFieldHeader;
     Quality quality;
     unsigned char* header;
     unsigned char* data;
     int dataLength;
+    qulonglong unique_id;
 
 public:
     int getVersion() {
@@ -114,7 +115,7 @@ public:
         return this->dataFieldHeader;
     }
 
-    void setDataFieldHeader(SourcePacketDataFieldHeader* hdr_) {
+    void setDataFieldHeader(TMSourcePacketDataFieldHeader* hdr_) {
         this->dataFieldHeader = hdr_;
     }
 
@@ -159,6 +160,14 @@ public:
 
     int getPI_2() {
         return this->pi_vals.PI2_VAL;
+    }
+
+    qulonglong getId() {
+        return this->unique_id;
+    }
+
+    void setId(const qulonglong &value) {
+        this->unique_id = value;
     }
 
     bool checkCRC();
