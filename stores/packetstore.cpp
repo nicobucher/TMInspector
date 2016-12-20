@@ -15,11 +15,11 @@ PacketStore::PacketStore(QObject* parent, SPIDTranslator* trans_) : Store(parent
 //    id = 0;
 }
 
-int
+qulonglong
 PacketStore::putPacket(SourcePacket* p_) {
     *this->model << p_;
 
-    int id_ = this->model->getCurrentId();
+    qulonglong id_ = this->model->getCurrentId();
     l_packets.insert(id_, p_);
     return id_;
 }
@@ -52,7 +52,7 @@ PacketStore::exportToFile(QString filename_)
 }
 
 SourcePacket*
-PacketStore::getPacket(int pkt_id)
+PacketStore::getPacket(qulonglong pkt_id)
 {
     return l_packets.value(pkt_id, 0);
 }

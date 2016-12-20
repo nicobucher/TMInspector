@@ -106,6 +106,23 @@ public:
         }
     }
 
+    // TODO: this should be used to check if a TM packet with a specific
+    bool recentTMPacketInStore(int search_ssc_, int startsecs_, int actuality) {
+        bool found_ = false;
+        QHashIterator<qulonglong, SourcePacket*> it(l_packets);
+        while (it.hasNext()) {
+            it.next();
+            int ssc_ = (it.key() & 0xFFFFFFFF00000000) >> 32;
+            int ts_ = it.key() & 0x00000000FFFFFFFF;
+            if (search_ssc_ == ssc_) {
+                if (ts_ > startsecs_ - actuality) {
+                    found_ = true;
+                }
+            }
+        }
+        return found_;
+    }
+
     int getNumberOfItems() {
         return this->model->rowCount();
     }
@@ -119,8 +136,8 @@ public:
     }
 
     // Returns the allocated packet reference id
-    int putPacket(SourcePacket* p_);
-    SourcePacket* getPacket(int pkt_id);
+    qulonglong putPacket(SourcePacket* p_);
+    SourcePacket* getPacket(qulonglong pkt_id);
     PacketViewFilterProxyModel* proxy_model;
 
     void setSourceModel(QAbstractItemModel* src_) {
@@ -133,7 +150,7 @@ public:
 
 private:
     PacketModel* model;
-    QHash<int, SourcePacket*> l_packets;
+    QHash<qulonglong, SourcePacket*> l_packets;
 
 public slots:
     void exportToFile(QString filename_);

@@ -3,7 +3,7 @@
 #include "packets/sourcepacket.h"
 #include <QDebug>
 
-PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, int idx_) :
+PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglong idx_) :
     QDialog(parent),
     ui(new Ui::PacketContentView),
     store(st_)

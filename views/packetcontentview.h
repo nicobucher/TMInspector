@@ -13,7 +13,7 @@ class PacketContentView : public QDialog
     Q_OBJECT
 
 public:
-    explicit PacketContentView(QWidget *parent = 0, PacketStore* st_ = 0, int idx_ = 0);
+    explicit PacketContentView(QWidget *parent = 0, PacketStore* st_ = 0, qulonglong idx_ = 0);
     ~PacketContentView();
 
 private:
