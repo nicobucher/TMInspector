@@ -105,19 +105,19 @@ public:
         this->severity = sev_;
         switch (this->severity) {
         case Info:
-            this->severity_item->setAnimation(Qt::green);
+            this->severity_item->setAnimation(Qt::darkGreen);
             this->severity_item->setText("Info");
             break;
         case Low:
-            this->severity_item->setAnimation(Qt::cyan);
+            this->severity_item->setAnimation(Qt::darkCyan);
             this->severity_item->setText("Low");
             break;
         case Medium:
-            this->severity_item->setAnimation(Qt::yellow);
+            this->severity_item->setAnimation(Qt::darkYellow);
             this->severity_item->setText("Medium");
             break;
         case High:
-            this->severity_item->setAnimation(Qt::red);
+            this->severity_item->setAnimation(Qt::darkRed);
             this->severity_item->setText("Alert");
             break;
         }

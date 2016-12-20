@@ -2,7 +2,7 @@
 #define TRANSLATIONVIEWER_H
 
 #include <QDialog>
-#include "packetstore.h"
+#include "stores/packetstore.h"
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include "mainwindow.h"

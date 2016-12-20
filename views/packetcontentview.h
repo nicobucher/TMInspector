@@ -2,7 +2,7 @@
 #define PACKETCONTENTVIEW_H
 
 #include <QDialog>
-#include "packetstore.h"
+#include "stores/packetstore.h"
 
 namespace Ui {
 class PacketContentView;

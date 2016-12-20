@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "store.h"
-#include "sourcepacket.h"
+#include "packets/sourcepacket.h"
 #include "definitions.h"
 #include "packetviewfilterproxymodel.h"
 #include "translator.h"
@@ -59,7 +59,7 @@ public:
             setData(index(0, 3), header_->getSubServiceType());
             setData(index(0, 5), header_->getTimestamp());
 
-            if (!header_->timestampValid()) {
+            if (header_->timestampValid()) {
                 setData(index(0, 5), QVariant(QBrush(QColor(0, 0, 255, 127))), Qt::ForegroundRole);
             }
         }

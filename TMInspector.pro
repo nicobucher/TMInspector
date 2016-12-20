@@ -16,55 +16,79 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    serversettings.cpp \
-    sourcepacket.cpp \
-    sourcepacketdatafieldheader.cpp \
-    packetworker.cpp \
-    packetstore.cpp \
-    sqlworker.cpp \
     event.cpp \
-    eventstore.cpp \
-    store.cpp \
-    objectview.cpp \
     objectfilterproxymodel.cpp \
-    translationviewer.cpp \
-    addtranslationdialog.cpp \
     animatedstandarditem.cpp \
     treeviewfilterproxymodel.cpp \
-    packetcontentview.cpp \
     eventmodel.cpp \
     packetviewfilterproxymodel.cpp \
     translator.cpp \
     definitions.cpp \
-    dumpsummarypacket.cpp
+    packets/dumpsummarypacket.cpp \
+    dialogs/addtranslationdialog.cpp \
+    dialogs/serversettings.cpp \
+    packets/sourcepacket.cpp \
+    packets/sourcepacketdatafieldheader.cpp \
+    stores/eventstore.cpp \
+    stores/packetstore.cpp \
+    stores/store.cpp \
+    views/objectview.cpp \
+    views/packetcontentview.cpp \
+    views/translationviewer.cpp \
+    workers/packetworker.cpp \
+    workers/sqlworker.cpp \
+    packets/sourcepacket.cpp \
+    packets/sourcepacketdatafieldheader.cpp \
+    dialogs/addtranslationdialog.cpp \
+    dialogs/serversettings.cpp \
+    stores/eventstore.cpp \
+    stores/packetstore.cpp \
+    stores/store.cpp \
+    views/objectview.cpp \
+    views/packetcontentview.cpp \
+    views/translationviewer.cpp \
+    workers/packetworker.cpp \
+    workers/sqlworker.cpp
 
 HEADERS  += mainwindow.h \
-    serversettings.h \
-    sourcepacket.h \
-    sourcepacketdatafieldheader.h \
-    packetworker.h \
-    packetstore.h \
-    sqlworker.h \
     event.h \
-    eventstore.h \
-    store.h \
-    objectview.h \
     objectfilterproxymodel.h \
-    translationviewer.h \
-    addtranslationdialog.h \
     animatedstandarditem.h \
     treeviewfilterproxymodel.h \
-    packetcontentview.h \
     definitions.h \
     custommodels.h \
     eventmodel.h \
     packetviewfilterproxymodel.h \
     translator.h \
-    dumpsummarypacket.h
+    packets/dumpsummarypacket.h \
+    dialogs/addtranslationdialog.h \
+    dialogs/serversettings.h \
+    packets/sourcepacket.h \
+    packets/sourcepacketdatafieldheader.h \
+    stores/eventstore.h \
+    stores/packetstore.h \
+    stores/store.h \
+    views/objectview.h \
+    views/packetcontentview.h \
+    views/translationviewer.h \
+    workers/packetworker.h \
+    workers/sqlworker.h \
+    packets/sourcepacket.h \
+    packets/sourcepacketdatafieldheader.h \
+    dialogs/addtranslationdialog.h \
+    dialogs/serversettings.h \
+    stores/eventstore.h \
+    stores/packetstore.h \
+    stores/store.h \
+    views/objectview.h \
+    views/packetcontentview.h \
+    views/translationviewer.h \
+    workers/packetworker.h \
+    workers/sqlworker.h
 
 FORMS    += mainwindow.ui \
-    serversettings.ui \
-    objectview.ui \
-    translationviewer.ui \
-    addtranslationdialog.ui \
-    packetcontentview.ui
+    dialogs/serversettings.ui \
+    views/objectview.ui \
+    views/translationviewer.ui \
+    dialogs/addtranslationdialog.ui \
+    views/packetcontentview.ui

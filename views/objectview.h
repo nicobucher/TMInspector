@@ -4,7 +4,7 @@
 #include <QDialog>
 #include "objectfilterproxymodel.h"
 #include <QStandardItemModel>
-#include <store.h>
+#include <stores/store.h>
 
 namespace Ui {
 class ObjectView;

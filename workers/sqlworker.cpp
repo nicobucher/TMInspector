@@ -61,7 +61,7 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             QByteArray data = query.value(rec.indexOf("data")).toByteArray();
 
             packet->setVersion(0);
-            packet->setDataField((unsigned char*)data.data(), data.length());
+            packet->setDataField((unsigned char*)data.data()+packet->HEADER_SIZE, data.length()-packet->HEADER_SIZE);
             packet->setApid(query.value(rec.indexOf("applicationProcessId")).toInt());
             packet->setSourceSequenceCount(query.value(rec.indexOf("sequenceCount")).toInt());
             packet->setSequence((Sequence)query.value(rec.indexOf("sequenceFlags")).toInt());
@@ -75,6 +75,7 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             QDateTime ts_;
             ts_.setMSecsSinceEpoch(query.value(rec.indexOf("generationTimestamp")).toULongLong());
             header->setTimestamp(ts_);
+            header->setTimestampValid(true);
             packet->setDataFieldHeader((SourcePacketDataFieldHeader*)header);
 
             if (query.value(rec.indexOf("type")).toString() == "TM") {

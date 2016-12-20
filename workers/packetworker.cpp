@@ -1,5 +1,5 @@
-#include "packetworker.h"
-#include "sourcepacket.h"
+#include "workers/packetworker.h"
+#include "packets/sourcepacket.h"
 #include "event.h"
 #include <QMutexLocker>
 #include <QDebug>

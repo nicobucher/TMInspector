@@ -1,6 +1,6 @@
-#include "packetcontentview.h"
+#include "views/packetcontentview.h"
 #include "ui_packetcontentview.h"
-#include "sourcepacket.h"
+#include "packets/sourcepacket.h"
 #include <QDebug>
 
 PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, int idx_) :
