@@ -37,6 +37,8 @@ SOURCES += main.cpp\
     views/translationviewer.cpp \
     workers/packetworker.cpp \
     workers/sqlworker.cpp \
+    stores/dumpstore.cpp \
+    dumpsummary.cpp
 
 HEADERS  += mainwindow.h \
     event.h \
@@ -60,7 +62,9 @@ HEADERS  += mainwindow.h \
     views/packetcontentview.h \
     views/translationviewer.h \
     workers/packetworker.h \
-    workers/sqlworker.h
+    workers/sqlworker.h \
+    stores/dumpstore.h \
+    dumpsummary.h
 
 FORMS    += mainwindow.ui \
     dialogs/serversettings.ui \

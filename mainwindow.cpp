@@ -48,6 +48,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mySqlPacketStore = new PacketStore(this, mySPIDTranslator);
     myEventStore = new EventStore(this, settings, myEventTranslator, myObjectTranslator);
     mySqlEventStore = new EventStore(this, settings, myEventTranslator, myObjectTranslator);
+    myDumpStore = new DumpStore(this);
+    mySqlDumpStore = new DumpStore(this);
 
     // Add the Connect Menu Entry
     dataMenu = menuBar()->addMenu("Data");
@@ -169,7 +171,7 @@ void MainWindow::on_actionTo_Server_triggered()
         return;
     }
 
-    myPacketWorker = new PacketWorker(myPacketStore, myEventStore, myPITranslator->getList(), myPICTranslator->getList());
+    myPacketWorker = new PacketWorker(myPacketStore, myEventStore, myDumpStore, myPITranslator->getList(), myPICTranslator->getList());
     connect(myPacketWorker, SIGNAL(hasError(const QString&)), this, SLOT(displayPacketWorkerError(const QString&)));
     connect(myPacketWorker, SIGNAL(eventAdded(Event*)), this, SLOT(animateNewEvent(Event*)));
     connect(this, SIGNAL(clientSetup(QThread*,QString,int)), myPacketWorker, SLOT(setup(QThread*,QString,int)));

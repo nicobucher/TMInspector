@@ -1,7 +1,7 @@
 #ifndef DUMPSUMMARYPACKET_H
 #define DUMPSUMMARYPACKET_H
 
-#include <QList>
+#include <QHash>
 #include "sourcepacket.h"
 
 class DumpSummaryPacket : public SourcePacket
@@ -11,12 +11,17 @@ public:
 
     void decode();
 
-    QList<int> getL_sequencecounts() const;
+    QHash<uint16_t, uint16_t> getL_sequencecounts() const;
+
+    uint32_t getOnboardStoreObject_id() const;
+    uint16_t getDumpcounter() const;
+    uint8_t getDumpid() const;
 
 protected:
-    QList<int> l_sequencecounts;
-    int dumpcounter;
-    int dumpid;
+    QHash<uint16_t, uint16_t> l_sequencecounts;
+    uint32_t object_id;
+    uint16_t dumpcounter;
+    uint8_t dumpid;
 };
 
 #endif // DUMPSUMMARYPACKET_H

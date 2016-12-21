@@ -12,6 +12,7 @@
 #include "workers/packetworker.h"
 #include "stores/packetstore.h"
 #include "stores/eventstore.h"
+#include "stores/dumpstore.h"
 #include "custommodels.h"
 #include "definitions.h"
 #include <QLineEdit>
@@ -44,6 +45,8 @@ private:
     PacketStore* mySqlPacketStore;
     EventStore* myEventStore;
     EventStore* mySqlEventStore;
+    DumpStore* myDumpStore;
+    DumpStore* mySqlDumpStore;
 
     QLabel* statusLabel;
 

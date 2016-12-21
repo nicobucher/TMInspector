@@ -1,10 +1,11 @@
 #include "workers/packetworker.h"
 #include "packets/sourcepacket.h"
+#include "packets/dumpsummarypacket.h"
 #include "event.h"
 #include <QMutexLocker>
 #include <QDebug>
 
-PacketWorker::PacketWorker(PacketStore *st_, EventStore *evst_, QHash<int,QVariant>* l_pis_, QHash<int,QVariant>* l_pics_)
+PacketWorker::PacketWorker(PacketStore *st_, EventStore *evst_, DumpStore *dumpst_, QHash<int,QVariant>* l_pis_, QHash<int,QVariant>* l_pics_)
     : l_pis(l_pis_),
       l_pics(l_pics_)
 {
@@ -13,6 +14,7 @@ PacketWorker::PacketWorker(PacketStore *st_, EventStore *evst_, QHash<int,QVaria
 
     this->store = st_;
     this->event_store = evst_;
+    this->dump_store = dumpst_;
 
     this->quit = false;
 }
@@ -68,7 +70,8 @@ PacketWorker::doWork()
                         SourcePacket* packet = new SourcePacket();
                         packet->makePacketFromData((unsigned char*)header_buffer.data(), (unsigned char*)data_buffer.data(), data_length);
 
-                        if (packet->getQuality() == GOOD && packet->getApid() != SourcePacket::APID_IDLEPACKET) {
+                        if (packet->getQuality() == GOOD &&
+                                packet->getApid() != SourcePacket::APID_IDLEPACKET) {
                             packet->makePI_VALUES(l_pics);
                             packet->makeSPID(l_pis);
                             int ref_ = store->putPacket(packet);
@@ -82,6 +85,13 @@ PacketWorker::doWork()
                                     event_store->putEvent(event);
                                     emit(eventAdded(event));
                                 }
+                            }
+                            // Dump Summary Packet
+                            if (packet->getDataFieldHeader()->getServiceType() == 15 &&
+                                    packet->getDataFieldHeader()->getSubServiceType() == 128) {
+                                DumpSummaryPacket* ds_packet = (DumpSummaryPacket*)packet;
+                                ds_packet->decode();
+                                dump_store->putDumpSummaryPacket(ds_packet);
                             }
                         } else {
                             // If the packet is either bad or an idle packet...

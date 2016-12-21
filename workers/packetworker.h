@@ -7,13 +7,14 @@
 #include <QTcpSocket>
 #include "stores/packetstore.h"
 #include "stores/eventstore.h"
+#include "stores/dumpstore.h"
 
 class PacketWorker : public QObject
 {
     Q_OBJECT
 
 public:
-    PacketWorker(PacketStore* st_, EventStore *evst_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_);
+    PacketWorker(PacketStore* st_, EventStore *evst_, DumpStore *dumpst_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_);
     ~PacketWorker();
 
     QString getHost() {
@@ -40,6 +41,7 @@ private:
     QTcpSocket* socket;
     PacketStore* store;
     EventStore* event_store;
+    DumpStore* dump_store;
     QMutex mutex;
     QString host;
     int port;
