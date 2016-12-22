@@ -63,7 +63,7 @@ PacketStore::searchPacketInStore(uint16_t ssc_, uint16_t apid_) {
     QHashIterator<qulonglong, SourcePacket*> it(l_packets);
     while (it.hasNext()) {
         it.next();
-        if ((it.key() & 0x000000000000FFFF) == ssc_ && apid_ == it.value()->getApid()) {
+        if (it.value()->getSourceSequenceCount() == ssc_ && apid_ == it.value()->getApid()) {
             found_ = it.value();
         }
     }

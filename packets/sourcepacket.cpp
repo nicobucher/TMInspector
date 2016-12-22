@@ -24,6 +24,12 @@ SourcePacket::SourcePacket(SourcePacket &packet) :
     unique_id(packet.getId())
 {
     this->setDataField((unsigned char*)packet.getData().data(), packet.getDataLength());
+
+    this->dataFieldHeader = new TMSourcePacketDataFieldHeader();
+    this->dataFieldHeader->setServiceType(packet.getDataFieldHeader()->getServiceType());
+    this->dataFieldHeader->setSubServiceType(packet.getDataFieldHeader()->getSubServiceType());
+    this->dataFieldHeader->setTimestamp(packet.getDataFieldHeader()->getTimestamp());
+    this->dataFieldHeader->setTimestampValid(packet.getDataFieldHeader()->timestampValid());
 }
 
 SourcePacket::SourcePacket(int type_, int version_, int apid_) :

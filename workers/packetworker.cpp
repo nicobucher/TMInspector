@@ -74,7 +74,24 @@ PacketWorker::doWork()
                                 packet->getApid() != SourcePacket::APID_IDLEPACKET) {
                             packet->makePI_VALUES(l_pics);
                             packet->makeSPID(l_pis);
-                            int ref_ = store->putPacket(packet);
+
+                            int ref_ = 0;
+                            // Dump Summary Packet
+                            if (packet->getDataFieldHeader()->getServiceType() == 15 &&
+                                    packet->getDataFieldHeader()->getSubServiceType() == 128) {
+                                DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
+
+                                dump_store->putDumpSummaryPacket(ds_packet);
+                                QHash<uint16_t, uint16_t> missingCounts = store->checkSequenceCounts(ds_packet->getL_sequencecounts());
+
+                                ds_packet->setL_missing_sequencecounts(missingCounts);
+                                DumpSummary* summary = dump_store->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
+                                summary->addMissingCounts(missingCounts);
+
+                                ref_ = store->putPacket(ds_packet);
+                            } else {
+                                ref_ = store->putPacket(packet);
+                            }
 
                             // If the packet contains an event (Events have Service Type 5)
                             if (packet->hasDataFieldHeader()) {
@@ -86,19 +103,7 @@ PacketWorker::doWork()
                                     emit(eventAdded(event));
                                 }
                             }
-                            // Dump Summary Packet
-                            if (packet->getDataFieldHeader()->getServiceType() == 15 &&
-                                    packet->getDataFieldHeader()->getSubServiceType() == 128) {
-                                DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
 
-                                dump_store->putDumpSummaryPacket(ds_packet);
-                                QHash<uint16_t, uint16_t> missingCounts = store->checkSequenceCounts(ds_packet->getL_sequencecounts());
-                                if(missingCounts.size() == 0) {
-                                    ds_packet->setComplete(true);
-                                }
-                                DumpSummary* summary = dump_store->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
-                                summary->addMissingCounts(missingCounts);
-                            }
                         } else {
                             // If the packet is either bad or an idle packet...
 //                            qDebug() << data_buffer.toHex();

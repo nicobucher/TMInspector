@@ -67,7 +67,7 @@ public:
 
             if (header_->getServiceType() == 15 && header_->getSubServiceType() == 128) {
                 DumpSummaryPacket* ds_packet_ = (DumpSummaryPacket*)packet_;
-                if(ds_packet_->getComplete()) {
+                if(ds_packet_->isComplete()) {
                     setData(index(0, 1), QVariant(QBrush(Qt::green)), Qt::BackgroundColorRole);
                     setData(index(0, 2), QVariant(QBrush(Qt::green)), Qt::BackgroundColorRole);
                     setData(index(0, 3), QVariant(QBrush(Qt::green)), Qt::BackgroundColorRole);

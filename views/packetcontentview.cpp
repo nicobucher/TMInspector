@@ -1,6 +1,7 @@
 #include "views/packetcontentview.h"
 #include "ui_packetcontentview.h"
 #include "packets/sourcepacket.h"
+#include "packets/dumpsummarypacket.h"
 #include <QDebug>
 
 PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglong idx_) :
@@ -25,7 +26,21 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
         ui->PI2_value->setText(QString::number(selectedPacket->getPI_2()));
         ui->SPID->setText(QString::number(selectedPacket->getSpid()));
 
-        ui->data_line_edit->setText(selectedPacket->getData().toHex());
+        if (selectedPacket->getDataFieldHeader()->getServiceType() == 15 && selectedPacket->getDataFieldHeader()->getSubServiceType() == 128) {
+            // Special view for dump summary packets
+            DumpSummaryPacket* ds_packet = (DumpSummaryPacket*)selectedPacket;
+            QString ssc_summary_;
+            QTextStream(&ssc_summary_) << "Missing " << ds_packet->getNumberOfMissingSSC() << " SSCs:" << endl << endl;
+            QHashIterator<uint16_t, uint16_t> it(ds_packet->getL_missing_sequencecounts());
+            while (it.hasNext()) {
+                it.next();
+                QTextStream(&ssc_summary_) << it.key() << endl;
+            }
+            ui->data_line_edit->setText(ssc_summary_);
+        } else {
+            ui->data_line_edit->setText(selectedPacket->getData().toHex());
+        }
+
     } else {
         qDebug() << "Selected Packet not found";
         ui->data_line_edit->setText("packet not found, no data");

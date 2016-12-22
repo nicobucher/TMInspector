@@ -20,18 +20,22 @@ public:
     uint16_t getDumpcounter() const;
     uint8_t getDumpid() const;
 
-    bool getComplete() const;
-    void setComplete(bool value);
+    bool isComplete() const;
+
+    QHash<uint16_t, uint16_t> getL_missing_sequencecounts() const;
+    void setL_missing_sequencecounts(const QHash<uint16_t, uint16_t> &value);
+
+    int getNumberOfMissingSSC();
 
 protected:
     /*
      * 'l_sequencecounts' holds combinations of sequence counts (key) and APID (value)
      */
     QHash<uint16_t, uint16_t> l_sequencecounts;
+    QHash<uint16_t, uint16_t> l_missing_sequencecounts;
     uint32_t object_id;
     uint16_t dumpcounter;
     uint8_t dumpid;
-    bool complete;
 };
 
 #endif // DUMPSUMMARYPACKET_H

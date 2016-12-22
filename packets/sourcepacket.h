@@ -112,7 +112,7 @@ public:
         }
     }
 
-    SourcePacketDataFieldHeader* getDataFieldHeader() {
+    TMSourcePacketDataFieldHeader* getDataFieldHeader() {
         return this->dataFieldHeader;
     }
 

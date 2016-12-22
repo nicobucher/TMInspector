@@ -1,6 +1,6 @@
 #include "dumpsummarypacket.h"
 
-DumpSummaryPacket::DumpSummaryPacket(SourcePacket &packet) : SourcePacket(packet), complete(false)
+DumpSummaryPacket::DumpSummaryPacket(SourcePacket &packet) : SourcePacket(packet)
 {
     decode();
 }
@@ -49,12 +49,26 @@ uint8_t DumpSummaryPacket::getDumpid() const
     return dumpid;
 }
 
-bool DumpSummaryPacket::getComplete() const
+bool DumpSummaryPacket::isComplete() const
 {
-    return complete;
+    if (l_missing_sequencecounts.size() == 0)
+        return true;
+    else {
+        return false;
+    }
 }
 
-void DumpSummaryPacket::setComplete(bool value)
+QHash<uint16_t, uint16_t> DumpSummaryPacket::getL_missing_sequencecounts() const
 {
-    complete = value;
+    return l_missing_sequencecounts;
+}
+
+void DumpSummaryPacket::setL_missing_sequencecounts(const QHash<uint16_t, uint16_t> &value)
+{
+    l_missing_sequencecounts = value;
+}
+
+int DumpSummaryPacket::getNumberOfMissingSSC()
+{
+    return l_missing_sequencecounts.size();
 }
