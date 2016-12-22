@@ -419,7 +419,7 @@ void MainWindow::loadObjectView(QModelIndex index)
         selectedStore = (Store*)index.model()->parent();
         // Get the index from the item in column zero... This can then be used to look up the packet in the stores packet-list
         QModelIndex pktIndex = index.model()->index(index.row(),1);
-        int pkt_id = pktIndex.data(ListIndexRole).toInt();
+        qulonglong pkt_id = pktIndex.data(ListIndexRole).toLongLong();
         PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);
         pktView->setAttribute(Qt::WA_DeleteOnClose);
         pktView->show();
