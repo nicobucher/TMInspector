@@ -7,7 +7,10 @@
 class DumpSummaryPacket : public SourcePacket
 {
 public:
-    DumpSummaryPacket();
+    /*
+     * Copy Constructor to copy a source packet
+     */
+    DumpSummaryPacket(SourcePacket &packet);
 
     void decode();
 

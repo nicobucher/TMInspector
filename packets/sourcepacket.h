@@ -23,6 +23,7 @@ class SourcePacket : public QObject, public QStandardItem
     Q_OBJECT
 public:
     SourcePacket();
+    SourcePacket(SourcePacket &packet);
     SourcePacket(int type_, int version_, int apid_);
     ~SourcePacket();
 
@@ -32,15 +33,15 @@ public:
     static const int MAX_PACKET_SIZE = 2048;
 
 protected:
+    Sequence sequence;
+    Quality quality;
     int version;
     int SourcePacketType;
+    int sourceSequenceCount;
     int apid;
     int spid;
     PI_VALUES pi_vals;
-    Sequence sequence;
-    int sourceSequenceCount;
     TMSourcePacketDataFieldHeader* dataFieldHeader;
-    Quality quality;
     unsigned char* header;
     unsigned char* data;
     int dataLength;

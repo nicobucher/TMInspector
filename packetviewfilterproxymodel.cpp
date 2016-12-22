@@ -8,7 +8,7 @@ PacketViewFilterProxyModel::PacketViewFilterProxyModel(QObject *parent)
 
 bool PacketViewFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    QModelIndex index_type = sourceModel()->index(source_row, 1, source_parent);
+    QModelIndex index_type = sourceModel()->index(source_row, 2, source_parent);
 
     if (filterRegExp().pattern() == "*")
         return true;
@@ -24,5 +24,5 @@ bool PacketViewFilterProxyModel::filterAcceptsRow(int source_row, const QModelIn
 
 bool PacketViewFilterProxyModel::filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const
 {
-
+    return true;
 }

@@ -89,8 +89,8 @@ PacketWorker::doWork()
                             // Dump Summary Packet
                             if (packet->getDataFieldHeader()->getServiceType() == 15 &&
                                     packet->getDataFieldHeader()->getSubServiceType() == 128) {
-                                DumpSummaryPacket* ds_packet = (DumpSummaryPacket*)packet;
-                                ds_packet->decode();
+                                DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
+
                                 dump_store->putDumpSummaryPacket(ds_packet);
                                 QHash<uint16_t, uint16_t> missingCounts = store->checkSequenceCounts(ds_packet->getL_sequencecounts());
                                 if(missingCounts.size() == 0) {

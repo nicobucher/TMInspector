@@ -2,14 +2,33 @@
 #include "sourcepacketdatafieldheader.h"
 #include <QDebug>
 
-SourcePacket::SourcePacket() : sequence(STANDALONE_PACKET), quality(GOOD)
+SourcePacket::SourcePacket() :
+    sequence(STANDALONE_PACKET),
+    quality(GOOD)
 {
     //
     this->sourceSequenceCount = 0;
     this->setDataField(NULL, 0);
 }
 
-SourcePacket::SourcePacket(int type_, int version_, int apid_) : sequence(STANDALONE_PACKET), quality(GOOD)
+SourcePacket::SourcePacket(SourcePacket &packet) :
+    QObject(),
+    QStandardItem(),
+    sequence(STANDALONE_PACKET),
+    quality(GOOD),
+    version(packet.getVersion()),
+    SourcePacketType(packet.getSourcePacketType()),
+    sourceSequenceCount(packet.getSourceSequenceCount()),
+    apid(packet.getApid()),
+    spid(packet.getSpid()),
+    unique_id(packet.getId())
+{
+    this->setDataField((unsigned char*)packet.getData().data(), packet.getDataLength());
+}
+
+SourcePacket::SourcePacket(int type_, int version_, int apid_) :
+    sequence(STANDALONE_PACKET),
+    quality(GOOD)
 {
     // Initialization Constructor
     this->sourceSequenceCount = 0;

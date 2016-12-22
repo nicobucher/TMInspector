@@ -3,6 +3,7 @@
 
 #include "store.h"
 #include "dumpsummary.h"
+#include "packetviewfilterproxymodel.h"
 #include <QDateTime>
 
 class DumpStore : public Store
@@ -20,13 +21,14 @@ public:
         return this->model;
     }
 
+    PacketViewFilterProxyModel* proxy_model;
+
     void setSourceModel(QAbstractItemModel* src_) {
-        // TODO: Not yet needed
+        this->proxy_model->setSourceModel(src_);
     }
 
-    QSortFilterProxyModel* getProxyModel() {
-        // TODO: Not yet needed
-        return NULL;
+    QSortFilterProxyModel* getProxyModel() {        
+        return this->proxy_model;
     }
 
     void putDumpSummaryPacket(DumpSummaryPacket* dps_);

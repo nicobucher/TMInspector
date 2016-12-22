@@ -7,6 +7,7 @@
 #include "definitions.h"
 #include "packetviewfilterproxymodel.h"
 #include "translator.h"
+#include "packets/dumpsummarypacket.h"
 
 /*
  * This PacketModel class is a spcialized QStandardItemModel which tracks also the current id
@@ -62,6 +63,25 @@ public:
 
             if (header_->timestampValid()) {
                 setData(index(0, 5), QVariant(QBrush(QColor(0, 0, 255, 127))), Qt::ForegroundRole);
+            }
+
+            if (header_->getServiceType() == 15 && header_->getSubServiceType() == 128) {
+                DumpSummaryPacket* ds_packet_ = (DumpSummaryPacket*)packet_;
+                if(ds_packet_->getComplete()) {
+                    setData(index(0, 1), QVariant(QBrush(Qt::green)), Qt::BackgroundColorRole);
+                    setData(index(0, 2), QVariant(QBrush(Qt::green)), Qt::BackgroundColorRole);
+                    setData(index(0, 3), QVariant(QBrush(Qt::green)), Qt::BackgroundColorRole);
+                    setData(index(0, 4), QVariant(QBrush(Qt::green)), Qt::BackgroundColorRole);
+                    setData(index(0, 5), QVariant(QBrush(Qt::green)), Qt::BackgroundColorRole);
+                    setData(index(0, 6), QVariant(QBrush(Qt::green)), Qt::BackgroundColorRole);
+                } else {
+                    setData(index(0, 1), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 2), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 3), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 4), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 5), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 6), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+                }
             }
         }
 
