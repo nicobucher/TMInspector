@@ -92,6 +92,12 @@ PacketWorker::doWork()
                                 DumpSummaryPacket* ds_packet = (DumpSummaryPacket*)packet;
                                 ds_packet->decode();
                                 dump_store->putDumpSummaryPacket(ds_packet);
+                                QHash<uint16_t, uint16_t> missingCounts = store->checkSequenceCounts(ds_packet->getL_sequencecounts());
+                                if(missingCounts.size() == 0) {
+                                    ds_packet->setComplete(true);
+                                }
+                                DumpSummary* summary = dump_store->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
+                                summary->addMissingCounts(missingCounts);
                             }
                         } else {
                             // If the packet is either bad or an idle packet...

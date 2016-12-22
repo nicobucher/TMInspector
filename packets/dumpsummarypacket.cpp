@@ -1,6 +1,6 @@
 #include "dumpsummarypacket.h"
 
-DumpSummaryPacket::DumpSummaryPacket()
+DumpSummaryPacket::DumpSummaryPacket() : complete(false)
 {
     // Todo: Parse the packet and extract the list of ssc's
 }
@@ -42,4 +42,14 @@ uint16_t DumpSummaryPacket::getDumpcounter() const
 uint8_t DumpSummaryPacket::getDumpid() const
 {
     return dumpid;
+}
+
+bool DumpSummaryPacket::getComplete() const
+{
+    return complete;
+}
+
+void DumpSummaryPacket::setComplete(bool value)
+{
+    complete = value;
 }

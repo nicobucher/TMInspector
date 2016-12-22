@@ -34,13 +34,16 @@ public:
     int getNumberOfDumps();
     bool containsDumpId(qulonglong id_);
     bool containsDumpId(uint32_t obj_id_, uint8_t dump_id_);
+    DumpSummary* getDumpSummary(qulonglong id_);
+    DumpSummary* getDumpSummary(uint8_t dump_id, uint32_t object_id);
+
 public slots:
     void exportToFile(QString filename_);
 
 private:
     QStandardItemModel* model;
 
-    QHash<int, DumpSummary*> l_dumps;
+    QHash<qulonglong, DumpSummary*> l_dumps;
     qulonglong generateId(uint32_t obj_id_, uint8_t dump_id_);
 };
 

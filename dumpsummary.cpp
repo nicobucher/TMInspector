@@ -27,6 +27,16 @@ bool DumpSummary::isFresh()
     }
 }
 
+void DumpSummary::addMissingCounts(QHash<uint16_t, uint16_t> counts_)
+{
+    this->l_missingcounts.unite(counts_);
+}
+
+QHash<uint16_t, uint16_t> *DumpSummary::getMissingCounts()
+{
+    return &l_missingcounts;
+}
+
 uint32_t DumpSummary::getObject_id() const
 {
     return object_id;

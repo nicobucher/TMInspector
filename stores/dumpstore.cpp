@@ -25,6 +25,16 @@ bool DumpStore::containsDumpId(uint32_t obj_id_, uint8_t dump_id_) {
     return this->l_dumps.contains(generateId(obj_id_, dump_id_));
 }
 
+DumpSummary *DumpStore::getDumpSummary(qulonglong id_)
+{
+    return this->l_dumps.value(id_);
+}
+
+DumpSummary *DumpStore::getDumpSummary(uint8_t dump_id, uint32_t object_id)
+{
+    return this->l_dumps.value(generateId(object_id, dump_id));
+}
+
 bool DumpStore::containsDumpId(qulonglong id_) {
     return this->l_dumps.contains(id_);
 }

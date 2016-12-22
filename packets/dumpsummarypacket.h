@@ -17,11 +17,18 @@ public:
     uint16_t getDumpcounter() const;
     uint8_t getDumpid() const;
 
+    bool getComplete() const;
+    void setComplete(bool value);
+
 protected:
+    /*
+     * 'l_sequencecounts' holds combinations of sequence counts (key) and APID (value)
+     */
     QHash<uint16_t, uint16_t> l_sequencecounts;
     uint32_t object_id;
     uint16_t dumpcounter;
     uint8_t dumpid;
+    bool complete;
 };
 
 #endif // DUMPSUMMARYPACKET_H

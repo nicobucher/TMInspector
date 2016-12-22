@@ -106,23 +106,6 @@ public:
         }
     }
 
-    // TODO: this should be used to check if a TM packet with a specific
-    bool recentTMPacketInStore(int search_ssc_, int startsecs_, int actuality) {
-        bool found_ = false;
-        QHashIterator<qulonglong, SourcePacket*> it(l_packets);
-        while (it.hasNext()) {
-            it.next();
-            int ts_ = (it.key() & 0xFFFFFFFF00000000) >> 32;
-            int ssc_ = it.key() & 0x00000000FFFFFFFF;
-            if (search_ssc_ == ssc_) {
-                if (ts_ > startsecs_ - actuality) {
-                    found_ = true;
-                }
-            }
-        }
-        return found_;
-    }
-
     int getNumberOfItems() {
         return this->model->rowCount();
     }
@@ -148,6 +131,45 @@ public:
         return this->proxy_model;
     }
 
+    /*
+     * This searches the packets in the store for a given source sequence count and APID combination.
+     * Takes:
+     * - (uint16_t) the source sequence count of the packet to search for
+     * - (uint16_t) the APID of the searched packet
+     * Returns:
+     * - SourcePacket* pointer to the found packet
+     */
+    SourcePacket* searchPacketInStore(uint16_t ssc_, uint16_t apid_);
+
+    /*
+     * This searches the packets in the store for a given source sequence count and APID combination.
+     * This only returns packet which have a timestammp that is 'seconds_' newer than 'from_time_'
+     * Takes:
+     * - (uint16_t) the source sequence count of the packet to search for
+     * - (uint16_t) the APID of the searched packet
+     * - (QDateTime) reference time
+     * - (int) Only packets which are 'seconds_' older than 'from_time_' are returned
+     * Returns:
+     * - SourcePacket* pointer to the found packet
+     */
+    SourcePacket* searchPacketInStore(uint16_t ssc_, uint16_t apid_, QDateTime from_time_, int seconds_);
+
+    /*
+     * Takes a hash-map of sequence counts and corresponding apids and checks this store
+     * if the list entries are present.
+     * Returns:
+     * - A hash-map of missing source sequence counts and APID combinations
+     */
+    QHash<uint16_t, uint16_t> checkSequenceCounts(QHash<uint16_t, uint16_t> searchForCounts);
+
+    /*
+     * Takes a hash-map of sequence counts and corresponding apids and checks this store
+     * if the list entries are present. This version only returns a hash-map of the sequence counts
+     * and APID combinations for packets which are not older than 'seconds_' before 'from_time_'.
+     * Returns:
+     * - A hash-map of missing source sequence counts and APID combinations in time-range
+     */
+    QHash<uint16_t, uint16_t> checkSequenceCounts(QHash<uint16_t, uint16_t> searchForCounts, QDateTime from_time_, int seconds_);
 private:
     PacketModel* model;
     QHash<qulonglong, SourcePacket*> l_packets;
