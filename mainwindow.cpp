@@ -187,7 +187,8 @@ void MainWindow::on_actionTo_Server_triggered()
             action_Connect->setText("Disconnect");
         } else {
             QString str;
-            QTextStream(&str) << "Could not connect to " << settings->value("server/host").toString() << " on port " << settings->value("server/port").toInt();
+            QTextStream(&str) << "Could not connect to " << settings->value("server/host").toString()
+                              << " on port " << settings->value("server/port").toInt();
             this->statusBar()->showMessage(str);
         }
     }
@@ -252,7 +253,9 @@ void MainWindow::on_commandLinkButton_clicked()
 
     QDateTime begin_ = ui->dateTimeEdit_start->dateTime();
     QDateTime end_ = ui->dateTimeEdit_stop->dateTime();
-    SqlWorker* worker = new SqlWorker(settings, begin_, end_, mySqlPacketStore, mySqlEventStore, progress_, myPITranslator->getList(), myPICTranslator->getList());
+    SqlWorker* worker = new SqlWorker(settings, begin_, end_, mySqlPacketStore, mySqlEventStore,
+                                      mySqlDumpStore, progress_, myPITranslator->getList(),
+                                      myPICTranslator->getList());
     connect(worker, SIGNAL(dbAccessError(QString)), this, SLOT(displayStatusBarMessage(QString)));
     connect(worker, SIGNAL(progressMade(int)), progress_, SLOT(setValue(int)));
     connect(worker, SIGNAL(newMaxProgress(int)), progress_, SLOT(setMaximum(int)));
@@ -404,7 +407,8 @@ void MainWindow::loadObjectView(QModelIndex index)
     if (index.model() == myEventStore->proxy_model || index.model() == mySqlEventStore->proxy_model) {
         selectedStore = (Store*)index.model()->parent();
         if (selectedStore->itemInStore(index.data().toString())) {
-            // The mapping to the source model is required because index is of the proxy_model and needs to be mapped to the source model in order to be resolved
+            // The mapping to the source model is required because index is of the proxy_model and
+            // needs to be mapped to the source model in order to be resolved
             QModelIndex sourceIndex = selectedStore->getProxyModel()->mapToSource(index);
             // Then pass the mapped sourceIndex to the ObjectView
             ObjectView* objView = new ObjectView(this, sourceIndex, selectedStore->getModel());

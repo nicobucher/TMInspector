@@ -6,11 +6,12 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-SqlWorker::SqlWorker(QSettings* settings, QDateTime begin_, QDateTime end_, PacketStore* st_, EventStore *evst_, QProgressDialog* prg_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_)
+SqlWorker::SqlWorker(QSettings* settings, QDateTime begin_, QDateTime end_, PacketStore* st_, EventStore *evst_, DumpStore *dmpst_, QProgressDialog* prg_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_)
     : begin(begin_),
       end(end_),
       mySqlPacketStore(st_),
       mySqlEventStore(evst_),
+      mySqlDumpStore(dmpst_),
       progress(prg_),
       l_pis(l_pis_),
       l_pics(l_pics_)
@@ -112,7 +113,23 @@ SqlWorker::doWork() {
             emit progressMade(foundPackets+i);
 
             SourcePacket* packet = retrievedPackets.at(i);
-            int ref_ = mySqlPacketStore->putPacket(packet);
+
+            int ref_ = 0;
+            if (packet->getDataFieldHeader()->getServiceType() == 15 &&
+                    packet->getDataFieldHeader()->getSubServiceType() == 128) {
+                DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
+
+                mySqlDumpStore->putDumpSummaryPacket(ds_packet);
+                QHash<uint16_t, uint16_t> missingCounts = mySqlPacketStore->checkSequenceCounts(ds_packet->getL_sequencecounts());
+
+                ds_packet->setL_missing_sequencecounts(missingCounts);
+                DumpSummary* summary = mySqlDumpStore->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
+                summary->addMissingCounts(missingCounts);
+
+                ref_ = mySqlPacketStore->putPacket(ds_packet);
+            } else {
+                ref_ = mySqlPacketStore->putPacket(packet);
+            }
 
             if (packet->hasDataFieldHeader()) {
                 if (packet->getDataFieldHeader()->getServiceType() == 5) {

@@ -9,12 +9,13 @@
 #include "packets/sourcepacket.h"
 #include "stores/packetstore.h"
 #include "stores/eventstore.h"
+#include "stores/dumpstore.h"
 
 class SqlWorker : public QObject
 {
     Q_OBJECT
 public:
-    SqlWorker(QSettings *settings, QDateTime begin_, QDateTime end_, PacketStore *st_, EventStore *evst_, QProgressDialog* prg_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_);
+    SqlWorker(QSettings *settings, QDateTime begin_, QDateTime end_, PacketStore *st_, EventStore *evst_, DumpStore *dump_store, QProgressDialog* prg_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_);
     ~SqlWorker();
     QList<SourcePacket*> fetchPackets(QDateTime b_, QDateTime e_);
 private:
@@ -24,6 +25,7 @@ private:
 
     PacketStore* mySqlPacketStore;
     EventStore* mySqlEventStore;
+    DumpStore* mySqlDumpStore;
 
     QProgressDialog* progress;
 
