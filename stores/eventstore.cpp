@@ -6,7 +6,10 @@
 #include <iomanip>
 using namespace std;
 
-EventStore::EventStore(QObject* parent, QSettings* set_, EventTranslator *event_trans_, ObjectTranslator *obj_trans_) : Store(parent), settings(set_)
+EventStore::EventStore(QObject* parent, QSettings* set_, EventTranslator *event_trans_, ObjectTranslator *obj_trans_) :
+    Store(parent),
+    settings(set_),
+    watch_list(NULL)
 {
     this->model = new EventModel(this);
     this->model->setEventTranslator(event_trans_);
@@ -57,6 +60,9 @@ EventStore::exportToFile(QString filename_)
 
 void EventStore::putEvent(Event* e_)
 {
+    if (watch_list != NULL) {
+        emit openView(e_->getObjectIdAsString());
+    }
     *this->model << e_;
 }
 
@@ -70,6 +76,11 @@ int EventStore::checkChildObjExists(int objId_)
     return -1;
 }
 
+void EventStore::setWatch_list(StringList *value)
+{
+    watch_list = value;
+}
+
 bool
 EventStore::itemInStore(QString obj_id) {
     QList<QStandardItem*> list = this->model->findItems(obj_id);
@@ -77,6 +88,16 @@ EventStore::itemInStore(QString obj_id) {
         return true;
     } else {
         return false;
+    }
+}
+
+QStandardItem*
+EventStore::findItemInStore(QString obj_id) {
+    QList<QStandardItem*> list = this->model->findItems(obj_id);
+    if(list.length() == 1) {
+        return list.at(0);
+    } else {
+        return NULL;
     }
 }
 
@@ -96,25 +117,3 @@ QStandardItemModel*
 EventStore::getModel() {
     return this->model;
 }
-
-//QList<QStandardItem*> EventStore::prepareRow(Event* e_)
-//{
-//    QList<QStandardItem*> row;
-//    QStandardItem* event_id = e_->getEventId();
-//    QStandardItem* severity_item = e_->getSeverityItem();
-//    severity_item->setData(e_->getPacketReference(), ListIndexRole);
-
-//    row << severity_item;
-//    if (l_event_names->contains(event_id->text())) {
-//        event_id->setData(e_->getEventId()->text(), Qt::ToolTipRole);
-//        event_id->setData(l_event_names->value(event_id->text()), Qt::DisplayRole);
-//    } else {
-//        qDebug() << "Can not find " << event_id->text() << " in Event Translation List";
-//        event_id->setBackground(Qt::lightGray);
-//    }
-//    row << event_id;
-//    row << e_->getParam1();
-//    row << e_->getParam2();
-//    row << new QStandardItem(e_->getTimestamp().toString());
-//    return row;
-//}

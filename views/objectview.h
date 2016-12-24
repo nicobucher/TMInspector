@@ -25,6 +25,8 @@ private:
 public slots:
     void update_view(const QModelIndex& parent, int start, int end);
 
+signals:
+    void removeThisObjectView(ObjectView* p_);
 };
 
 #endif // OBJECTVIEW_H

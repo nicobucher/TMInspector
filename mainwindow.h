@@ -5,9 +5,11 @@
 #include <QCloseEvent>
 #include <QDebug>
 #include <QLabel>
+#include <QList>
 #include <QSettings>
 #include <QThread>
 #include <QProgressDialog>
+#include "views/objectview.h"
 #include "dialogs/serversettings.h"
 #include "workers/packetworker.h"
 #include "stores/packetstore.h"
@@ -100,27 +102,16 @@ private:
     ObjectTranslator* myObjectTranslator;
     EventTranslator* myEventTranslator;
 
-
-//    QHash<QString,QString> l_event_names;
-//    QHash<QString,QString> l_object_names;
-//    QHash<QString,QString> l_packet_names;
-//    QHash<int,PI_VALUES> l_spids;
-//    QHash<int,PIC_VALUES> l_types;
-
     // Object WatchList Model
     StringList* watch_list_model;
+
+    QList<ObjectView*> l_openObjectViews;
 
     bool treeviewExpanded;
     bool treeviewExpanded_Arch;
 
     void writeSettings();
     void readSettings();
-
-//    void populateEventHash(QSqlDatabase* db_);
-//    void populateObjectHash(QSqlDatabase* db_);
-//    void populatePacketHash(QSqlDatabase *db_);
-//    void populateSPIDHash(QSqlDatabase *db_);
-//    void populateTypesHash(QSqlDatabase *db_);
 
     QProgressDialog* progress_;
 
@@ -135,6 +126,8 @@ public slots:
     void loadObjectView(QModelIndex index);
     void loadTranslationTable();
     void animateNewEvent(Event* event);
+    void removeObjectView(ObjectView* p_);
+    void openEventView(QString name_);
 
 private slots:
     void on_actionTo_Server_triggered();

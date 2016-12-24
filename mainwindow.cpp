@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "views/objectview.h"
 #include "views/translationviewer.h"
 #include "views/packetcontentview.h"
 #include "workers/sqlworker.h"
@@ -47,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     myPacketStore = new PacketStore(this, mySPIDTranslator);
     mySqlPacketStore = new PacketStore(this, mySPIDTranslator);
     myEventStore = new EventStore(this, settings, myEventTranslator, myObjectTranslator);
+    connect(myEventStore, SIGNAL(openView(QString)), this, SLOT(openEventView(QString)));
     mySqlEventStore = new EventStore(this, settings, myEventTranslator, myObjectTranslator);
     myDumpStore = new DumpStore(this);
     mySqlDumpStore = new DumpStore(this);
@@ -118,6 +118,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     watch_list_model = new StringList();
     ui->listView->setModel(watch_list_model);
+    myEventStore->setWatch_list(watch_list_model);
 }
 
 MainWindow::~MainWindow()
@@ -420,6 +421,8 @@ void MainWindow::loadObjectView(QModelIndex index)
             objView->show();
             objView->raise();
             objView->activateWindow();
+            l_openObjectViews.append(objView);
+            connect(objView, SIGNAL(removeThisObjectView(ObjectView*)), this, SLOT(removeObjectView(ObjectView*)));
         }
         return;
     }
@@ -510,6 +513,21 @@ void MainWindow::addToWatchlist_clicked()
     addObjectToWatchList(clicked_item_index.data(Qt::DisplayRole).toString());
 }
 
+void MainWindow::openEventView(QString name_)
+{
+    // Check if the View is already open
+    QListIterator<ObjectView*> it(l_openObjectViews);
+    while(it.hasNext()) {
+        ObjectView* view_ = it.next();
+        if (view_->windowTitle() == name_) {
+            view_->activateWindow();
+            return;
+        }
+    }
+    // If not open a new one
+    loadObjectView(myEventStore->findItemInStore(name_)->index());
+}
+
 void MainWindow::addObjectToWatchList(const QString object_name_)
 {
     *watch_list_model << object_name_;
@@ -583,6 +601,11 @@ void MainWindow::animateNewEvent(Event* event)
     if (event->getTimestamp().secsTo(now) < 60*60) { // If the event was generated within the last hour
         event->getSeverityItem()->animate();
     }
+}
+
+void MainWindow::removeObjectView(ObjectView *p_)
+{
+    this->l_openObjectViews.removeAll(p_);
 }
 
 void MainWindow::live_expand_all_clicked()

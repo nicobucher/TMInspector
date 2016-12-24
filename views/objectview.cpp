@@ -28,11 +28,13 @@ ObjectView::ObjectView(QWidget *parent, QModelIndex clickedIndex, QStandardItemM
 
 ObjectView::~ObjectView()
 {
+    emit removeThisObjectView(this);
     delete ui;
 }
 
 void
 ObjectView::update_view(const QModelIndex& parent, int start, int end)
 {
+    // TODO do more fancy stuff here
     this->ui->treeView->scrollToBottom();
 }

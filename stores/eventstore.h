@@ -8,6 +8,7 @@
 #include <QSqlError>
 #include <QSqlQueryModel>
 #include <QSettings>
+#include "custommodels.h"
 #include "store.h"
 #include "event.h"
 #include "eventmodel.h"
@@ -50,6 +51,9 @@ public:
         return this->proxy_model;
     }
 
+    void setWatch_list(StringList *value);
+
+    QStandardItem* findItemInStore(QString obj_id);
 private:
     EventModel* model;
 
@@ -57,11 +61,13 @@ private:
 
     QSettings* settings;
 
+    StringList* watch_list;
+
 public slots:
     void exportToFile(QString filename_);
 
 signals:
-
+    void openView(QString name_);
 };
 
 #endif // EVENTSTORE_H
