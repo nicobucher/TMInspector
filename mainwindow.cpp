@@ -171,7 +171,10 @@ void MainWindow::on_actionTo_Server_triggered()
         return;
     }
 
-    myPacketWorker = new PacketWorker(myPacketStore, myEventStore, myDumpStore, myPITranslator->getList(), myPICTranslator->getList());
+    myPacketWorker = new PacketWorker(myPITranslator->getList(), myPICTranslator->getList());
+    myPacketWorker->setStore(myPacketStore);
+    myPacketWorker->setEvent_store(myEventStore);
+    myPacketWorker->setDump_store(myDumpStore);
     connect(myPacketWorker, SIGNAL(hasError(const QString&)), this, SLOT(displayPacketWorkerError(const QString&)));
     connect(myPacketWorker, SIGNAL(eventAdded(Event*)), this, SLOT(animateNewEvent(Event*)));
     connect(this, SIGNAL(clientSetup(QThread*,QString,int)), myPacketWorker, SLOT(setup(QThread*,QString,int)));
@@ -253,9 +256,10 @@ void MainWindow::on_commandLinkButton_clicked()
 
     QDateTime begin_ = ui->dateTimeEdit_start->dateTime();
     QDateTime end_ = ui->dateTimeEdit_stop->dateTime();
-    SqlWorker* worker = new SqlWorker(settings, begin_, end_, mySqlPacketStore, mySqlEventStore,
-                                      mySqlDumpStore, progress_, myPITranslator->getList(),
-                                      myPICTranslator->getList());
+    SqlWorker* worker = new SqlWorker(settings, begin_, end_, progress_, myPITranslator->getList(), myPICTranslator->getList());
+    worker->setMySqlPacketStore(mySqlPacketStore);
+    worker->setMySqlEventStore(mySqlEventStore);
+    worker->setMySqlDumpStore(mySqlDumpStore);
     connect(worker, SIGNAL(dbAccessError(QString)), this, SLOT(displayStatusBarMessage(QString)));
     connect(worker, SIGNAL(progressMade(int)), progress_, SLOT(setValue(int)));
     connect(worker, SIGNAL(newMaxProgress(int)), progress_, SLOT(setMaximum(int)));

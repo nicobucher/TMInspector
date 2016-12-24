@@ -14,7 +14,7 @@ class PacketWorker : public QObject
     Q_OBJECT
 
 public:
-    PacketWorker(PacketStore* st_, EventStore *evst_, DumpStore *dumpst_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_);
+    PacketWorker(QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_);
     ~PacketWorker();
 
     QString getHost() {
@@ -27,6 +27,12 @@ public:
 
     bool quit;
     bool isReady;
+
+    void setStore(PacketStore *value);
+
+    void setEvent_store(EventStore *value);
+
+    void setDump_store(DumpStore *value);
 
 public slots:
     void doWork();

@@ -5,16 +5,12 @@
 #include <QMutexLocker>
 #include <QDebug>
 
-PacketWorker::PacketWorker(PacketStore *st_, EventStore *evst_, DumpStore *dumpst_, QHash<int,QVariant>* l_pis_, QHash<int,QVariant>* l_pics_)
+PacketWorker::PacketWorker(QHash<int,QVariant>* l_pis_, QHash<int,QVariant>* l_pics_)
     : l_pis(l_pis_),
       l_pics(l_pics_)
 {
     socket = new QTcpSocket(this);
     this->isReady = false;
-
-    this->store = st_;
-    this->event_store = evst_;
-    this->dump_store = dumpst_;
 
     this->quit = false;
 }
@@ -42,6 +38,21 @@ PacketWorker::setup(QThread* th_, QString h_, int p_)
         this->quit = true;
         emit hasError(this->socket->errorString());
     }
+}
+
+void PacketWorker::setDump_store(DumpStore *value)
+{
+    dump_store = value;
+}
+
+void PacketWorker::setEvent_store(EventStore *value)
+{
+    event_store = value;
+}
+
+void PacketWorker::setStore(PacketStore *value)
+{
+    store = value;
 }
 
 void

@@ -6,12 +6,9 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-SqlWorker::SqlWorker(QSettings* settings, QDateTime begin_, QDateTime end_, PacketStore* st_, EventStore *evst_, DumpStore *dmpst_, QProgressDialog* prg_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_)
+SqlWorker::SqlWorker(QSettings* settings, QDateTime begin_, QDateTime end_, QProgressDialog* prg_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_)
     : begin(begin_),
       end(end_),
-      mySqlPacketStore(st_),
-      mySqlEventStore(evst_),
-      mySqlDumpStore(dmpst_),
       progress(prg_),
       l_pis(l_pis_),
       l_pics(l_pics_)
@@ -33,6 +30,10 @@ QList<SourcePacket*>
 SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
 {
     QList<SourcePacket*> list;
+    if (mySqlDumpStore == 0 || mySqlEventStore == 0 || mySqlDumpStore) {
+        qDebug() << "Error: Stores unintialized";
+        return list;
+    }
     emit newText("Connecting to " + db.databaseName() + "...");
     if (db.open()) {
         emit newText("Connected to " + db.databaseName() + "...");
@@ -96,6 +97,21 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
 //        qDebug() << QCoreApplication::libraryPaths(); // <- Lists the used library path, can be used for debugging if the qmysql plugin can not be found
     }
     return list;
+}
+
+void SqlWorker::setMySqlPacketStore(PacketStore *value)
+{
+    mySqlPacketStore = value;
+}
+
+void SqlWorker::setMySqlEventStore(EventStore *value)
+{
+    mySqlEventStore = value;
+}
+
+void SqlWorker::setMySqlDumpStore(DumpStore *value)
+{
+    mySqlDumpStore = value;
 }
 
 void
