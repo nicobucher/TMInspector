@@ -116,7 +116,7 @@ MainWindow::MainWindow(QWidget *parent) :
     treeviewExpanded = false;
     treeviewExpanded_Arch = false;
 
-    watch_list_model = new StringList();
+    watch_list_model = new QStringListModel();
     ui->listView->setModel(watch_list_model);
     myEventStore->setWatch_list(watch_list_model);
 }
@@ -409,33 +409,51 @@ void MainWindow::setupPacketFilters()
 void MainWindow::loadObjectView(QModelIndex index)
 {
     Store* selectedStore;
-    if (index.model() == myEventStore->proxy_model || index.model() == mySqlEventStore->proxy_model) {
-        selectedStore = (Store*)index.model()->parent();
-        if (selectedStore->itemInStore(index.data().toString())) {
-            // The mapping to the source model is required because index is of the proxy_model and
-            // needs to be mapped to the source model in order to be resolved
-            QModelIndex sourceIndex = selectedStore->getProxyModel()->mapToSource(index);
-            // Then pass the mapped sourceIndex to the ObjectView
-            ObjectView* objView = new ObjectView(this, sourceIndex, selectedStore->getModel());
-            objView->setAttribute(Qt::WA_DeleteOnClose);
-            objView->show();
-            objView->raise();
-            objView->activateWindow();
-            l_openObjectViews.append(objView);
-            connect(objView, SIGNAL(removeThisObjectView(ObjectView*)), this, SLOT(removeObjectView(ObjectView*)));
+    if (index.model() == myEventStore->proxy_model || index.model() == mySqlEventStore->proxy_model
+            || index.model() == myEventStore->getModel() || index.model() == mySqlEventStore->getModel()) {
+        if (index.model() == myEventStore->proxy_model || index.model() == myEventStore->getModel()) {
+            selectedStore = (Store*)myEventStore;
+        } else {
+            selectedStore = (Store*)mySqlEventStore;
+        }
+//        selectedStore = (Store*)index.model()->parent();
+        if (selectedStore != NULL) {
+            if (selectedStore->itemInStore(index.data().toString())) {
+                QModelIndex sourceIndex;
+                if (index.model() == myEventStore->proxy_model || index.model() == mySqlEventStore->proxy_model) {
+                    // The mapping to the source model is required because index is of the proxy_model and
+                    // needs to be mapped to the source model in order to be resolved
+                    sourceIndex = selectedStore->getProxyModel()->mapToSource(index);
+                    // Then pass the mapped sourceIndex to the ObjectView
+
+                } else {
+                    // If the index is from the model itself no mapping is needed
+                    sourceIndex = index;
+                }
+                ObjectView* objView = new ObjectView(this, sourceIndex, selectedStore->getModel());
+                objView->setAttribute(Qt::WA_DeleteOnClose);
+                objView->show();
+                objView->raise();
+                objView->activateWindow();
+                l_openObjectViews.append(objView);
+                connect(objView, SIGNAL(removeThisObjectView(ObjectView*)), this, SLOT(removeObjectView(ObjectView*)));
+            }
         }
         return;
     }
-    if (index.model() == myPacketStore->proxy_model || index.model() == mySqlPacketStore->proxy_model) {
+    if (index.model() == myPacketStore->proxy_model || index.model() == mySqlPacketStore->proxy_model
+            || index.model() == myPacketStore->getModel() || index.model() == mySqlPacketStore->getModel()) {
         selectedStore = (Store*)index.model()->parent();
-        // Get the index from the item in column zero... This can then be used to look up the packet in the stores packet-list
-        QModelIndex pktIndex = index.model()->index(index.row(),1);
-        qulonglong pkt_id = pktIndex.data(ListIndexRole).toLongLong();
-        PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);
-        pktView->setAttribute(Qt::WA_DeleteOnClose);
-        pktView->show();
-        pktView->raise();
-        pktView->activateWindow();
+        if (selectedStore != NULL) {
+            // Get the index from the item in column zero... This can then be used to look up the packet in the stores packet-list
+            QModelIndex pktIndex = index.model()->index(index.row(),1);
+            qulonglong pkt_id = pktIndex.data(ListIndexRole).toLongLong();
+            PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);
+            pktView->setAttribute(Qt::WA_DeleteOnClose);
+            pktView->show();
+            pktView->raise();
+            pktView->activateWindow();
+        }
     }
 }
 
@@ -525,12 +543,17 @@ void MainWindow::openEventView(QString name_)
         }
     }
     // If not open a new one
-    loadObjectView(myEventStore->findItemInStore(name_)->index());
+    QStandardItem* obj_ = myEventStore->findItemInStore(name_);
+    if (obj_ != NULL) {
+        loadObjectView(obj_->index());
+    }
 }
 
 void MainWindow::addObjectToWatchList(const QString object_name_)
 {
-    *watch_list_model << object_name_;
+    QStringList list_ = watch_list_model->stringList();
+    list_ << object_name_;
+    watch_list_model->setStringList(list_);
 }
 
 void MainWindow::show_packet_action()

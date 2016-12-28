@@ -61,7 +61,7 @@ public:
     }
 
     QString getObjectName() {
-        return this->object_id->text();
+        return this->object_id->data(Qt::DisplayRole).toString();
     }
 
     void setObjectName(QString name_) {

@@ -15,12 +15,13 @@ EventModel::operator<<(Event* event_) {
     QList<QStandardItem*> new_row = prepareRow(event_);
 
     int object_id = event_->getObjectIdAsInt();
+    QVariant obj_name_ = object_translator->translate(object_id);
+
     int objRowFound_ = parentStore->checkChildObjExists(object_id);
     if (objRowFound_ < 0) {
         // If it does not exist, add a new object to the root item
         QStandardItem* new_object = new QStandardItem("0x" + event_->getObjectIdAsString());
 
-        QVariant obj_name_ = object_translator->translate(object_id);
         if (obj_name_.isValid()) {
             new_object->setData("0x" + event_->getObjectIdAsString(), Qt::ToolTipRole);
             new_object->setData(obj_name_.toString(), Qt::DisplayRole);
@@ -39,7 +40,7 @@ EventModel::operator<<(Event* event_) {
         root->child(objRowFound_)->appendRow(new_row);
     }
 
-//    emit dataChanged();
+    event_->setObjectName(obj_name_.toString());
 
     return *this;
 }

@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <QThread>
 #include <QProgressDialog>
+#include <QStringListModel>
 #include "views/objectview.h"
 #include "dialogs/serversettings.h"
 #include "workers/packetworker.h"
@@ -103,7 +104,7 @@ private:
     EventTranslator* myEventTranslator;
 
     // Object WatchList Model
-    StringList* watch_list_model;
+    QStringListModel* watch_list_model;
 
     QList<ObjectView*> l_openObjectViews;
 

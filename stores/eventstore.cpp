@@ -60,10 +60,15 @@ EventStore::exportToFile(QString filename_)
 
 void EventStore::putEvent(Event* e_)
 {
-    if (watch_list != NULL) {
-        emit openView(e_->getObjectIdAsString());
-    }
     *this->model << e_;
+    // Open the object view if the object is in the wacht list
+    if (watch_list != NULL) {
+        QStringList list_ = watch_list->stringList();
+        QString name_ = e_->getObjectName();
+        if (list_.contains(name_)) {
+            emit openView(e_->getObjectIdAsString());
+        }
+    }
 }
 
 int EventStore::checkChildObjExists(int objId_)
@@ -76,7 +81,7 @@ int EventStore::checkChildObjExists(int objId_)
     return -1;
 }
 
-void EventStore::setWatch_list(StringList *value)
+void EventStore::setWatch_list(QStringListModel *value)
 {
     watch_list = value;
 }

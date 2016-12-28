@@ -8,6 +8,7 @@
 #include <QSqlError>
 #include <QSqlQueryModel>
 #include <QSettings>
+#include <QStringListModel>
 #include "custommodels.h"
 #include "store.h"
 #include "event.h"
@@ -51,7 +52,7 @@ public:
         return this->proxy_model;
     }
 
-    void setWatch_list(StringList *value);
+    void setWatch_list(QStringListModel *value);
 
     QStandardItem* findItemInStore(QString obj_id);
 private:
@@ -61,7 +62,7 @@ private:
 
     QSettings* settings;
 
-    StringList* watch_list;
+    QStringListModel* watch_list;
 
 public slots:
     void exportToFile(QString filename_);
