@@ -30,8 +30,15 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
             // Special view for dump summary packets
             DumpSummaryPacket* ds_packet = (DumpSummaryPacket*)selectedPacket;
             QString ssc_summary_;
-            QTextStream(&ssc_summary_) << "Missing " << ds_packet->getNumberOfMissingSSC() << " SSCs:" << endl << endl;
+            QTextStream(&ssc_summary_) << "Dump Summary Packet (Dump-ID=" << ds_packet->getDumpid() << ")" << endl;
+            QTextStream(&ssc_summary_) << "Missing " << ds_packet->getNumberOfMissingSSC() << " packets:" << endl;
             QHashIterator<uint16_t, uint16_t> it(ds_packet->getL_missing_sequencecounts());
+            while (it.hasNext()) {
+                it.next();
+                QTextStream(&ssc_summary_) << it.key() << endl;
+            }
+            QTextStream(&ssc_summary_) << "\nFound " << ds_packet->getNumberOfSSC() << " packets:" << endl;
+            it = QHashIterator<uint16_t, uint16_t>(ds_packet->getL_sequencecounts());
             while (it.hasNext()) {
                 it.next();
                 QTextStream(&ssc_summary_) << it.key() << endl;

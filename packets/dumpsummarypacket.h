@@ -26,6 +26,7 @@ public:
     void setL_missing_sequencecounts(const QHash<uint16_t, uint16_t> &value);
 
     int getNumberOfMissingSSC();
+    int getNumberOfSSC();
 
 protected:
     /*

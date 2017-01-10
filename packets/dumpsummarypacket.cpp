@@ -22,10 +22,10 @@ void DumpSummaryPacket::decode()
         return;
     }
     while(pos > 7) {
-        pos = pos - 8;
         ssc_apid_ = (p_[pos-3] << 8) + p_[pos-2];
         new_ssc_ = (p_[pos-1] << 8) + p_[pos];
         this->l_sequencecounts.insert(new_ssc_, ssc_apid_);
+        pos = pos - 4;
     }
 }
 
@@ -71,4 +71,9 @@ void DumpSummaryPacket::setL_missing_sequencecounts(const QHash<uint16_t, uint16
 int DumpSummaryPacket::getNumberOfMissingSSC()
 {
     return l_missing_sequencecounts.size();
+}
+
+int DumpSummaryPacket::getNumberOfSSC()
+{
+    return l_sequencecounts.size();
 }
