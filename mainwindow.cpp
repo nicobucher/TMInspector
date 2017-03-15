@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "views/translationviewer.h"
 #include "views/packetcontentview.h"
+#include <views/checksumview.h>
 #include "workers/sqlworker.h"
 #include <QTableView>
 #include <QDateTime>
@@ -61,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
     action_EventMode->setCheckable(true);
     action_EventMode->setShortcut(Qt::Key_Tab);
     connect(action_EventMode, SIGNAL(triggered()), this, SLOT(eventMode_triggered()));
+    dataMenu->addAction("Checksum Checker", this, SLOT(checksum_triggered()));
     dataMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
     dataMenu->addAction("Export", this, SLOT(exportTriggered()));
     dataMenu->addAction("Settings", this, SLOT(on_actionEdit_triggered()));
@@ -469,6 +471,15 @@ void MainWindow::translation_triggered()
     transView->show();
     transView->raise();
     transView->activateWindow();
+}
+
+void MainWindow::checksum_triggered()
+{
+    ChecksumView* checksumV = new ChecksumView(this);
+    checksumV->setAttribute(Qt::WA_DeleteOnClose);
+    checksumV->show();
+    checksumV->raise();
+    checksumV->activateWindow();
 }
 
 void MainWindow::exportTriggered()

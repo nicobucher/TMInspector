@@ -38,7 +38,8 @@ SOURCES += main.cpp\
     workers/packetworker.cpp \
     workers/sqlworker.cpp \
     stores/dumpstore.cpp \
-    dumpsummary.cpp
+    dumpsummary.cpp \
+    views/checksumview.cpp
 
 HEADERS  += mainwindow.h \
     event.h \
@@ -64,11 +65,17 @@ HEADERS  += mainwindow.h \
     workers/packetworker.h \
     workers/sqlworker.h \
     stores/dumpstore.h \
-    dumpsummary.h
+    dumpsummary.h \
+    views/checksumview.h
 
 FORMS    += mainwindow.ui \
     dialogs/serversettings.ui \
     views/objectview.ui \
     views/translationviewer.ui \
     dialogs/addtranslationdialog.ui \
-    views/packetcontentview.ui
+    views/packetcontentview.ui \
+    views/checksumview.ui
+
+DISTFILES += \
+    LICENSE \
+    README.md
