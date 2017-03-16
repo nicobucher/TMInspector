@@ -2,7 +2,7 @@
 #define SQLWORKER_H
 
 #include <QObject>
-#include <QSql>
+//#include <QSql>
 #include <QSqlQueryModel>
 #include <QSettings>
 #include <QProgressDialog>

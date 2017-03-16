@@ -13,16 +13,16 @@ public:
 
     void decode();
 
-    uint32_t getObject_id() const;
-    uint32_t getAddress() const;
-    uint16_t getCheck_length() const;
-    uint16_t getChecksum() const;
+    qint32 getObject_id() const;
+    qint32 getAddress() const;
+    qint16 getCheck_length() const;
+    qint16 getChecksum() const;
 
 protected:
-    uint32_t object_id;
-    uint32_t address;
-    uint16_t check_length;
-    uint16_t checksum;
+    qint32 object_id;
+    qint32 address;
+    qint32 check_length;
+    qint32 checksum;
 };
 
 #endif // CHECKSUMPACKET_H

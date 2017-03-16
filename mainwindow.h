@@ -145,7 +145,8 @@ private slots:
     void exportTriggered();
     void tree_item_right_click(QPoint p_);
     void show_packet_action();
-    void notifyOnChecksumReception(uint32_t address, uint16_t checksum);
+    void notifyOnChecksumReception(qint32, qint16);
+    void notifyOnChecksumViewDestruction(QObject*);
 
     void live_expand_all_clicked();
     void sql_expand_all_clicked();

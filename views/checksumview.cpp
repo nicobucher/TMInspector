@@ -22,7 +22,7 @@ ChecksumView::~ChecksumView()
     delete ui;
 }
 
-void ChecksumView::receiveChecksum(uint32_t address, uint16_t checksum)
+void ChecksumView::receiveChecksum(qint32 address, qint16 checksum)
 {
     qulonglong pair;
     pair = (address << 32) + checksum;
@@ -69,11 +69,11 @@ void ChecksumView::loadChecksumFile()
               QString text(QString("Address: %0, Checksum: %1").arg(address).arg(crc));
               bool ok;
               qulonglong pair;
-              uint32_t adr_int = address.toInt(&ok, 16);
+              qint32 adr_int = address.toInt(&ok, 16);
               if (!ok) {
                   text.append(", could not convert address");
               }
-              uint16_t crc_int = crc.toInt(&ok, 16);
+              qint16 crc_int = crc.toInt(&ok, 16);
               if (!ok) {
                   text.append(", could not convert checksum");
               }

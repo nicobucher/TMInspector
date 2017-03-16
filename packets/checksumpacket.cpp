@@ -15,22 +15,22 @@ void ChecksumPacket::decode()
     this->checksum = (p_[10] << 8) + p_[11];
 }
 
-uint32_t ChecksumPacket::getObject_id() const
+qint32 ChecksumPacket::getObject_id() const
 {
     return object_id;
 }
 
-uint32_t ChecksumPacket::getAddress() const
+qint32 ChecksumPacket::getAddress() const
 {
     return address;
 }
 
-uint16_t ChecksumPacket::getCheck_length() const
+qint16 ChecksumPacket::getCheck_length() const
 {
     return check_length;
 }
 
-uint16_t ChecksumPacket::getChecksum() const
+qint16 ChecksumPacket::getChecksum() const
 {
     return checksum;
 }

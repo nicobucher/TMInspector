@@ -2,7 +2,7 @@
 #define EVENTSTORE_H
 
 #include <QObject>
-#include <QSql>
+//#include <QSql>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlError>

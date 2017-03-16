@@ -23,7 +23,7 @@ PacketStore::putPacket(SourcePacket* p_) {
     qulonglong id_ = this->model->getCurrentId();
     l_packets.insert(id_, p_);
 
-    if (p_->getDataFieldHeader()->getServiceType() == 6 && p_->getDataFieldHeader()->getSubServiceType() == 9) {
+    if (p_->getDataFieldHeader()->getServiceType() == 6 && p_->getDataFieldHeader()->getSubServiceType() == 10) {
         ChecksumPacket new_checksum_packet(*p_);
         emit newChecksum(new_checksum_packet.getAddress(), new_checksum_packet.getChecksum());
     }

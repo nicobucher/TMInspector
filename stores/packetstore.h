@@ -197,7 +197,7 @@ private:
     QHash<qulonglong, SourcePacket*> l_packets;
 
 signals:
-    void newChecksum(uint32_t address, uint16_t checksum);
+    void newChecksum(qint32 address, qint16 checksum);
 
 public slots:
     void exportToFile(QString filename_);

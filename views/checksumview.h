@@ -21,7 +21,7 @@ private:
     QStandardItemModel *model;
 
 public slots:
-    void receiveChecksum(uint32_t address, uint16_t checksum);
+    void receiveChecksum(qint32 address, qint16 checksum);
 
 private slots:
     void loadChecksumFile();

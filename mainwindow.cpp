@@ -590,21 +590,27 @@ void MainWindow::checksum_triggered()
     if (myChecksumView == NULL) {
         myChecksumView = new ChecksumView(this);
         myChecksumView->setAttribute(Qt::WA_DeleteOnClose);
-        connect(myPacketStore, SIGNAL(newChecksum(uint32_t,uint16_t)), myChecksumView, SLOT(receiveChecksum(uint32_t,uint16_t)));
-        connect(myPacketStore, SIGNAL(newChecksum(uint32_t,uint16_t)), this, SLOT(notifyOnChecksumReception(uint32_t,uint16_t)));
+        connect(myPacketStore, SIGNAL(newChecksum(qint32,qint16)), myChecksumView, SLOT(receiveChecksum(qint32,qint16)));
+        connect(myPacketStore, SIGNAL(newChecksum(qint32,qint16)), this, SLOT(notifyOnChecksumReception(qint32,qint16)));
+        connect(myChecksumView, SIGNAL(destroyed(QObject*)), this, SLOT(notifyOnChecksumViewDestruction(QObject*)));
     }
     myChecksumView->show();
     myChecksumView->raise();
     myChecksumView->activateWindow();
 }
 
-void MainWindow::notifyOnChecksumReception(uint32_t address, uint16_t checksum)
+void MainWindow::notifyOnChecksumReception(qint32, qint16)
 {
     if(myChecksumView != NULL) {
         myChecksumView->show();
         myChecksumView->raise();
         myChecksumView->activateWindow();
     }
+}
+
+void MainWindow::notifyOnChecksumViewDestruction(QObject *)
+{
+    myChecksumView = NULL;
 }
 
 void MainWindow::loadTranslationTable()
