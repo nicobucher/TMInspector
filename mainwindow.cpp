@@ -117,7 +117,18 @@ MainWindow::MainWindow(QWidget *parent) :
     treeviewExpanded = false;
     treeviewExpanded_Arch = false;
 
-    watch_list_model = new QStringListModel();
+    // Initialize Watchlist
+    QFile filein("watchlist.txt");
+    QStringList watch_list;
+    if (filein.open(QIODevice::ReadOnly)) {
+        QTextStream in(&filein);
+        while (!in.atEnd())
+        {
+           watch_list.append(in.readLine());
+        }
+        filein.close();
+    }
+    watch_list_model = new QStringListModel(watch_list);
     ui->listView->setModel(watch_list_model);
     myEventStore->setWatch_list(watch_list_model);
 
@@ -126,6 +137,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    // Save the current watchlist
+    QFile fileout("watchlist.txt");
+    if (fileout.open(QIODevice::WriteOnly)) {
+        QTextStream out(&fileout);
+        QStringList list_ = watch_list_model->stringList();
+        for (int i = 0; i < list_.size(); ++i) {
+            out << list_.at(i) << '\n';
+        }
+        fileout.close();
+    }
+
     if (myPacketWorkerThread != 0) {
         // Signal the packet worker object to quit, then quit the packet worker thread and wait for it to finish
         myPacketWorker->quit = true;
@@ -535,6 +557,29 @@ void MainWindow::addToWatchlist_clicked()
     QModelIndex clicked_item_index = pAction->data().toModelIndex();
 
     addObjectToWatchList(clicked_item_index.data(Qt::DisplayRole).toString());
+}
+
+
+void MainWindow::on_listView_customContextMenuRequested(const QPoint &pos)
+{
+    QMenu* menu=new QMenu(this);
+    QAction* delete_watchlist_item = new QAction("Remove from Watchlist", this);
+    menu->addAction(delete_watchlist_item);
+    menu->popup(ui->listView->viewport()->mapToGlobal(pos));
+    connect(delete_watchlist_item, SIGNAL(triggered()), this, SLOT(deleteFromWatchlist_clicked()));
+}
+
+void MainWindow::deleteFromWatchlist_clicked()
+{
+    removeObjectFromWatchList(ui->listView->selectionModel()->currentIndex().row());
+}
+
+
+void MainWindow::removeObjectFromWatchList(int idx)
+{
+    QStringList list_ = watch_list_model->stringList();
+    list_.removeAt(idx);
+    watch_list_model->setStringList(list_);
 }
 
 void MainWindow::openEventView(QString name_)

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>868</width>
+    <width>893</width>
     <height>449</height>
    </rect>
   </property>
@@ -166,6 +166,9 @@
         </item>
         <item>
          <widget class="QTreeView" name="treeView_arch">
+          <property name="contextMenuPolicy">
+           <enum>Qt::CustomContextMenu</enum>
+          </property>
           <property name="editTriggers">
            <set>QAbstractItemView::NoEditTriggers</set>
           </property>
@@ -238,8 +241,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>868</width>
-     <height>24</height>
+     <width>893</width>
+     <height>19</height>
     </rect>
    </property>
   </widget>
@@ -280,7 +283,14 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QListView" name="listView"/>
+      <widget class="QListView" name="listView">
+       <property name="contextMenuPolicy">
+        <enum>Qt::CustomContextMenu</enum>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>

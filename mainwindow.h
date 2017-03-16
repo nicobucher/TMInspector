@@ -38,6 +38,7 @@ public:
     ~MainWindow();
 
     void addObjectToWatchList(QString object_name_);
+    void removeObjectFromWatchList(int idx);
 
 private:
     Ui::MainWindow *ui;
@@ -152,6 +153,9 @@ private slots:
     void sql_expand_all_clicked();
 
     void addToWatchlist_clicked();
+    void deleteFromWatchlist_clicked();
+
+    void on_listView_customContextMenuRequested(const QPoint &pos);
 
 private:
     QMenu *dataMenu;
