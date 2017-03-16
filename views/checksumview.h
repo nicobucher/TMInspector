@@ -20,6 +20,9 @@ private:
     Ui::Checksumview *ui;
     QStandardItemModel *model;
 
+public slots:
+    void receiveChecksum(uint32_t address, uint16_t checksum);
+
 private slots:
     void loadChecksumFile();
     void clear();

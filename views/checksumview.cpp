@@ -22,6 +22,18 @@ ChecksumView::~ChecksumView()
     delete ui;
 }
 
+void ChecksumView::receiveChecksum(uint32_t address, uint16_t checksum)
+{
+    qulonglong pair;
+    pair = (address << 32) + checksum;
+    for (int row = 0; row < this->model->rowCount(); ++row) {
+        QModelIndex index = this->model->index(row, 0);
+        if (pair == this->model->data(index, Qt::UserRole)) {
+            this->model->setData(index, QVariant(QBrush(Qt::green)), Qt::ForegroundRole);
+        }
+    }
+}
+
 void ChecksumView::loadChecksumFile()
 {
     QString filename = QFileDialog::getOpenFileName(this, "Load File","","Type (*.dat)");
@@ -54,8 +66,21 @@ void ChecksumView::loadChecksumFile()
               count++;
           }
           if (address != "" && crc != "") {
-              QStandardItem *checksumaddresspair = new QStandardItem(QString("Address: %0, Checksum: %1").arg(address).arg(crc));
-              this->model->appendRow(checksumaddresspair);
+              QString text(QString("Address: %0, Checksum: %1").arg(address).arg(crc));
+              bool ok;
+              qulonglong pair;
+              uint32_t adr_int = address.toInt(&ok, 16);
+              if (!ok) {
+                  text.append(", could not convert address");
+              }
+              uint16_t crc_int = crc.toInt(&ok, 16);
+              if (!ok) {
+                  text.append(", could not convert checksum");
+              }
+              pair = (adr_int << 32) + crc_int;
+              QStandardItem *checksumitem = new QStandardItem(text);
+              this->model->appendRow(checksumitem);
+              this->model->setData(this->model->indexFromItem(checksumitem), pair, Qt::UserRole);
           }
        }
        inputFile.close();

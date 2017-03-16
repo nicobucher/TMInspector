@@ -22,6 +22,7 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include "translator.h"
+#include <views/checksumview.h>
 
 namespace Ui {
     class MainWindow;
@@ -108,6 +109,9 @@ private:
 
     QList<ObjectView*> l_openObjectViews;
 
+    // The global checksumview object
+    ChecksumView* myChecksumView;
+
     bool treeviewExpanded;
     bool treeviewExpanded_Arch;
 
@@ -141,6 +145,7 @@ private slots:
     void exportTriggered();
     void tree_item_right_click(QPoint p_);
     void show_packet_action();
+    void notifyOnChecksumReception(uint32_t address, uint16_t checksum);
 
     void live_expand_all_clicked();
     void sql_expand_all_clicked();

@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include "views/translationviewer.h"
 #include "views/packetcontentview.h"
-#include <views/checksumview.h>
 #include "workers/sqlworker.h"
 #include <QTableView>
 #include <QDateTime>
@@ -121,6 +120,8 @@ MainWindow::MainWindow(QWidget *parent) :
     watch_list_model = new QStringListModel();
     ui->listView->setModel(watch_list_model);
     myEventStore->setWatch_list(watch_list_model);
+
+    myChecksumView = NULL;
 }
 
 MainWindow::~MainWindow()
@@ -151,6 +152,9 @@ MainWindow::~MainWindow()
     delete mySPIDTranslator;
 
     delete watch_list_model;
+    if (myChecksumView != NULL) {
+        delete myChecksumView;
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -473,15 +477,6 @@ void MainWindow::translation_triggered()
     transView->activateWindow();
 }
 
-void MainWindow::checksum_triggered()
-{
-    ChecksumView* checksumV = new ChecksumView(this);
-    checksumV->setAttribute(Qt::WA_DeleteOnClose);
-    checksumV->show();
-    checksumV->raise();
-    checksumV->activateWindow();
-}
-
 void MainWindow::exportTriggered()
 {
     QString filename = QFileDialog::getSaveFileName(this, "Save File",
@@ -588,6 +583,28 @@ void MainWindow::show_packet_action()
     pktView->show();
     pktView->raise();
     pktView->activateWindow();
+}
+
+void MainWindow::checksum_triggered()
+{
+    if (myChecksumView == NULL) {
+        myChecksumView = new ChecksumView(this);
+        myChecksumView->setAttribute(Qt::WA_DeleteOnClose);
+        connect(myPacketStore, SIGNAL(newChecksum(uint32_t,uint16_t)), myChecksumView, SLOT(receiveChecksum(uint32_t,uint16_t)));
+        connect(myPacketStore, SIGNAL(newChecksum(uint32_t,uint16_t)), this, SLOT(notifyOnChecksumReception(uint32_t,uint16_t)));
+    }
+    myChecksumView->show();
+    myChecksumView->raise();
+    myChecksumView->activateWindow();
+}
+
+void MainWindow::notifyOnChecksumReception(uint32_t address, uint16_t checksum)
+{
+    if(myChecksumView != NULL) {
+        myChecksumView->show();
+        myChecksumView->raise();
+        myChecksumView->activateWindow();
+    }
 }
 
 void MainWindow::loadTranslationTable()

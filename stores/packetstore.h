@@ -15,6 +15,7 @@
  */
 class PacketModel : public QStandardItemModel
 {
+    Q_OBJECT
 public:
     PacketModel() {
         qRegisterMetaType<QVector<int> >("QVector<int>");
@@ -114,6 +115,7 @@ private:
  */
 class PacketStore : public Store
 {
+    Q_OBJECT
 public:
     PacketStore(QObject *parent, SPIDTranslator* trans_);
 
@@ -193,6 +195,9 @@ public:
 private:
     PacketModel* model;
     QHash<qulonglong, SourcePacket*> l_packets;
+
+signals:
+    void newChecksum(uint32_t address, uint16_t checksum);
 
 public slots:
     void exportToFile(QString filename_);

@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     workers/sqlworker.cpp \
     stores/dumpstore.cpp \
     dumpsummary.cpp \
-    views/checksumview.cpp
+    views/checksumview.cpp \
+    packets/checksumpacket.cpp
 
 HEADERS  += mainwindow.h \
     event.h \
@@ -66,7 +67,8 @@ HEADERS  += mainwindow.h \
     workers/sqlworker.h \
     stores/dumpstore.h \
     dumpsummary.h \
-    views/checksumview.h
+    views/checksumview.h \
+    packets/checksumpacket.h
 
 FORMS    += mainwindow.ui \
     dialogs/serversettings.ui \
