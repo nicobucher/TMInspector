@@ -30,7 +30,7 @@ QList<SourcePacket*>
 SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
 {
     QList<SourcePacket*> list;
-    if (mySqlDumpStore == 0 || mySqlEventStore == 0 || mySqlDumpStore) {
+    if (mySqlDumpStore == 0 || mySqlEventStore == 0 || mySqlPacketStore == 0) {
         qDebug() << "Error: Stores unintialized";
         return list;
     }
@@ -57,7 +57,7 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             emit progressMade(i++);
 
             QSqlRecord rec = query.record();
-            qDebug() << "Found a packet... scc=" << query.value(rec.indexOf("sequenceCount"));
+            qDebug() << "Found a packet... scc=" << query.value(rec.indexOf("sequenceCount")).toInt();
 
             SourcePacket* packet = new SourcePacket();
             QByteArray data = query.value(rec.indexOf("data")).toByteArray();
@@ -80,13 +80,11 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             header->setTimestampValid(true);
             packet->setDataFieldHeader(header);
 
-            if (query.value(rec.indexOf("type")).toString() == "TM") {
-                packet->setSourcePacketType(0);
-                packet->setQuality(GOOD);
-                packet->makePI_VALUES(l_pics);
-                packet->makeSPID(l_pis);
-                list << packet;
-            }
+            packet->setSourcePacketType(0);
+            packet->setQuality(GOOD);
+            packet->makePI_VALUES(l_pics);
+            packet->makeSPID(l_pis);
+            list << packet;
         }
         emit dbAccessError("DB Success, found " + QString::number(list.count()) + " Packets");
         db.close();
@@ -122,6 +120,7 @@ SqlWorker::doWork() {
         emit newText("Adding Packets...");
         unsigned char* complete_packet_data = (unsigned char*) malloc(SourcePacket::MAX_PACKET_SIZE); // Maximum TM packet size
         for (int i = 0; i < retrievedPackets.size(); ++i) {
+            // This is for the progress bar to not get stuck
             qApp->processEvents();
             if (this->quit) {
                 break;
@@ -152,7 +151,7 @@ SqlWorker::doWork() {
                     Event* event = new Event(packet->getDataFieldHeader()->getTimestamp(), (Severity)packet->getDataFieldHeader()->getSubServiceType());
                     int data_length = packet->getDataLength();
                     if ( data_length > 0 && data_length < SourcePacket::MAX_PACKET_SIZE ) {
-                        memcpy(complete_packet_data+12, packet->getData(), packet->getDataLength());
+                        memcpy(complete_packet_data, packet->getData(), packet->getDataLength());
                         event->makeEventfromPacketData(complete_packet_data);
                     }
                     event->setPacketReference(ref_);

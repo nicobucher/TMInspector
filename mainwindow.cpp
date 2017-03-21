@@ -677,7 +677,8 @@ void MainWindow::loadTranslationTable()
         myPITranslator->loadHash(&db);
         db.close();
     } else {
-        qDebug() << "SQL Error";
+        qWarning() << "SQL Error " << db.lastError().text();
+        statusLabel->setText("SQL Error " + db.lastError().text());
         return;
     }
 
