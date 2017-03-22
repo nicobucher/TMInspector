@@ -46,6 +46,7 @@ protected:
     unsigned char* data;
     int dataLength;
     qulonglong unique_id;
+    QString mibVersion;
 
 public:
     int getVersion() {
@@ -169,6 +170,14 @@ public:
 
     void setId(const qulonglong &value) {
         this->unique_id = value;
+    }
+
+    QString getMibVersion() {
+        return this->mibVersion;
+    }
+
+    void setMibVersion(const QString &value) {
+        this->mibVersion = value;
     }
 
     bool checkCRC();

@@ -67,6 +67,7 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             packet->setApid(query.value(rec.indexOf("applicationProcessId")).toInt());
             packet->setSourceSequenceCount(query.value(rec.indexOf("sequenceCount")).toInt());
             packet->setSequence((Sequence)query.value(rec.indexOf("sequenceFlags")).toInt());
+            packet->setMibVersion(query.value(rec.indexOf("mibVersion")).toString());
 
             TMSourcePacketDataFieldHeader* header = new TMSourcePacketDataFieldHeader();
             header->setVersion(1);
@@ -78,6 +79,8 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             ts_.setMSecsSinceEpoch(query.value(rec.indexOf("generationTimestamp")).toULongLong());
             header->setTimestamp(ts_);
             header->setTimestampValid(true);
+            header->setCoreId(query.value(rec.indexOf("core")).toInt());
+            header->setBootCount(query.value(rec.indexOf("obswBootcount")).toInt());
             packet->setDataFieldHeader(header);
 
             packet->setSourcePacketType(0);

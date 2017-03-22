@@ -57,6 +57,9 @@ private:
     int packetSubCounter;
     QDateTime timestamp;
     bool tsval;
+    int coreId;
+    int bootCount;
+
 public:
 
     int getVersion(){
@@ -73,6 +76,22 @@ public:
 
     void setPacketSubCounter(int subc_) {
         this->packetSubCounter = subc_;
+    }
+
+    int getCoreId() {
+        return this->coreId;
+    }
+
+    void setCoreId(int value_) {
+        this->coreId = value_;
+    }
+
+    int getBootCount() {
+        return this->bootCount;
+    }
+
+    void setBootCount(int value_) {
+        this->bootCount = value_;
     }
 
     QDateTime getTimestamp() {

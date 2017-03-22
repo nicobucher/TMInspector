@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>362</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,6 +32,20 @@
       <string>Header Information</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="4" column="3">
+       <widget class="QLabel" name="mib">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="mib_label">
+        <property name="text">
+         <string>MIB Version:</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="3">
        <widget class="QLabel" name="apid_label">
         <property name="text">
@@ -40,21 +54,21 @@
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="APID_label">
         <property name="text">
          <string>APID:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="SequenceCount_label">
         <property name="text">
          <string>SequenceCount:</string>
         </property>
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QLabel" name="label_8">
+       <widget class="QLabel" name="DFH_label">
         <property name="text">
          <string>DFH present:</string>
         </property>
@@ -75,7 +89,7 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="PacketType_label">
         <property name="text">
          <string>PacketType:</string>
         </property>
@@ -84,7 +98,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="PI1_label">
         <property name="text">
-         <string>PI1 value</string>
+         <string>PI1 Value:</string>
         </property>
        </widget>
       </item>
@@ -96,7 +110,7 @@
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="label_10">
+       <widget class="QLabel" name="Version_label">
         <property name="text">
          <string>Version:</string>
         </property>
@@ -110,7 +124,7 @@
        </widget>
       </item>
       <item row="2" column="2">
-       <widget class="QLabel" name="label_12">
+       <widget class="QLabel" name="Sequence_label">
         <property name="text">
          <string>Sequence:</string>
         </property>
@@ -133,7 +147,7 @@
       <item row="3" column="2">
        <widget class="QLabel" name="PI2_label">
         <property name="text">
-         <string>PI2 value</string>
+         <string>PI2 Value:</string>
         </property>
        </widget>
       </item>
@@ -147,12 +161,40 @@
       <item row="4" column="0">
        <widget class="QLabel" name="SPID_label">
         <property name="text">
-         <string>SPID</string>
+         <string>SPID:</string>
         </property>
        </widget>
       </item>
       <item row="4" column="1">
        <widget class="QLabel" name="SPID">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="OBCCoreId_label">
+        <property name="text">
+         <string>OBC Core ID:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLabel" name="core">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLabel" name="OBSWbootCnt_label">
+        <property name="text">
+         <string>OBSW Boot Cnt:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QLabel" name="bootcnt">
         <property name="text">
          <string/>
         </property>
