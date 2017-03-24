@@ -61,6 +61,8 @@ private slots:
     void table_item_right_click(QPoint pos);
     void switch_hex_dec_action();
 
+signals:
+    void addObjectWatchlist(QString name);
 };
 
 #endif // TRANSLATIONVIEWER_H

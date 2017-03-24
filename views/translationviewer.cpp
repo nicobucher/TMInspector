@@ -203,6 +203,12 @@ TranslationViewer::table_item_right_click(QPoint pos)
         connect(hex_dec_switch, SIGNAL(triggered()), this, SLOT(switch_hex_dec_action()));
 
         menu->popup(ui->tableView->viewport()->mapToGlobal(pos));
+    } else if (index.column() == 1) {
+        // User clicks on an object name, probably wants to add it to the watchlist
+        if (selectedProxy == objectListModelProxy) {
+            QModelIndexList index = ui->tableView->selectionModel()->selectedIndexes();
+            emit addObjectWatchlist(index.at(0).data().toString());
+        }
     }
 }
 

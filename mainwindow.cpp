@@ -493,6 +493,7 @@ void MainWindow::translation_triggered()
                                                          mySPIDTranslator,
                                                          myPITranslator,
                                                          myPICTranslator);
+    connect(transView, SIGNAL(addObjectWatchlist(QString)), this, SLOT(addObjectToWatchList(QString)));
     transView->setAttribute(Qt::WA_DeleteOnClose);
     transView->show();
     transView->raise();

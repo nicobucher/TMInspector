@@ -37,7 +37,6 @@ public:
     void addTranslation(int key_, QString trans_, int list_index_);
     ~MainWindow();
 
-    void addObjectToWatchList(QString object_name_);
     void removeObjectFromWatchList(int idx);
 
 private:
@@ -134,6 +133,7 @@ public slots:
     void animateNewEvent(Event* event);
     void removeObjectView(ObjectView* p_);
     void openEventView(QString name_);
+    void addObjectToWatchList(QString object_name_);
 
 private slots:
     void on_actionTo_Server_triggered();
