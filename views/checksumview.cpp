@@ -25,7 +25,8 @@ ChecksumView::~ChecksumView()
 void ChecksumView::receiveChecksum(qint32 address, qint16 checksum)
 {
     qulonglong pair;
-    pair = (address << 32) + checksum;
+    qulonglong longaddress = (qulonglong)address;
+    pair = (longaddress << 32) + checksum;
     for (int row = 0; row < this->model->rowCount(); ++row) {
         QModelIndex index = this->model->index(row, 0);
         if (pair == this->model->data(index, Qt::UserRole)) {
@@ -69,7 +70,7 @@ void ChecksumView::loadChecksumFile()
               QString text(QString("Address: %0, Checksum: %1").arg(address).arg(crc));
               bool ok;
               qulonglong pair;
-              qint32 adr_int = address.toInt(&ok, 16);
+              qulonglong adr_int = address.toInt(&ok, 16);
               if (!ok) {
                   text.append(", could not convert address");
               }
