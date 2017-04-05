@@ -4,12 +4,14 @@
 #include "event.h"
 #include <QMutexLocker>
 #include <QDebug>
+#include <QNetworkProxy>
 
 PacketWorker::PacketWorker(QHash<int,QVariant>* l_pis_, QHash<int,QVariant>* l_pics_)
     : l_pis(l_pis_),
       l_pics(l_pics_)
 {
     socket = new QTcpSocket(this);
+    socket->setProxy(QNetworkProxy::NoProxy);
     this->isReady = false;
 
     this->quit = false;
@@ -31,7 +33,7 @@ PacketWorker::setup(QThread* th_, QString h_, int p_)
 
     this->socket->connectToHost(this->host, this->port);
     if (this->socket->waitForConnected(3000)) {
-        qDebug() << "connected to " << this->host << " on port " << this->port ;
+        qDebug() << "connected to " << this->host << " on port " << this->port;
         this->isReady = true;
     } else {
         qDebug() << "error connecting";
