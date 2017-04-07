@@ -1,6 +1,7 @@
 #include "dumpstore.h"
 
-DumpStore::DumpStore(QObject *parent) : Store(parent)
+DumpStore::DumpStore(QObject *parent) :
+    Store(parent)
 {
     this->model = new QStandardItemModel(this);
     this->proxy_model = new QSortFilterProxyModel(this);

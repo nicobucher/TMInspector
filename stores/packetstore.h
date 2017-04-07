@@ -17,7 +17,8 @@ class PacketModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    PacketModel() {
+    PacketModel(QString time_fmt_) :
+        myTimestampFmt(time_fmt_) {
         qRegisterMetaType<QVector<int> >("QVector<int>");
 
         QStringList labels;
@@ -60,7 +61,7 @@ public:
             TMSourcePacketDataFieldHeader* header_ = (TMSourcePacketDataFieldHeader*)packet_->getDataFieldHeader();
             setData(index(0, 2), header_->getServiceType());
             setData(index(0, 3), header_->getSubServiceType());
-            setData(index(0, 5), header_->getTimestampString());
+            setData(index(0, 5), header_->getTimestampString(myTimestampFmt));
 
             if (header_->timestampValid()) {
                 setData(index(0, 5), QVariant(QBrush(QColor(0, 0, 255, 127))), Qt::ForegroundRole);
@@ -108,6 +109,8 @@ private:
     qulonglong currentId;
     QHash<int, int> lastSequenceCounts;
     SPIDTranslator* translator;
+
+    QString myTimestampFmt;
 };
 
 /*

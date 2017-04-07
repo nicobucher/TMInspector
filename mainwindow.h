@@ -89,10 +89,11 @@ private slots:
         currentLiveType = txt_;
     }
 
-private:
-
+public:
     // Permanent Settings
     QSettings* settings;
+
+private:
 
     // Popup Dialogue Windows
     ServerSettings* serverSettingsWindow;

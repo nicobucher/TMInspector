@@ -2,12 +2,10 @@
 #define EVENTSTORE_H
 
 #include <QObject>
-//#include <QSql>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlError>
 #include <QSqlQueryModel>
-#include <QSettings>
 #include <QStringListModel>
 #include "custommodels.h"
 #include "store.h"
@@ -29,7 +27,7 @@ class EventStore : public Store
 {
     Q_OBJECT
 public:
-    EventStore(QObject *parent, QSettings *set_, EventTranslator* event_trans_, ObjectTranslator* obj_trans_);
+    EventStore(QObject *parent, EventTranslator* event_trans_, ObjectTranslator* obj_trans_);
 
     bool itemInStore(QString obj_id);
 
@@ -59,8 +57,6 @@ private:
     EventModel* model;
 
     QList<QStandardItem*> prepareRow(Event* e_);
-
-    QSettings* settings;
 
     QStringListModel* watch_list;
 

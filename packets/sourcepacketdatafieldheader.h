@@ -102,8 +102,8 @@ public:
         return this->timestamp.toMSecsSinceEpoch()/1000;
     }
 
-    QString getTimestampString() {
-        return this->timestamp.toString("yyyy MM dd - hh:mm:ss:zzz");
+    QString getTimestampString(QString fmt_) {
+        return this->timestamp.toString(fmt_);
     }
 
     void setTimestamp(QDateTime ts_) {

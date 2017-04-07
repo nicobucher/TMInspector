@@ -22,6 +22,8 @@ ServerSettings::ServerSettings(QWidget *parent, QSettings* pSettings) :
     ui->mib_pw->setEchoMode(QLineEdit::Password);
     ui->pw->setText(settings->value("db/pw").toString());
     ui->mib_pw->setText(settings->value("mib/pw").toString());
+
+    ui->time_fmt->setText(settings->value("time_fmt").toString());
 }
 
 ServerSettings::~ServerSettings()
@@ -44,6 +46,7 @@ void ServerSettings::accept()
     settings->setValue("mib/user", ui->mib_user->text());
     settings->setValue("mib/pw", ui->mib_pw->text());
 
+    settings->setValue("time_fmt", ui->time_fmt->text());
 
     this->QDialog::accept();
 }

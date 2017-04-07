@@ -1,7 +1,10 @@
 #include "eventmodel.h"
 #include <QDebug>
 
-EventModel::EventModel(EventStore* parentStore_) : parentStore(parentStore_) {
+EventModel::EventModel(EventStore* parentStore_, QString time_fmt_) :
+    parentStore(parentStore_),
+    myTimestampFmt(time_fmt_)
+{
     QStringList labels;
     labels << "Object ID" << "Event ID" << "Param 1" << "Param 2" << "Timestamp";
     setHorizontalHeaderLabels(labels);
@@ -66,7 +69,7 @@ EventModel::prepareRow(Event* event_)
     row << event_id;
     row << event_->getParam1();
     row << event_->getParam2();
-    row << new QStandardItem(event_->getTimestamp().toString());
+    row << new QStandardItem(event_->getTimestamp().toString(myTimestampFmt));
     return row;
 }
 

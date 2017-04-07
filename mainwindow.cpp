@@ -45,9 +45,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // Stores
     myPacketStore = new PacketStore(this, mySPIDTranslator);
     mySqlPacketStore = new PacketStore(this, mySPIDTranslator);
-    myEventStore = new EventStore(this, settings, myEventTranslator, myObjectTranslator);
+    myEventStore = new EventStore(this, myEventTranslator, myObjectTranslator);
     connect(myEventStore, SIGNAL(openView(QString)), this, SLOT(openEventView(QString)));
-    mySqlEventStore = new EventStore(this, settings, myEventTranslator, myObjectTranslator);
+    mySqlEventStore = new EventStore(this, myEventTranslator, myObjectTranslator);
     myDumpStore = new DumpStore(this);
     mySqlDumpStore = new DumpStore(this);
 
@@ -241,6 +241,10 @@ void MainWindow::readSettings()
     resize(settings->value("size", QSize(400, 400)).toSize());
     move(settings->value("pos", QPoint(200, 200)).toPoint());
     settings->endGroup();
+
+    if (settings->value("time_fmt").isNull()) {
+        settings->setValue("time_fmt", "yyyy.MM.dd - hh:mm:ss:zzz");
+    }
 }
 
 void MainWindow::on_actionEdit_triggered()

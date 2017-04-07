@@ -20,6 +20,7 @@ private:
     Ui::PacketContentView *ui;
     PacketStore* store;
     SourcePacket* selectedPacket;
+
 };
 
 #endif // PACKETCONTENTVIEW_H

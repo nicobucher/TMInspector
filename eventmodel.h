@@ -14,7 +14,7 @@ class EventModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    EventModel(EventStore* parentStore_);
+    EventModel(EventStore* parentStore_, QString time_fmt_);
 
   /*
    * Convenience operator for putting a new sting into the model list.
@@ -35,6 +35,8 @@ private:
     EventStore* parentStore;
     EventTranslator* event_translator;
     ObjectTranslator* object_translator;
+
+    QString myTimestampFmt;
 
 public slots:
     void datachanged_debug1(QModelIndex topleft,QModelIndex bottomright);

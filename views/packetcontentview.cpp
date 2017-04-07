@@ -2,6 +2,7 @@
 #include "ui_packetcontentview.h"
 #include "packets/sourcepacket.h"
 #include "packets/dumpsummarypacket.h"
+#include "mainwindow.h"
 #include <QDebug>
 
 PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglong idx_) :
@@ -9,6 +10,7 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
     ui(new Ui::PacketContentView),
     store(st_)
 {
+    MainWindow* mainwindow = (MainWindow*)parent;
     ui->setupUi(this);
 
     // Find the selected packet
@@ -28,7 +30,7 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
         ui->mib->setText(selectedPacket->getMibVersion());
         ui->core->setText(QString::number(selectedPacket->getDataFieldHeader()->getCoreId()));
         ui->bootcnt->setText(QString::number(selectedPacket->getDataFieldHeader()->getBootCount()));
-        ui->timestamp->setText(selectedPacket->getDataFieldHeader()->getTimestampString());
+        ui->timestamp->setText(selectedPacket->getDataFieldHeader()->getTimestampString(mainwindow->settings->value("time_fmt").toString()));
 
         if (selectedPacket->getDataFieldHeader()->getServiceType() == 15 && selectedPacket->getDataFieldHeader()->getSubServiceType() == 128) {
             // Special view for dump summary packets

@@ -3,12 +3,15 @@
 #include <fstream>
 #include <iomanip>
 #include <QDebug>
+#include "mainwindow.h"
 #include "packets/checksumpacket.h"
 using namespace std;
 
-PacketStore::PacketStore(QObject* parent, SPIDTranslator* trans_) : Store(parent)
+PacketStore::PacketStore(QObject* parent, SPIDTranslator* trans_) :
+    Store(parent)
 {   
-    this->model = new PacketModel();
+    MainWindow* mainwindow = (MainWindow*)parent;
+    this->model = new PacketModel(mainwindow->settings->value("time_fmt").toString());
     this->model->setTranslator(trans_);
     this->proxy_model = new PacketViewFilterProxyModel(this);
     this->setSourceModel(this->model);

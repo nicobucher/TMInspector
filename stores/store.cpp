@@ -8,7 +8,8 @@
 #include <iomanip>
 using namespace std;
 
-Store::Store(QObject* parent) : QObject(parent)
+Store::Store(QObject* parent) :
+    QObject(parent)
 {
 
 }
