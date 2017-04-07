@@ -3,6 +3,8 @@
 DumpStore::DumpStore(QObject *parent) : Store(parent)
 {
     this->model = new QStandardItemModel(this);
+    this->proxy_model = new QSortFilterProxyModel(this);
+    this->setSourceModel(this->model);
 }
 
 bool DumpStore::itemInStore(QString obj_id)

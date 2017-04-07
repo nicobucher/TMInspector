@@ -103,6 +103,9 @@ TMSourcePacketDataFieldHeader::decodeFromCDS(uint8_t pField, unsigned long *ts_f
             //Not very useful.
             tv_usec += (picosecs / 1000);
     }
+    uint8_t info_field = pointer[0];
+    this->setBootCount(info_field & 0xF0);
+    this->setCoreId(info_field & 0x0F);
 
     unsigned long resultingTimeMs = (tv_sec * 1000) + tv_usec;
     this->setTimestampValid(true);

@@ -96,6 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->groupBox->setLayout(LivePacketFilterLayout);
         ui->groupBox_2->setLayout(SqlPacketFilterLayout);
     }
+    ui->columnView->setModel(myDumpStore->proxy_model);
 
     // Double Click actions
     connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));

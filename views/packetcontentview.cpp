@@ -28,6 +28,7 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
         ui->mib->setText(selectedPacket->getMibVersion());
         ui->core->setText(QString::number(selectedPacket->getDataFieldHeader()->getCoreId()));
         ui->bootcnt->setText(QString::number(selectedPacket->getDataFieldHeader()->getBootCount()));
+        ui->timestamp->setText(selectedPacket->getDataFieldHeader()->getTimestampString());
 
         if (selectedPacket->getDataFieldHeader()->getServiceType() == 15 && selectedPacket->getDataFieldHeader()->getSubServiceType() == 128) {
             // Special view for dump summary packets

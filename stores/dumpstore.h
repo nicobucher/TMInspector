@@ -21,7 +21,7 @@ public:
         return this->model;
     }
 
-    PacketViewFilterProxyModel* proxy_model;
+    QSortFilterProxyModel* proxy_model;
 
     void setSourceModel(QAbstractItemModel* src_) {
         this->proxy_model->setSourceModel(src_);
