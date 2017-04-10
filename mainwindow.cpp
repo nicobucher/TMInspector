@@ -101,6 +101,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Double Click actions
     connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
     connect(ui->treeView_arch, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+    connect(ui->columnView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
 
     // Right Click menu
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -479,6 +480,19 @@ void MainWindow::loadObjectView(QModelIndex index)
         selectedStore = (Store*)index.model()->parent();
         if (selectedStore != NULL) {
             // Get the index from the item in column zero... This can then be used to look up the packet in the stores packet-list
+            QModelIndex pktIndex = index.model()->index(index.row(),1);
+            qulonglong pkt_id = pktIndex.data(ListIndexRole).toLongLong();
+            PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);
+            pktView->setAttribute(Qt::WA_DeleteOnClose);
+            pktView->show();
+            pktView->raise();
+            pktView->activateWindow();
+        }
+        return;
+    }
+    if (index.model() == myDumpStore->proxy_model) {
+        selectedStore = (Store*)index.model()->parent();
+        if (selectedStore != NULL) {
             QModelIndex pktIndex = index.model()->index(index.row(),1);
             qulonglong pkt_id = pktIndex.data(ListIndexRole).toLongLong();
             PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);

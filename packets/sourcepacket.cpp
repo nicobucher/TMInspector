@@ -101,8 +101,6 @@ SourcePacket* SourcePacket::makePacketFromData(unsigned char* pHeader_, unsigned
         // Set datafield header
         dataFieldHeader = new TMSourcePacketDataFieldHeader();
         dataFieldHeader->makeDataFieldHeaderFromData(pData_);
-        // Move data pointer
-//        this->dataLength -= 2;
         qulonglong id_ = ((qulonglong)dataFieldHeader->getTimestampSeconds() << 32) + this->getSourceSequenceCount();
         this->setId(id_);
     }
