@@ -16,7 +16,7 @@
 #include "stores/packetstore.h"
 #include "stores/eventstore.h"
 #include "stores/dumpstore.h"
-#include "custommodels.h"
+#include "models/custommodels.h"
 #include "definitions.h"
 #include <QLineEdit>
 #include <QPushButton>

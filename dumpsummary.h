@@ -19,6 +19,7 @@ public:
     void addMissingCounts(QHash<uint16_t, uint16_t> counts_);
     QHash<uint16_t, uint16_t>* getMissingCounts();
 
+    uint8_t getDump_id() const;
     uint32_t getObject_id() const;
 
 private:

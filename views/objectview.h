@@ -2,7 +2,7 @@
 #define OBJECTVIEW_H
 
 #include <QDialog>
-#include "objectfilterproxymodel.h"
+#include "models/objectfilterproxymodel.h"
 #include <QStandardItemModel>
 #include <stores/store.h>
 

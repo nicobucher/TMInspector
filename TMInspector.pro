@@ -17,11 +17,11 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     event.cpp \
-    objectfilterproxymodel.cpp \
+    models/objectfilterproxymodel.cpp \
     animatedstandarditem.cpp \
-    treeviewfilterproxymodel.cpp \
-    eventmodel.cpp \
-    packetviewfilterproxymodel.cpp \
+    models/treeviewfilterproxymodel.cpp \
+    models/eventmodel.cpp \
+    models/packetviewfilterproxymodel.cpp \
     translator.cpp \
     definitions.cpp \
     packets/dumpsummarypacket.cpp \
@@ -40,17 +40,18 @@ SOURCES += main.cpp\
     stores/dumpstore.cpp \
     dumpsummary.cpp \
     views/checksumview.cpp \
-    packets/checksumpacket.cpp
+    packets/checksumpacket.cpp \
+    models/dumpmodel.cpp
 
 HEADERS  += mainwindow.h \
     event.h \
-    objectfilterproxymodel.h \
+    models/objectfilterproxymodel.h \
     animatedstandarditem.h \
-    treeviewfilterproxymodel.h \
+    models/treeviewfilterproxymodel.h \
     definitions.h \
-    custommodels.h \
-    eventmodel.h \
-    packetviewfilterproxymodel.h \
+    models/custommodels.h \
+    models/eventmodel.h \
+    models/packetviewfilterproxymodel.h \
     translator.h \
     packets/dumpsummarypacket.h \
     dialogs/addtranslationdialog.h \
@@ -68,7 +69,8 @@ HEADERS  += mainwindow.h \
     stores/dumpstore.h \
     dumpsummary.h \
     views/checksumview.h \
-    packets/checksumpacket.h
+    packets/checksumpacket.h \
+    models/dumpmodel.h
 
 FORMS    += mainwindow.ui \
     dialogs/serversettings.ui \

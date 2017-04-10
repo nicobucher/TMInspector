@@ -3,8 +3,10 @@
 
 #include "store.h"
 #include "dumpsummary.h"
-#include "packetviewfilterproxymodel.h"
+#include "models/dumpmodel.h"
 #include <QDateTime>
+
+class DumpModel;
 
 class DumpStore : public Store
 {
@@ -17,9 +19,7 @@ public:
 
     void emptyStore();
 
-    QStandardItemModel* getModel() {
-        return this->model;
-    }
+    QStandardItemModel* getModel();
 
     QSortFilterProxyModel* proxy_model;
 
@@ -43,7 +43,7 @@ public slots:
     void exportToFile(QString filename_);
 
 private:
-    QStandardItemModel* model;
+    DumpModel* model;
 
     QHash<qulonglong, DumpSummary*> l_dumps;
     qulonglong generateId(uint32_t obj_id_, uint8_t dump_id_);

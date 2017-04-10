@@ -1,9 +1,12 @@
 #include "dumpstore.h"
+#include "mainwindow.h"
 
 DumpStore::DumpStore(QObject *parent) :
     Store(parent)
 {
-    this->model = new QStandardItemModel(this);
+    MainWindow* mainwindow = (MainWindow*)parent;
+
+    this->model = new DumpModel(this, mainwindow->settings->value("time_fmt").toString());
     this->proxy_model = new QSortFilterProxyModel(this);
     this->setSourceModel(this->model);
 }
@@ -51,6 +54,11 @@ void DumpStore::emptyStore()
     this->l_dumps.clear();
 }
 
+QStandardItemModel *DumpStore::getModel()
+{
+    return this->model;
+}
+
 void DumpStore::putDumpSummaryPacket(DumpSummaryPacket *dps_)
 {
     DumpSummary* dump_summary_;
@@ -60,6 +68,7 @@ void DumpStore::putDumpSummaryPacket(DumpSummaryPacket *dps_)
     if (!this->containsDumpId(id_)) {
         dump_summary_ = new DumpSummary(this, dps_);
         this->l_dumps.insert(id_, dump_summary_);
+        *this->model << dump_summary_;
     } else {
         dump_summary_ = this->l_dumps.value(id_);
         if (dump_summary_->isFresh()) {
@@ -69,6 +78,7 @@ void DumpStore::putDumpSummaryPacket(DumpSummaryPacket *dps_)
             this->l_dumps.remove(id_);
             dump_summary_ = new DumpSummary(this, dps_);
             this->l_dumps.insert(id_, dump_summary_);
+            *this->model << dump_summary_;
         }
     }
 }

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QStandardItem>
 #include <QStandardItemModel>
-#include "treeviewfilterproxymodel.h"
+#include "models/treeviewfilterproxymodel.h"
 
 class Store : public QObject
 {

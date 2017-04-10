@@ -7,10 +7,10 @@
 #include <QSqlError>
 #include <QSqlQueryModel>
 #include <QStringListModel>
-#include "custommodels.h"
+#include "models/custommodels.h"
 #include "store.h"
 #include "event.h"
-#include "eventmodel.h"
+#include "models/eventmodel.h"
 #include "translator.h"
 
 class EventModel;

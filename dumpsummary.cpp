@@ -37,6 +37,11 @@ QHash<uint16_t, uint16_t> *DumpSummary::getMissingCounts()
     return &l_missingcounts;
 }
 
+uint8_t DumpSummary::getDump_id() const
+{
+    return this->id;
+}
+
 uint32_t DumpSummary::getObject_id() const
 {
     return object_id;

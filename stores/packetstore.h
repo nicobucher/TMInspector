@@ -5,7 +5,7 @@
 #include "store.h"
 #include "packets/sourcepacket.h"
 #include "definitions.h"
-#include "packetviewfilterproxymodel.h"
+#include "models/packetviewfilterproxymodel.h"
 #include "translator.h"
 #include "packets/dumpsummarypacket.h"
 
