@@ -11,6 +11,9 @@ public:
     DumpSummary(QObject *parent, DumpSummaryPacket *init_packet);
 
     void putDumpSummaryPacket(DumpSummaryPacket* pkt_);
+    QHash<uint16_t, DumpSummaryPacket*> getSummaryPackets() {
+        return l_summary_packets;
+    }
 
     QDateTime getReception_time() const;
 

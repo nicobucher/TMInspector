@@ -23,35 +23,10 @@ int DumpStore::getNumberOfItems()
     return 0;
 }
 
-int DumpStore::getNumberOfDumps() {
-    return this->l_dumps.size();
-}
-
-bool DumpStore::containsDumpId(uint32_t obj_id_, uint8_t dump_id_) {
-    return this->l_dumps.contains(generateId(obj_id_, dump_id_));
-}
-
-DumpSummary *DumpStore::getDumpSummary(qulonglong id_)
-{
-    return this->l_dumps.value(id_);
-}
-
-DumpSummary *DumpStore::getDumpSummary(uint8_t dump_id, uint32_t object_id)
-{
-    return this->l_dumps.value(generateId(object_id, dump_id));
-}
-
-bool DumpStore::containsDumpId(qulonglong id_) {
-    return this->l_dumps.contains(id_);
-}
-
-qulonglong DumpStore::generateId(uint32_t obj_id_, uint8_t dump_id_) {
-    return ((qulonglong)obj_id_ << 32) + dump_id_;
-}
-
 void DumpStore::emptyStore()
 {
-    this->l_dumps.clear();
+    this->model->clear();
+    this->l_summaries.clear();
 }
 
 QStandardItemModel *DumpStore::getModel()
@@ -59,25 +34,49 @@ QStandardItemModel *DumpStore::getModel()
     return this->model;
 }
 
+void DumpStore::putDumpStatusPacket(SourcePacket *packet_)
+{
+    DumpSummary* dump_summary_;
+
+    qulonglong id_ = generateId(dps_->getOnboardStoreObject_id(), dps_->getDumpid());
+    if (!this->containsDumpId(id_)) {
+        dump_summary_ = new DumpSummary(this, dps_);
+        l_summaries.insert(id_, dump_summary_);
+        *this->model << dump_summary_;
+    } else {
+        dump_summary_ = this->getDumpSummary(id_);
+        if (dump_summary_->isFresh()) {
+            dump_summary_->putDumpSummaryPacket(dps_);
+            *this->model << dps_;
+        } else {
+            // The found Dump Summary is too old: create a new one
+            l_summaries.remove(id_);
+            dump_summary_ = new DumpSummary(this, dps_);
+            l_summaries.insert(id_, dump_summary_);
+            *this->model << dump_summary_;
+        }
+    }
+}
+
 void DumpStore::putDumpSummaryPacket(DumpSummaryPacket *dps_)
 {
     DumpSummary* dump_summary_;
-    uint8_t dump_id_ = dps_->getDumpid();
-    uint32_t object_id_ = dps_->getOnboardStoreObject_id();
-    qulonglong id_ = generateId(object_id_, dump_id_);
+
+    qulonglong id_ = generateId(dps_->getOnboardStoreObject_id(), dps_->getDumpid());
     if (!this->containsDumpId(id_)) {
         dump_summary_ = new DumpSummary(this, dps_);
-        this->l_dumps.insert(id_, dump_summary_);
+        l_summaries.insert(id_, dump_summary_);
         *this->model << dump_summary_;
     } else {
-        dump_summary_ = this->l_dumps.value(id_);
+        dump_summary_ = this->getDumpSummary(id_);
         if (dump_summary_->isFresh()) {
             dump_summary_->putDumpSummaryPacket(dps_);
+            *this->model << dps_;
         } else {
-            // The found Dump Summary is too old, delete it and create a new one
-            this->l_dumps.remove(id_);
+            // The found Dump Summary is too old: create a new one
+            l_summaries.remove(id_);
             dump_summary_ = new DumpSummary(this, dps_);
-            this->l_dumps.insert(id_, dump_summary_);
+            l_summaries.insert(id_, dump_summary_);
             *this->model << dump_summary_;
         }
     }
@@ -86,4 +85,26 @@ void DumpStore::putDumpSummaryPacket(DumpSummaryPacket *dps_)
 void DumpStore::exportToFile(QString filename_)
 {
     // TODO
+}
+
+DumpSummary *DumpStore::getDumpSummary(qulonglong id_)
+{
+    return this->l_summaries.value(id_);
+}
+
+DumpSummary *DumpStore::getDumpSummary(uint8_t dump_id, uint32_t object_id)
+{
+    return this->l_summaries.value(generateId(object_id, dump_id));
+}
+
+bool DumpStore::containsDumpId(uint32_t obj_id_, uint8_t dump_id_) {
+    return this->l_summaries.contains(generateId(obj_id_, dump_id_));
+}
+
+bool DumpStore::containsDumpId(qulonglong id_) {
+    return this->l_summaries.contains(id_);
+}
+
+int DumpStore::getNumberOfDumps() {
+    return this->l_summaries.size();
 }
