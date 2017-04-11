@@ -75,20 +75,8 @@ PacketWorker::doWork()
                                 DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
 
                                 emit dumpSummaryReceived(ds_packet);
-//                                dump_store->putDumpSummaryPacket(ds_packet);
-
-
-                                // TODO --> This should be moved to the dumpstore because of thread safety
-//                                QHash<uint16_t, uint16_t> missingCounts = store->checkSequenceCounts(ds_packet->getL_sequencecounts());
-
-//                                ds_packet->setL_missing_sequencecounts(missingCounts);
-//                                DumpSummary* summary = dump_store->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
-//                                summary->addMissingCounts(missingCounts);
-                                // <--
-
                             } else {
                                 emit packetReceived(packet);
-//                                ref_ = store->putPacket(packet);
                             }
 
                             // If the packet contains an event (Events have Service Type 5)

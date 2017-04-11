@@ -116,18 +116,9 @@ SqlWorker::doWork() {
                     packet->getDataFieldHeader()->getSubServiceType() == 128) {
                 DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
 
-//                mySqlDumpStore->putDumpSummaryPacket(ds_packet);
-//                QHash<uint16_t, uint16_t> missingCounts = mySqlPacketStore->checkSequenceCounts(ds_packet->getL_sequencecounts());
-
-//                ds_packet->setL_missing_sequencecounts(missingCounts);
-//                DumpSummary* summary = mySqlDumpStore->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
-//                summary->addMissingCounts(missingCounts);
-
-//                mySqlPacketStore->putPacket(ds_packet);
                 emit dumpSummaryReceived(ds_packet);
             } else {
                 emit packetReceived(packet);
-//                mySqlPacketStore->putPacket(packet);
             }
 
             if (packet->hasDataFieldHeader()) {
@@ -141,7 +132,6 @@ SqlWorker::doWork() {
                     event->setPacketReference(packet->getId());
                     // Put the event into the event store
                     emit eventReceived(event);
-//                    mySqlEventStore->putEvent(event);
                 }
             }
         }
