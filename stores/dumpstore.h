@@ -31,8 +31,6 @@ public:
         return this->proxy_model;
     }
 
-    void putDumpSummaryPacket(DumpSummaryPacket* dps_);
-
     DumpSummary* getDumpSummary(qulonglong id_);
     DumpSummary* getDumpSummary(uint8_t dump_id, uint32_t object_id);
 
@@ -44,8 +42,10 @@ public:
     }
 
     int getNumberOfDumps();
+
 public slots:
     void exportToFile(QString filename_);
+    void putDumpSummaryPacket(DumpSummaryPacket* dps_);
 
 private:
     DumpModel* model;

@@ -37,7 +37,6 @@ public:
 
     QStandardItemModel* getModel();
 
-    void putEvent(Event* e_);
     int checkChildObjExists(int objId_);
 
     TreeViewFilterProxyModel* proxy_model;
@@ -62,6 +61,7 @@ private:
 
 public slots:
     void exportToFile(QString filename_);
+    void putEvent(Event* e_);
 
 signals:
     void openView(QString name_);

@@ -1,8 +1,9 @@
 #include "dumpsummary.h"
 
-DumpSummary::DumpSummary(QObject* parent, DumpSummaryPacket* init_packet)
+DumpSummary::DumpSummary(QObject* parent, DumpSummaryPacket* init_packet) : QObject(parent)
 {
     this->object_id = init_packet->getOnboardStoreObject_id();
+    this->object_name = init_packet->getObject_name();
     this->id = init_packet->getDumpid();
     this->reception_time = QDateTime::currentDateTime();
     putDumpSummaryPacket(init_packet);
@@ -45,4 +46,14 @@ uint8_t DumpSummary::getDump_id() const
 uint32_t DumpSummary::getObject_id() const
 {
     return object_id;
+}
+
+QString DumpSummary::getObject_name() const
+{
+    return object_name;
+}
+
+void DumpSummary::setObject_name(const QString &value)
+{
+    object_name = value;
 }

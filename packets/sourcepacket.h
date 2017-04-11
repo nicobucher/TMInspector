@@ -47,6 +47,7 @@ protected:
     int dataLength;
     qulonglong unique_id;
     QString mibVersion;
+    QString name;
 
 public:
     int getVersion() {
@@ -184,8 +185,9 @@ public:
 
     SourcePacket* makePacketFromData(unsigned char* pHeader, unsigned char* pData_, int length_);
 
-    int makeSPID(QHash<int, QVariant> *PI_hash_);
-    void makePI_VALUES(QHash<int, QVariant> *PIC_hash_);
+    int makeSPID();
+    void makePI_VALUES();
+    QString getName() const;
 };
 
 #endif // SOURCEPACKET_H

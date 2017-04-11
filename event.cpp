@@ -72,7 +72,7 @@ Event::makeEventfromPacketData(unsigned char* pData_)
     unsigned int value;
     pData_ = pData_ + 12; // Skip the DFH
     value = (pData_[0] << 8) + pData_[1];
-    this->event_id->setData(QString::number(value), Qt::DisplayRole);
+    setEventId(value);
     value = (pData_[2] << 24) + (pData_[3] << 16) + (pData_[4] << 8) + pData_[5];
     setObjectId(value);
     value = (pData_[6] << 24) + (pData_[7] << 16) + (pData_[8] << 8) + pData_[9];

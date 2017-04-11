@@ -51,6 +51,11 @@ SourcePacket::~SourcePacket()
     free(this->data);
 }
 
+QString SourcePacket::getName() const
+{
+    return name;
+}
+
 SourcePacket* SourcePacket::makePacketFromData(unsigned char* pHeader_, unsigned char* pData_, int length_)
 {
     // byte 0 & 1
@@ -106,6 +111,16 @@ SourcePacket* SourcePacket::makePacketFromData(unsigned char* pHeader_, unsigned
         this->setId(id_);
     }
 
+    makePI_VALUES();
+    makeSPID();
+
+    QVariant pkt_name_ = mySPIDTranslator.translate(getSpid());
+    if (pkt_name_.isValid()) {
+        this->name = pkt_name_.toString();
+    } else {
+        this->name = "no description available";
+    }
+
     return this;
 }
 
@@ -135,11 +150,11 @@ SourcePacket::checkCRC()
 }
 
 int
-SourcePacket::makeSPID(QHash<int, QVariant> *PI_hash_)
+SourcePacket::makeSPID()
 {
     if (this->hasDataFieldHeader()) {
         PI_VALUES value_;
-        for (QHash<int, QVariant>::iterator it = PI_hash_->begin(); it != PI_hash_->end(); ++it) {
+        for (QHash<int, QVariant>::iterator it = myPITranslator.getList()->begin(); it != myPITranslator.getList()->end(); ++it) {
             value_ = it.value().value<PI_VALUES>();
             if (value_.type_key == this->dataFieldHeader->getTypeKey()) {
                 if (pi_vals.PI1_VAL == value_.PI1_VAL && pi_vals.PI2_VAL == value_.PI2_VAL)
@@ -151,7 +166,7 @@ SourcePacket::makeSPID(QHash<int, QVariant> *PI_hash_)
 }
 
 void
-SourcePacket::makePI_VALUES(QHash<int, QVariant>* PIC_hash_)
+SourcePacket::makePI_VALUES()
 {
     this->pi_vals.PI1_VAL = 0;
     this->pi_vals.PI2_VAL = 0;
@@ -161,8 +176,8 @@ SourcePacket::makePI_VALUES(QHash<int, QVariant>* PIC_hash_)
 
     int lookup_key_ = (this->dataFieldHeader->getServiceType() << 16) + this->dataFieldHeader->getSubServiceType();
 
-    QHash<int, QVariant>::iterator it = PIC_hash_->find(lookup_key_);
-    if (it == PIC_hash_->end()) {
+    QHash<int, QVariant>::iterator it = myPICTranslator.getList()->find(lookup_key_);
+    if (it == myPICTranslator.getList()->end()) {
         return;
     }
 

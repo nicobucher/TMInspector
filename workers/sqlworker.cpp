@@ -6,12 +6,10 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-SqlWorker::SqlWorker(QSettings* settings, QDateTime begin_, QDateTime end_, QProgressDialog* prg_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_)
-    : begin(begin_),
-      end(end_),
-      progress(prg_),
-      l_pis(l_pis_),
-      l_pics(l_pics_)
+SqlWorker::SqlWorker(QSettings* settings, QDateTime begin_, QDateTime end_, QProgressDialog* prg_) :
+    begin(begin_),
+    end(end_),
+    progress(prg_)
 {
     db = QSqlDatabase::addDatabase("QMYSQL");
 
@@ -85,8 +83,9 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
 
             packet->setSourcePacketType(0);
             packet->setQuality(GOOD);
-            packet->makePI_VALUES(l_pics);
-            packet->makeSPID(l_pis);
+            packet->makePI_VALUES();
+            packet->makeSPID();
+
             list << packet;
         }
         emit dbAccessError("DB Success, found " + QString::number(list.count()) + " Packets");
@@ -144,9 +143,9 @@ SqlWorker::doWork() {
                 DumpSummary* summary = mySqlDumpStore->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
                 summary->addMissingCounts(missingCounts);
 
-                ref_ = mySqlPacketStore->putPacket(ds_packet);
+                mySqlPacketStore->putPacket(ds_packet);
             } else {
-                ref_ = mySqlPacketStore->putPacket(packet);
+                mySqlPacketStore->putPacket(packet);
             }
 
             if (packet->hasDataFieldHeader()) {

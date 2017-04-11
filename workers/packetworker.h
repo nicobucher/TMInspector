@@ -14,7 +14,7 @@ class PacketWorker : public QObject
     Q_OBJECT
 
 public:
-    PacketWorker(QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_);
+    PacketWorker();
     ~PacketWorker();
 
     QString getHost() {
@@ -41,7 +41,10 @@ public slots:
 
 signals:
     void hasError(const QString& errormessage);
+    void dumpSummaryReceived(DumpSummaryPacket*);
     void eventAdded(Event*);
+    void eventReceived(Event*);
+    void packetReceived(SourcePacket*);
 
 private:
     QTcpSocket* socket;
@@ -51,9 +54,6 @@ private:
     QMutex mutex;
     QString host;
     int port;
-
-    QHash<int,QVariant>* l_pis;
-    QHash<int,QVariant>* l_pics;
 };
 
 #endif // PACKETWORKER_H

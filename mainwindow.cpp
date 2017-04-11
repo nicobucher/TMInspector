@@ -183,13 +183,24 @@ void MainWindow::on_actionTo_Server_triggered()
         return;
     }
 
-    myPacketWorker = new PacketWorker(myPITranslator.getList(), myPICTranslator.getList());
+    myPacketWorker = new PacketWorker();
     myPacketWorker->setStore(myPacketStore);
     myPacketWorker->setEvent_store(myEventStore);
     myPacketWorker->setDump_store(myDumpStore);
-    connect(myPacketWorker, SIGNAL(hasError(const QString&)), this, SLOT(displayPacketWorkerError(const QString&)));
-    connect(myPacketWorker, SIGNAL(eventAdded(Event*)), this, SLOT(animateNewEvent(Event*)));
-    connect(this, SIGNAL(clientSetup(QThread*,QString,int)), myPacketWorker, SLOT(setup(QThread*,QString,int)));
+    connect(myPacketWorker, SIGNAL(hasError(const QString&)),
+            this, SLOT(displayPacketWorkerError(const QString&)));
+    connect(myPacketWorker, SIGNAL(eventAdded(Event*)),
+            this, SLOT(animateNewEvent(Event*)));
+    connect(myPacketWorker, SIGNAL(packetReceived(SourcePacket*)),
+            myPacketStore, SLOT(putPacket(SourcePacket*)));
+    connect(myPacketWorker, SIGNAL(eventReceived(Event*)),
+            myEventStore, SLOT(putEvent(Event*)));
+    connect(myPacketWorker, SIGNAL(dumpSummaryReceived(DumpSummaryPacket*)),
+            myDumpStore, SLOT(putDumpSummaryPacket(DumpSummaryPacket*)));
+    connect(myPacketWorker, SIGNAL(dumpSummaryReceived(SourcePacket*)),
+            myPacketStore, SLOT(putPacket(SourcePacket*)));
+    connect(this, SIGNAL(clientSetup(QThread*,QString,int)),
+            myPacketWorker, SLOT(setup(QThread*,QString,int)));
     myPacketWorkerThread = new QThread();
 
     emit clientSetup(myPacketWorkerThread, settings->value("server/host").toString(), settings->value("server/port").toInt());
@@ -272,7 +283,7 @@ void MainWindow::on_commandLinkButton_clicked()
 
     QDateTime begin_ = ui->dateTimeEdit_start->dateTime();
     QDateTime end_ = ui->dateTimeEdit_stop->dateTime();
-    SqlWorker* worker = new SqlWorker(settings, begin_, end_, progress_, myPITranslator.getList(), myPICTranslator.getList());
+    SqlWorker* worker = new SqlWorker(settings, begin_, end_, progress_);
     worker->setMySqlPacketStore(mySqlPacketStore);
     worker->setMySqlEventStore(mySqlEventStore);
     worker->setMySqlDumpStore(mySqlDumpStore);

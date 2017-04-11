@@ -1,4 +1,5 @@
 #include "dumpsummarypacket.h"
+#include "translator.h"
 
 DumpSummaryPacket::DumpSummaryPacket(SourcePacket &packet) : SourcePacket(packet)
 {
@@ -9,6 +10,12 @@ void DumpSummaryPacket::decode()
 {
     unsigned char* p_ = &this->data[12];
     this->object_id = (p_[0] << 24) + (p_[1] << 16) + (p_[2] << 8) + p_[3];
+    QVariant obj_name_ = myObjectTranslator.translate(this->object_id);
+    if (obj_name_.isValid()) {
+        this->object_name = obj_name_.toString();
+    } else {
+        this->object_name = QString::number(this->object_id);
+    }
     // Extract the dump id and dump counter
     this->dumpid = p_[4];
     this->dumpcounter = (p_[5] << 8) + p_[6];
@@ -76,4 +83,9 @@ int DumpSummaryPacket::getNumberOfMissingSSC()
 int DumpSummaryPacket::getNumberOfSSC()
 {
     return l_sequencecounts.size();
+}
+
+QString DumpSummaryPacket::getObject_name() const
+{
+    return object_name;
 }

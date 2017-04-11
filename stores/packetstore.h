@@ -87,12 +87,7 @@ public:
             }
         }
 
-        QVariant pkt_name_ = mySPIDTranslator.translate(packet_->getSpid());
-        if (pkt_name_.isValid()) {
-            setData(index(0,6), pkt_name_.toString(), Qt::DisplayRole);
-        } else {
-            setData(index(0,6), "no description available", Qt::DisplayRole);
-        }
+        setData(index(0,6), packet_->getName(), Qt::DisplayRole);
 
         return *this;
     }
@@ -138,8 +133,6 @@ public:
         return this->model;
     }
 
-    // Returns the allocated packet reference id
-    qulonglong putPacket(SourcePacket* p_);
     SourcePacket* getPacket(qulonglong pkt_id);
     PacketViewFilterProxyModel* proxy_model;
 
@@ -199,6 +192,7 @@ signals:
 
 public slots:
     void exportToFile(QString filename_);
+    void putPacket(SourcePacket* p_);
 };
 
 #endif // PACKETSTORE_H

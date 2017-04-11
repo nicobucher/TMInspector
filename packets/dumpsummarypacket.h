@@ -28,6 +28,8 @@ public:
     int getNumberOfMissingSSC();
     int getNumberOfSSC();
 
+    QString getObject_name() const;
+
 protected:
     /*
      * 'l_sequencecounts' holds combinations of sequence counts (key) and APID (value)
@@ -35,6 +37,7 @@ protected:
     QHash<uint16_t, uint16_t> l_sequencecounts;
     QHash<uint16_t, uint16_t> l_missing_sequencecounts;
     uint32_t object_id;
+    QString object_name;
     uint16_t dumpcounter;
     uint8_t dumpid;
 };

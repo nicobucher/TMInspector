@@ -16,7 +16,7 @@ DumpModel &DumpModel::operator <<(DumpSummary *dump_summary_)
     } else {
         this->removeRow(row);
     }
-    QStandardItem* new_dump = new QStandardItem("Dump No. " + QString::number(dump_summary_->getDump_id()));
+    QStandardItem* new_dump = new QStandardItem(dump_summary_->getObject_name() + " (No. " + QString::number(dump_summary_->getDump_id()) + ")");
     new_dump->setData(dump_summary_->getDump_id(), IdentifierRole);
 
     QHashIterator<uint16_t, DumpSummaryPacket*> it(dump_summary_->getSummaryPackets());

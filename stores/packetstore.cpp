@@ -18,19 +18,15 @@ PacketStore::PacketStore(QObject* parent) :
 //    id = 0;
 }
 
-qulonglong
-PacketStore::putPacket(SourcePacket* p_) {
+void PacketStore::putPacket(SourcePacket* p_) {
     *this->model << p_;
 
-    qulonglong id_ = this->model->getCurrentId();
-    l_packets.insert(id_, p_);
+    l_packets.insert(p_->getId(), p_);
 
     if (p_->getDataFieldHeader()->getServiceType() == 6 && p_->getDataFieldHeader()->getSubServiceType() == 10) {
         ChecksumPacket new_checksum_packet(*p_);
         emit newChecksum(new_checksum_packet.getAddress(), new_checksum_packet.getChecksum());
     }
-
-    return id_;
 }
 
 void

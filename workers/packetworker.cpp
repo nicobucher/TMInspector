@@ -6,9 +6,7 @@
 #include <QDebug>
 #include <QNetworkProxy>
 
-PacketWorker::PacketWorker(QHash<int,QVariant>* l_pis_, QHash<int,QVariant>* l_pics_)
-    : l_pis(l_pis_),
-      l_pics(l_pics_)
+PacketWorker::PacketWorker()
 {
     socket = new QTcpSocket(this);
     socket->setProxy(QNetworkProxy::NoProxy);
@@ -85,35 +83,37 @@ PacketWorker::doWork()
 
                         if (packet->getQuality() == GOOD &&
                                 packet->getApid() != SourcePacket::APID_IDLEPACKET) {
-                            packet->makePI_VALUES(l_pics);
-                            packet->makeSPID(l_pis);
 
-                            int ref_ = 0;
                             // Dump Summary Packet
                             if (packet->getDataFieldHeader()->getServiceType() == 15 &&
                                     packet->getDataFieldHeader()->getSubServiceType() == 128) {
                                 DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
 
-                                dump_store->putDumpSummaryPacket(ds_packet);
+                                emit dumpSummaryReceived(ds_packet);
+//                                dump_store->putDumpSummaryPacket(ds_packet);
+
+
+                                // TODO --> This should be moved to the dumpstore because of thread safety
                                 QHash<uint16_t, uint16_t> missingCounts = store->checkSequenceCounts(ds_packet->getL_sequencecounts());
 
                                 ds_packet->setL_missing_sequencecounts(missingCounts);
                                 DumpSummary* summary = dump_store->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
                                 summary->addMissingCounts(missingCounts);
+                                // <--
 
-                                ref_ = store->putPacket(ds_packet);
                             } else {
-                                ref_ = store->putPacket(packet);
+                                emit packetReceived(packet);
+//                                ref_ = store->putPacket(packet);
                             }
 
                             // If the packet contains an event (Events have Service Type 5)
                             if (packet->hasDataFieldHeader()) {
                                 if (packet->getDataFieldHeader()->getServiceType() == 5) {
                                     Event* event = new Event(packet->getDataFieldHeader()->getTimestamp(), (Severity)packet->getDataFieldHeader()->getSubServiceType(), (unsigned char*)packet->getData().data());
-                                    event->setPacketReference(ref_);
+                                    event->setPacketReference(packet->getId());
                                     // Put the event into the event store
-                                    event_store->putEvent(event);
-                                    emit(eventAdded(event));
+                                    emit eventReceived(event);
+                                    emit eventAdded(event);
                                 }
                             }
 
@@ -121,12 +121,10 @@ PacketWorker::doWork()
                             // If the packet is either bad or an idle packet...
 //                            qDebug() << data_buffer.toHex();
                         }
-
                     }
                 }
                 //qDebug() << data.toHex();
             }
-
         } else {
             qDebug() << "Socket not readable, quitting thread";
             this->quit = true;

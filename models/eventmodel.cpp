@@ -21,9 +21,9 @@ EventModel::operator<<(Event* event_) {
     int objRowFound_ = parentStore->checkChildObjExists(event_->getObjectIdAsInt());
     if (objRowFound_ < 0) {
         // If it does not exist, add a new object to the root item
-        QStandardItem* new_object = new QStandardItem("0x" + event_->getObjectIdAsString());
+        QStandardItem* new_object = new QStandardItem(event_->getObjectName());
 
-        new_object->setData(event_->getObjectName(), RawDataRole);
+        new_object->setData(event_->getObjectIdAsString(), RawDataRole);
         new_object->setData(event_->getObjectIdAsInt(), IdentifierRole);
         new_object->setData(-1, ListIndexRole);
         new_object->appendRow(new_row);
