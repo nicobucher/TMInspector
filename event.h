@@ -25,7 +25,8 @@ public:
 
 private:
     QStandardItem* event_id;
-    QStandardItem* object_id;
+    int object_id;
+    QStandardItem* object_name;
     QDateTime timestamp;
     QStandardItem* event_msg;
     QStandardItem* param1;
@@ -44,28 +45,26 @@ public:
         return this->timestamp;
     }
 
-    void setObjectId(int id_) {
-        this->object_id->setData(QString::number(id_, 16), Qt::DisplayRole);
-    }
+    void setObjectId(int id_);
 
-    QStandardItem* getObjectId() {
-        return this->object_id;
+    QStandardItem* getObjectNameItem() {
+        return this->object_name;
     }
 
     QString getObjectIdAsString() {
-        return this->object_id->text();
+        return QString::number(this->object_id, 16);
     }
 
     int getObjectIdAsInt() {
-        return this->object_id->data(RawDataRole).toInt();
+        return this->object_id;
     }
 
     QString getObjectName() {
-        return this->object_id->data(Qt::DisplayRole).toString();
+        return this->object_name->data(Qt::DisplayRole).toString();
     }
 
     void setObjectName(QString name_) {
-        this->object_id->setData(name_, Qt::DisplayRole);
+        this->object_name->setData(name_, Qt::DisplayRole);
     }
 
     void setEventId(int evid_);
