@@ -1,4 +1,5 @@
 #include "event.h"
+#include "translator.h"
 #include <QDebug>
 
 Event::Event()
@@ -38,6 +39,19 @@ Event::Event(QDateTime ts_, Severity sev_, unsigned char* data_) : timestamp(ts_
 QStandardItem* Event::clone() const
 {
     return new Event();
+}
+
+void Event::setEventId(int evid_)
+{
+    this->event_id->setText(QString::number(evid_));
+    QVariant event_translation = myEventTranslator.translate(event_id->text().toInt());
+    if (event_translation.isValid()) {
+        this->event_id->setData(this->getEventId()->text(), Qt::ToolTipRole);
+        this->event_id->setData(event_translation.toString(), Qt::DisplayRole);
+    } else {
+        qDebug() << "Can not find " << event_id->text() << " in Event Translation List";
+        this->event_id->setBackground(Qt::lightGray);
+    }
 }
 
 void

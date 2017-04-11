@@ -98,13 +98,6 @@ private:
     // Popup Dialogue Windows
     ServerSettings* serverSettingsWindow;
 
-    // Object Translators
-    SPIDTranslator* mySPIDTranslator;
-    PICTranslator* myPICTranslator;
-    PITranslator* myPITranslator;
-    ObjectTranslator* myObjectTranslator;
-    EventTranslator* myEventTranslator;
-
     // Object WatchList Model
     QStringListModel* watch_list_model;
 

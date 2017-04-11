@@ -87,7 +87,7 @@ public:
             }
         }
 
-        QVariant pkt_name_ = translator->translate(packet_->getSpid());
+        QVariant pkt_name_ = mySPIDTranslator.translate(packet_->getSpid());
         if (pkt_name_.isValid()) {
             setData(index(0,6), pkt_name_.toString(), Qt::DisplayRole);
         } else {
@@ -101,14 +101,9 @@ public:
         return currentId;
     }
 
-    void setTranslator(SPIDTranslator* trans_) {
-        translator = trans_;
-    }
-
 private:
     qulonglong currentId;
     QHash<int, int> lastSequenceCounts;
-    SPIDTranslator* translator;
 
     QString myTimestampFmt;
 };
@@ -120,7 +115,7 @@ class PacketStore : public Store
 {
     Q_OBJECT
 public:
-    PacketStore(QObject *parent, SPIDTranslator* trans_);
+    PacketStore(QObject *parent);
 
     bool itemInStore(QString obj_id) {
         QList<QStandardItem*> list = this->model->findItems(obj_id);

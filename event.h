@@ -68,9 +68,7 @@ public:
         this->object_id->setData(name_, Qt::DisplayRole);
     }
 
-    void setEventId(int evid_) {
-        this->event_id->setText(QString::number(evid_));
-    }
+    void setEventId(int evid_);
 
     QStandardItem* getEventId() {
         return this->event_id;
@@ -121,6 +119,7 @@ public:
             this->severity_item->setText("Alert");
             break;
         }
+        this->severity_item->setData(getPacketReference(), ListIndexRole);
     }
 
     AnimatedStandardItem* getSeverityItem() {

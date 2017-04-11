@@ -6,15 +6,13 @@
 #include <iomanip>
 using namespace std;
 
-EventStore::EventStore(QObject* parent, EventTranslator *event_trans_, ObjectTranslator *obj_trans_) :
+EventStore::EventStore(QObject* parent) :
     Store(parent),
     watch_list(NULL)
 {
     MainWindow* mainwindow = (MainWindow*)parent;
 
     this->model = new EventModel(this, mainwindow->settings->value("time_fmt").toString());
-    this->model->setEventTranslator(event_trans_);
-    this->model->setObjectTranslator(obj_trans_);
     this->proxy_model = new TreeViewFilterProxyModel(this);
     this->setSourceModel(this->model);
 

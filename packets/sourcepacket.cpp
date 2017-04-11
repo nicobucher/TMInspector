@@ -1,5 +1,6 @@
 #include "sourcepacket.h"
 #include "sourcepacketdatafieldheader.h"
+#include "translator.h"
 #include <QDebug>
 
 SourcePacket::SourcePacket() :

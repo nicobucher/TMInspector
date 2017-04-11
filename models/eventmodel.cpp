@@ -52,24 +52,13 @@ QList<QStandardItem*>
 EventModel::prepareRow(Event* event_)
 {
     QList<QStandardItem*> row;
-    QStandardItem* event_id = event_->getEventId();
-    QStandardItem* severity_item = event_->getSeverityItem();
-    severity_item->setData(event_->getPacketReference(), ListIndexRole);
 
-    row << severity_item;
-
-    QVariant event_translation = event_translator->translate(event_id->text().toInt());
-    if (event_translation.isValid()) {
-        event_id->setData(event_->getEventId()->text(), Qt::ToolTipRole);
-        event_id->setData(event_translation.toString(), Qt::DisplayRole);
-    } else {
-        qDebug() << "Can not find " << event_id->text() << " in Event Translation List";
-        event_id->setBackground(Qt::lightGray);
-    }
-    row << event_id;
+    row << event_->getSeverityItem();
+    row << event_->getEventId();
     row << event_->getParam1();
     row << event_->getParam2();
     row << new QStandardItem(event_->getTimestamp().toString(myTimestampFmt));
+
     return row;
 }
 

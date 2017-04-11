@@ -6,7 +6,6 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include "mainwindow.h"
-#include "translator.h"
 
 namespace Ui {
 class TranslationViewer;
@@ -17,12 +16,7 @@ class TranslationViewer : public QDialog
     Q_OBJECT
 
 public:
-    explicit TranslationViewer(QWidget *parent = 0,
-                               ObjectTranslator* obj_trans_ = 0,
-                               EventTranslator* event_trans_ = 0,
-                               SPIDTranslator* spid_trans_ = 0,
-                               PITranslator* pi_trans_ = 0,
-                               PICTranslator* pic_trans_ = 0);
+    explicit TranslationViewer(QWidget *parent = 0);
     ~TranslationViewer();
 
 private:
@@ -41,12 +35,6 @@ private:
     QSortFilterProxyModel* selectedProxy;
 
     MainWindow* pMainWindow;
-
-    ObjectTranslator* myObjectTranslator;
-    EventTranslator* myEventTranslator;
-    SPIDTranslator* mySPIDTranslator;
-    PITranslator* myPITranslator;
-    PICTranslator* myPICTranslator;
 
     void updateInfoText();
     void updateList(QHash<int, QVariant>* hash_, QStandardItemModel* model_);

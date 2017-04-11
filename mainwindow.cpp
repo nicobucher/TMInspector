@@ -29,25 +29,12 @@ MainWindow::MainWindow(QWidget *parent) :
     myPacketWorker = 0;
     myPacketWorkerThread = 0;
 
-    // Translators
-    mySPIDTranslator = new SPIDTranslator(this);
-    myPICTranslator = new PICTranslator(this);
-    myPITranslator = new PITranslator(this);
-    myObjectTranslator = new ObjectTranslator(this);
-    myEventTranslator = new EventTranslator(this);
-
-    mySPIDTranslator->Translator::loadHash();
-    myPICTranslator->Translator::loadHash();
-    myPITranslator->Translator::loadHash();
-    myObjectTranslator->Translator::loadHash();
-    myEventTranslator->Translator::loadHash();
-
     // Stores
-    myPacketStore = new PacketStore(this, mySPIDTranslator);
-    mySqlPacketStore = new PacketStore(this, mySPIDTranslator);
-    myEventStore = new EventStore(this, myEventTranslator, myObjectTranslator);
+    myPacketStore = new PacketStore(this);
+    mySqlPacketStore = new PacketStore(this);
+    myEventStore = new EventStore(this);
     connect(myEventStore, SIGNAL(openView(QString)), this, SLOT(openEventView(QString)));
-    mySqlEventStore = new EventStore(this, myEventTranslator, myObjectTranslator);
+    mySqlEventStore = new EventStore(this);
     myDumpStore = new DumpStore(this);
     mySqlDumpStore = new DumpStore(this);
 
@@ -169,12 +156,6 @@ MainWindow::~MainWindow()
     delete settings;
     delete ui;
 
-    delete myObjectTranslator;
-    delete myPICTranslator;
-    delete myPITranslator;
-    delete myEventTranslator;
-    delete mySPIDTranslator;
-
     delete watch_list_model;
     if (myChecksumView != NULL) {
         delete myChecksumView;
@@ -202,7 +183,7 @@ void MainWindow::on_actionTo_Server_triggered()
         return;
     }
 
-    myPacketWorker = new PacketWorker(myPITranslator->getList(), myPICTranslator->getList());
+    myPacketWorker = new PacketWorker(myPITranslator.getList(), myPICTranslator.getList());
     myPacketWorker->setStore(myPacketStore);
     myPacketWorker->setEvent_store(myEventStore);
     myPacketWorker->setDump_store(myDumpStore);
@@ -291,7 +272,7 @@ void MainWindow::on_commandLinkButton_clicked()
 
     QDateTime begin_ = ui->dateTimeEdit_start->dateTime();
     QDateTime end_ = ui->dateTimeEdit_stop->dateTime();
-    SqlWorker* worker = new SqlWorker(settings, begin_, end_, progress_, myPITranslator->getList(), myPICTranslator->getList());
+    SqlWorker* worker = new SqlWorker(settings, begin_, end_, progress_, myPITranslator.getList(), myPICTranslator.getList());
     worker->setMySqlPacketStore(mySqlPacketStore);
     worker->setMySqlEventStore(mySqlEventStore);
     worker->setMySqlDumpStore(mySqlDumpStore);
@@ -506,12 +487,7 @@ void MainWindow::loadObjectView(QModelIndex index)
 
 void MainWindow::translation_triggered()
 {
-    TranslationViewer* transView = new TranslationViewer(this,
-                                                         myObjectTranslator,
-                                                         myEventTranslator,
-                                                         mySPIDTranslator,
-                                                         myPITranslator,
-                                                         myPICTranslator);
+    TranslationViewer* transView = new TranslationViewer(this);
     connect(transView, SIGNAL(addObjectWatchlist(QString)), this, SLOT(addObjectToWatchList(QString)));
     transView->setAttribute(Qt::WA_DeleteOnClose);
     transView->show();
@@ -690,11 +666,11 @@ void MainWindow::loadTranslationTable()
     db.setPassword(settings->value("mib/pw").toString());
 
     if (db.open()) {
-        myEventTranslator->loadHash(&db);
-        myObjectTranslator->loadHash(&db);
-        mySPIDTranslator->loadHash(&db);
-        myPICTranslator->loadHash(&db);
-        myPITranslator->loadHash(&db);
+        myEventTranslator.loadHash(&db);
+        myObjectTranslator.loadHash(&db);
+        mySPIDTranslator.loadHash(&db);
+        myPICTranslator.loadHash(&db);
+        myPITranslator.loadHash(&db);
         db.close();
     } else {
         qWarning() << "SQL Error " << db.lastError().text();
@@ -709,10 +685,10 @@ void MainWindow::addTranslation(int key_, QString trans_, int list_index_)
 {
     switch(list_index_) {
     case EventListIndex:
-        myEventTranslator->addEntry(key_, trans_);
+        myEventTranslator.addEntry(key_, trans_);
         break;
     case ObjectListIndex:
-        myObjectTranslator->addEntry(key_, trans_);
+        myObjectTranslator.addEntry(key_, trans_);
         break;
     }
     emit hashUpdated();

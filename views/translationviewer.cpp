@@ -1,21 +1,12 @@
 #include "views/translationviewer.h"
 #include "ui_translationviewer.h"
 #include "dialogs/addtranslationdialog.h"
+#include "translator.h"
 #include <QMenu>
 
-TranslationViewer::TranslationViewer(QWidget *parent,
-                                     ObjectTranslator* obj_trans_,
-                                     EventTranslator* event_trans_,
-                                     SPIDTranslator* spid_trans_,
-                                     PITranslator* pi_trans_,
-                                     PICTranslator* pic_trans_) :
+TranslationViewer::TranslationViewer(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::TranslationViewer),
-    myObjectTranslator(obj_trans_),
-    myEventTranslator(event_trans_),
-    mySPIDTranslator(spid_trans_),
-    myPITranslator(pi_trans_),
-    myPICTranslator(pic_trans_)
+    ui(new Ui::TranslationViewer)
 {
     ui->setupUi(this);
 
@@ -142,11 +133,11 @@ TranslationViewer::updatePICList(QHash<int, QVariant>* hash_, QStandardItemModel
 void
 TranslationViewer::reload()
 {
-    updateList(myEventTranslator->getList(), this->eventListModel);
-    updateList(myObjectTranslator->getList(), this->objectListModel);
-    updateList(mySPIDTranslator->getList(), this->SPIDListModel);
-    updatePIList(myPITranslator->getList(), this->PI_VALUESListModel);
-    updatePICList(myPICTranslator->getList(), this->PIC_VALUESListModel);
+    updateList(myEventTranslator.getList(), this->eventListModel);
+    updateList(myObjectTranslator.getList(), this->objectListModel);
+    updateList(mySPIDTranslator.getList(), this->SPIDListModel);
+    updatePIList(myPITranslator.getList(), this->PI_VALUESListModel);
+    updatePICList(myPICTranslator.getList(), this->PIC_VALUESListModel);
 }
 
 void
@@ -216,19 +207,19 @@ void
 TranslationViewer::clearTranslationTable() {
     switch(ui->comboBox->currentIndex()) {
     case EventListIndex:
-        myEventTranslator->clear();
+        myEventTranslator.clear();
         break;
     case ObjectListIndex:
-        myObjectTranslator->clear();
+        myObjectTranslator.clear();
         break;
     case SPIDListIndex:
-        mySPIDTranslator->clear();
+        mySPIDTranslator.clear();
         break;
     case PI_VALUESListIndex:
-        myPITranslator->clear();
+        myPITranslator.clear();
         break;
     case PIC_VALUESListIndex:
-        myPICTranslator->clear();
+        myPICTranslator.clear();
         break;
     }
     reload();

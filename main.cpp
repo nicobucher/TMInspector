@@ -5,9 +5,17 @@
 #include <QMenuBar>
 #include <QMutex>
 #include <QMutexLocker>
+#include "translator.h"
 
 static QMutex mutex;
 FILE* file_l_out;
+
+// Global Translators
+SPIDTranslator mySPIDTranslator;
+PICTranslator myPICTranslator;
+PITranslator myPITranslator;
+ObjectTranslator myObjectTranslator;
+EventTranslator myEventTranslator;
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -47,6 +55,12 @@ int main(int argc, char *argv[])
 
 //    fprintf(stderr,"argc=%i\n", argc);
 //    fprintf(stderr,"argv=%s\n", *argv);
+
+    mySPIDTranslator.Translator::loadHash();
+    myPICTranslator.Translator::loadHash();
+    myPITranslator.Translator::loadHash();
+    myObjectTranslator.Translator::loadHash();
+    myEventTranslator.Translator::loadHash();
 
     qInstallMessageHandler(myMessageOutput);
     QApplication a(argc, argv);

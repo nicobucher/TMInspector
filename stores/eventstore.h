@@ -27,7 +27,7 @@ class EventStore : public Store
 {
     Q_OBJECT
 public:
-    EventStore(QObject *parent, EventTranslator* event_trans_, ObjectTranslator* obj_trans_);
+    EventStore(QObject *parent);
 
     bool itemInStore(QString obj_id);
 

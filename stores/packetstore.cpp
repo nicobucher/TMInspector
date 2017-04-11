@@ -7,12 +7,11 @@
 #include "packets/checksumpacket.h"
 using namespace std;
 
-PacketStore::PacketStore(QObject* parent, SPIDTranslator* trans_) :
+PacketStore::PacketStore(QObject* parent) :
     Store(parent)
 {   
     MainWindow* mainwindow = (MainWindow*)parent;
     this->model = new PacketModel(mainwindow->settings->value("time_fmt").toString());
-    this->model->setTranslator(trans_);
     this->proxy_model = new PacketViewFilterProxyModel(this);
     this->setSourceModel(this->model);
     // Initialize the hash key
