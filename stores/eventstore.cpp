@@ -1,18 +1,19 @@
 #include "eventstore.h"
 #include <QDebug>
-#include "mainwindow.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <QSettings>
+
+extern QSettings settings;
+
 using namespace std;
 
 EventStore::EventStore(QObject* parent) :
     Store(parent),
     watch_list(NULL)
 {
-    MainWindow* mainwindow = (MainWindow*)parent;
-
-    this->model = new EventModel(this, mainwindow->settings->value("time_fmt").toString());
+    this->model = new EventModel(this, settings.value("time_fmt").toString());
     this->proxy_model = new TreeViewFilterProxyModel(this);
     this->setSourceModel(this->model);
 

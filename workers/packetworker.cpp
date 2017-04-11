@@ -40,21 +40,6 @@ PacketWorker::setup(QThread* th_, QString h_, int p_)
     }
 }
 
-void PacketWorker::setDump_store(DumpStore *value)
-{
-    dump_store = value;
-}
-
-void PacketWorker::setEvent_store(EventStore *value)
-{
-    event_store = value;
-}
-
-void PacketWorker::setStore(PacketStore *value)
-{
-    store = value;
-}
-
 void
 PacketWorker::doWork()
 {
@@ -94,11 +79,11 @@ PacketWorker::doWork()
 
 
                                 // TODO --> This should be moved to the dumpstore because of thread safety
-                                QHash<uint16_t, uint16_t> missingCounts = store->checkSequenceCounts(ds_packet->getL_sequencecounts());
+//                                QHash<uint16_t, uint16_t> missingCounts = store->checkSequenceCounts(ds_packet->getL_sequencecounts());
 
-                                ds_packet->setL_missing_sequencecounts(missingCounts);
-                                DumpSummary* summary = dump_store->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
-                                summary->addMissingCounts(missingCounts);
+//                                ds_packet->setL_missing_sequencecounts(missingCounts);
+//                                DumpSummary* summary = dump_store->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
+//                                summary->addMissingCounts(missingCounts);
                                 // <--
 
                             } else {

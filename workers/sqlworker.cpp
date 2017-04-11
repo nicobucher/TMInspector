@@ -28,10 +28,6 @@ QList<SourcePacket*>
 SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
 {
     QList<SourcePacket*> list;
-    if (mySqlDumpStore == 0 || mySqlEventStore == 0 || mySqlPacketStore == 0) {
-        qDebug() << "Error: Stores unintialized";
-        return list;
-    }
     emit newText("Connecting to " + db.databaseName() + "...");
     if (db.open()) {
         emit newText("Connected to " + db.databaseName() + "...");
@@ -99,21 +95,6 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
     return list;
 }
 
-void SqlWorker::setMySqlPacketStore(PacketStore *value)
-{
-    mySqlPacketStore = value;
-}
-
-void SqlWorker::setMySqlEventStore(EventStore *value)
-{
-    mySqlEventStore = value;
-}
-
-void SqlWorker::setMySqlDumpStore(DumpStore *value)
-{
-    mySqlDumpStore = value;
-}
-
 void
 SqlWorker::doWork() {
     QList<SourcePacket*> retrievedPackets;
@@ -131,21 +112,22 @@ SqlWorker::doWork() {
 
             SourcePacket* packet = retrievedPackets.at(i);
 
-            int ref_ = 0;
             if (packet->getDataFieldHeader()->getServiceType() == 15 &&
                     packet->getDataFieldHeader()->getSubServiceType() == 128) {
                 DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
 
-                mySqlDumpStore->putDumpSummaryPacket(ds_packet);
-                QHash<uint16_t, uint16_t> missingCounts = mySqlPacketStore->checkSequenceCounts(ds_packet->getL_sequencecounts());
+//                mySqlDumpStore->putDumpSummaryPacket(ds_packet);
+//                QHash<uint16_t, uint16_t> missingCounts = mySqlPacketStore->checkSequenceCounts(ds_packet->getL_sequencecounts());
 
-                ds_packet->setL_missing_sequencecounts(missingCounts);
-                DumpSummary* summary = mySqlDumpStore->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
-                summary->addMissingCounts(missingCounts);
+//                ds_packet->setL_missing_sequencecounts(missingCounts);
+//                DumpSummary* summary = mySqlDumpStore->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
+//                summary->addMissingCounts(missingCounts);
 
-                mySqlPacketStore->putPacket(ds_packet);
+//                mySqlPacketStore->putPacket(ds_packet);
+                emit dumpSummaryReceived(ds_packet);
             } else {
-                mySqlPacketStore->putPacket(packet);
+                emit packetReceived(packet);
+//                mySqlPacketStore->putPacket(packet);
             }
 
             if (packet->hasDataFieldHeader()) {
@@ -156,9 +138,10 @@ SqlWorker::doWork() {
                         memcpy(complete_packet_data, packet->getData(), packet->getDataLength());
                         event->makeEventfromPacketData(complete_packet_data);
                     }
-                    event->setPacketReference(ref_);
+                    event->setPacketReference(packet->getId());
                     // Put the event into the event store
-                    mySqlEventStore->putEvent(event);
+                    emit eventReceived(event);
+//                    mySqlEventStore->putEvent(event);
                 }
             }
         }

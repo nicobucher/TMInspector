@@ -27,7 +27,7 @@ class EventStore : public Store
 {
     Q_OBJECT
 public:
-    EventStore(QObject *parent);
+    EventStore(QObject *parent = 0);
 
     bool itemInStore(QString obj_id);
 
@@ -66,5 +66,8 @@ public slots:
 signals:
     void openView(QString name_);
 };
+
+extern EventStore myEventStore;
+extern EventStore mySqlEventStore;
 
 #endif // EVENTSTORE_H

@@ -110,7 +110,7 @@ class PacketStore : public Store
 {
     Q_OBJECT
 public:
-    PacketStore(QObject *parent);
+    PacketStore(QObject *parent = 0);
 
     bool itemInStore(QString obj_id) {
         QList<QStandardItem*> list = this->model->findItems(obj_id);
@@ -194,5 +194,8 @@ public slots:
     void exportToFile(QString filename_);
     void putPacket(SourcePacket* p_);
 };
+
+extern PacketStore myPacketStore;
+extern PacketStore mySqlPacketStore;
 
 #endif // PACKETSTORE_H

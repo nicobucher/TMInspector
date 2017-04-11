@@ -21,7 +21,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QHBoxLayout>
-#include "translator.h"
 #include <views/checksumview.h>
 
 namespace Ui {
@@ -44,13 +43,6 @@ private:
     PacketWorker* myPacketWorker;
     QThread* myPacketWorkerThread;
     QThread* mySqlWorkerThread;
-
-    PacketStore* myPacketStore;
-    PacketStore* mySqlPacketStore;
-    EventStore* myEventStore;
-    EventStore* mySqlEventStore;
-    DumpStore* myDumpStore;
-    DumpStore* mySqlDumpStore;
 
     QLabel* statusLabel;
 
@@ -88,10 +80,6 @@ private slots:
     void set_currentLiveType(QString txt_){
         currentLiveType = txt_;
     }
-
-public:
-    // Permanent Settings
-    QSettings* settings;
 
 private:
 

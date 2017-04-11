@@ -18,18 +18,11 @@ public:
     SqlWorker(QSettings *settings, QDateTime begin_, QDateTime end_, QProgressDialog* prg_);
     ~SqlWorker();
     QList<SourcePacket*> fetchPackets(QDateTime b_, QDateTime e_);
-    void setMySqlPacketStore(PacketStore *value);
-    void setMySqlEventStore(EventStore *value);
-    void setMySqlDumpStore(DumpStore *value);
 
 private:
     QSqlDatabase db;
     QDateTime begin;
     QDateTime end;
-
-    PacketStore* mySqlPacketStore;
-    EventStore* mySqlEventStore;
-    DumpStore* mySqlDumpStore;
 
     QProgressDialog* progress;
 
@@ -42,6 +35,9 @@ signals:
     void newText(QString);
     void newMaxProgress(int);
     void finished();
+    void dumpSummaryReceived(SourcePacket*);
+    void eventReceived(Event*);
+    void packetReceived(SourcePacket*);
 
 public slots:
     void doWork();

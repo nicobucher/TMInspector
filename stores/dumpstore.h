@@ -10,8 +10,9 @@ class DumpModel;
 
 class DumpStore : public Store
 {
+    Q_OBJECT
 public:
-    DumpStore(QObject *parent);
+    DumpStore(QObject *parent = 0);
 
     bool itemInStore(QString obj_id);
 
@@ -45,11 +46,13 @@ public:
 
 public slots:
     void exportToFile(QString filename_);
-    void putDumpSummaryPacket(DumpSummaryPacket* dps_);
+    void putDumpSummaryPacket(SourcePacket *dps_);
 
 private:
     DumpModel* model;
     QHash<qulonglong, DumpSummary*> l_summaries;
 };
+
+extern DumpStore myDumpStore;
 
 #endif // DUMPSTORE_H

@@ -5,10 +5,19 @@
 #include <QMenuBar>
 #include <QMutex>
 #include <QMutexLocker>
-#include "translator.h"
 
 static QMutex mutex;
 FILE* file_l_out;
+
+// Permanent Settings
+QSettings settings;
+
+// Stores
+PacketStore myPacketStore;
+PacketStore mySqlPacketStore;
+EventStore myEventStore;
+EventStore mySqlEventStore;
+DumpStore myDumpStore;
 
 // Global Translators
 SPIDTranslator mySPIDTranslator;
@@ -56,6 +65,7 @@ int main(int argc, char *argv[])
 //    fprintf(stderr,"argc=%i\n", argc);
 //    fprintf(stderr,"argv=%s\n", *argv);
 
+    // Initialize Translators
     mySPIDTranslator.Translator::loadHash();
     myPICTranslator.Translator::loadHash();
     myPITranslator.Translator::loadHash();
