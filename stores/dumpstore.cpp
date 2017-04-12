@@ -34,28 +34,9 @@ QStandardItemModel *DumpStore::getModel()
     return this->model;
 }
 
-void DumpStore::putDumpStatusPacket(SourcePacket *packet_)
+void DumpStore::putDumpStatusPacket(Event *store_event_)
 {
-    DumpSummary* dump_summary_;
-
-    qulonglong id_ = generateId(dps_->getOnboardStoreObject_id(), dps_->getDumpid());
-    if (!this->containsDumpId(id_)) {
-        dump_summary_ = new DumpSummary(this, dps_);
-        l_summaries.insert(id_, dump_summary_);
-        *this->model << dump_summary_;
-    } else {
-        dump_summary_ = this->getDumpSummary(id_);
-        if (dump_summary_->isFresh()) {
-            dump_summary_->putDumpSummaryPacket(dps_);
-            *this->model << dps_;
-        } else {
-            // The found Dump Summary is too old: create a new one
-            l_summaries.remove(id_);
-            dump_summary_ = new DumpSummary(this, dps_);
-            l_summaries.insert(id_, dump_summary_);
-            *this->model << dump_summary_;
-        }
-    }
+    // TODO -> Include dump start and dump finished events in summary view
 }
 
 void DumpStore::putDumpSummaryPacket(DumpSummaryPacket *dps_)

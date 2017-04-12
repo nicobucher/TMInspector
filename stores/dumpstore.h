@@ -4,6 +4,7 @@
 #include "store.h"
 #include "dumpsummary.h"
 #include "models/dumpmodel.h"
+#include "event.h"
 #include <QDateTime>
 
 class DumpModel;
@@ -44,6 +45,7 @@ public:
     }
 
     int getNumberOfDumps();
+    void putDumpStatusPacket(Event *store_event_);
 public slots:
     void exportToFile(QString filename_);
 
