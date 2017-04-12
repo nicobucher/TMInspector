@@ -23,18 +23,8 @@ public:
 
     QList<QStandardItem*> prepareRow(Event* event_);
 
-    void setEventTranslator(EventTranslator* trans_) {
-        event_translator = trans_;
-    }
-
-    void setObjectTranslator(ObjectTranslator* trans_) {
-        object_translator = trans_;
-    }
-
 private:
     EventStore* parentStore;
-    EventTranslator* event_translator;
-    ObjectTranslator* object_translator;
 
     QString myTimestampFmt;
 

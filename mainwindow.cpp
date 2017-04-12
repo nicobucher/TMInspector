@@ -3,9 +3,14 @@
 #include "views/translationviewer.h"
 #include "views/packetcontentview.h"
 #include "workers/sqlworker.h"
+#include "translator.h"
+#include "stores/dumpstore.h"
+#include "stores/eventstore.h"
 #include <QTableView>
 #include <QDateTime>
 #include <QFileDialog>
+
+extern QSettings settings;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -17,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-    settings = new QSettings();
+//    settings = new QSettings();
 
     statusLabel = new QLabel(this);
     QPalette pal;
@@ -29,27 +34,8 @@ MainWindow::MainWindow(QWidget *parent) :
     myPacketWorker = 0;
     myPacketWorkerThread = 0;
 
-    // Translators
-    mySPIDTranslator = new SPIDTranslator(this);
-    myPICTranslator = new PICTranslator(this);
-    myPITranslator = new PITranslator(this);
-    myObjectTranslator = new ObjectTranslator(this);
-    myEventTranslator = new EventTranslator(this);
-
-    mySPIDTranslator->Translator::loadHash();
-    myPICTranslator->Translator::loadHash();
-    myPITranslator->Translator::loadHash();
-    myObjectTranslator->Translator::loadHash();
-    myEventTranslator->Translator::loadHash();
-
-    // Stores
-    myPacketStore = new PacketStore(this, mySPIDTranslator);
-    mySqlPacketStore = new PacketStore(this, mySPIDTranslator);
-    myEventStore = new EventStore(this, myEventTranslator, myObjectTranslator);
-    connect(myEventStore, SIGNAL(openView(QString)), this, SLOT(openEventView(QString)));
-    mySqlEventStore = new EventStore(this, myEventTranslator, myObjectTranslator);
-    myDumpStore = new DumpStore(this);
-    mySqlDumpStore = new DumpStore(this);
+    // Initialize Stores
+    connect(&myEventStore, SIGNAL(openView(QString)), this, SLOT(openEventView(QString)));
 
     // Add the Connect Menu Entry
     dataMenu = menuBar()->addMenu("Data");
@@ -84,23 +70,24 @@ MainWindow::MainWindow(QWidget *parent) :
     currentSqlType = "*";
     setupEventFilters();
     setupPacketFilters();
-    if (settings->value("ui/eventmode").toBool()) {
-        ui->treeView->setModel(myEventStore->proxy_model);
-        ui->treeView_arch->setModel(mySqlEventStore->proxy_model);
+    if (settings.value("ui/eventmode").toBool()) {
+        ui->treeView->setModel(myEventStore.proxy_model);
+        ui->treeView_arch->setModel(mySqlEventStore.proxy_model);
         action_EventMode->setChecked(true);
         ui->groupBox->setLayout(LiveEventFilterLayout);
         ui->groupBox_2->setLayout(SqlEventFilterLayout);
     } else {
-        ui->treeView_arch->setModel(mySqlPacketStore->proxy_model);
-        ui->treeView->setModel(myPacketStore->proxy_model);
+        ui->treeView_arch->setModel(mySqlPacketStore.proxy_model);
+        ui->treeView->setModel(myPacketStore.proxy_model);
         ui->groupBox->setLayout(LivePacketFilterLayout);
         ui->groupBox_2->setLayout(SqlPacketFilterLayout);
     }
-    ui->columnView->setModel(myDumpStore->proxy_model);
+    ui->columnView->setModel(myDumpStore.proxy_model);
 
     // Double Click actions
     connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
     connect(ui->treeView_arch, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+    connect(ui->columnView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
 
     // Right Click menu
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -131,7 +118,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     watch_list_model = new QStringListModel(watch_list);
     ui->listView->setModel(watch_list_model);
-    myEventStore->setWatch_list(watch_list_model);
+    myEventStore.setWatch_list(watch_list_model);
 
     myChecksumView = NULL;
 }
@@ -161,18 +148,7 @@ MainWindow::~MainWindow()
         delete myPacketWorker;
     }
 
-    delete myPacketStore;
-    delete myEventStore;
-    delete mySqlEventStore;
-    delete mySqlPacketStore;
-    delete settings;
     delete ui;
-
-    delete myObjectTranslator;
-    delete myPICTranslator;
-    delete myPITranslator;
-    delete myEventTranslator;
-    delete mySPIDTranslator;
 
     delete watch_list_model;
     if (myChecksumView != NULL) {
@@ -201,16 +177,24 @@ void MainWindow::on_actionTo_Server_triggered()
         return;
     }
 
-    myPacketWorker = new PacketWorker(myPITranslator->getList(), myPICTranslator->getList());
-    myPacketWorker->setStore(myPacketStore);
-    myPacketWorker->setEvent_store(myEventStore);
-    myPacketWorker->setDump_store(myDumpStore);
-    connect(myPacketWorker, SIGNAL(hasError(const QString&)), this, SLOT(displayPacketWorkerError(const QString&)));
-    connect(myPacketWorker, SIGNAL(eventAdded(Event*)), this, SLOT(animateNewEvent(Event*)));
-    connect(this, SIGNAL(clientSetup(QThread*,QString,int)), myPacketWorker, SLOT(setup(QThread*,QString,int)));
+    myPacketWorker = new PacketWorker();
+    connect(myPacketWorker, SIGNAL(hasError(const QString&)),
+            this, SLOT(displayPacketWorkerError(const QString&)));
+    connect(myPacketWorker, SIGNAL(eventAdded(Event*)),
+            this, SLOT(animateNewEvent(Event*)));
+    connect(myPacketWorker, SIGNAL(packetReceived(SourcePacket*)),
+            &myPacketStore, SLOT(putPacket(SourcePacket*)));
+    connect(myPacketWorker, SIGNAL(eventReceived(Event*)),
+            &myEventStore, SLOT(putEvent(Event*)));
+    connect(myPacketWorker, SIGNAL(dumpSummaryReceived(SourcePacket*)),
+            &myDumpStore, SLOT(putDumpSummaryPacket(SourcePacket*)));
+    connect(myPacketWorker, SIGNAL(dumpSummaryReceived(SourcePacket*)),
+            &myPacketStore, SLOT(putPacket(SourcePacket*)));
+    connect(this, SIGNAL(clientSetup(QThread*,QString,int)),
+            myPacketWorker, SLOT(setup(QThread*,QString,int)));
     myPacketWorkerThread = new QThread();
 
-    emit clientSetup(myPacketWorkerThread, settings->value("server/host").toString(), settings->value("server/port").toInt());
+    emit clientSetup(myPacketWorkerThread, settings.value("server/host").toString(), settings.value("server/port").toInt());
     if (myPacketWorkerThread != 0 && myPacketWorker != 0) {
         if (myPacketWorker->isReady) {
             myPacketWorker->moveToThread(myPacketWorkerThread);
@@ -220,8 +204,8 @@ void MainWindow::on_actionTo_Server_triggered()
             action_Connect->setText("Disconnect");
         } else {
             QString str;
-            QTextStream(&str) << "Could not connect to " << settings->value("server/host").toString()
-                              << " on port " << settings->value("server/port").toInt();
+            QTextStream(&str) << "Could not connect to " << settings.value("server/host").toString()
+                              << " on port " << settings.value("server/port").toInt();
             this->statusBar()->showMessage(str);
         }
     }
@@ -229,27 +213,27 @@ void MainWindow::on_actionTo_Server_triggered()
 
 void MainWindow::writeSettings()
 {
-    settings->beginGroup("MainWindow");
-    settings->setValue("size", size());
-    settings->setValue("pos", pos());
-    settings->endGroup();
+    settings.beginGroup("MainWindow");
+    settings.setValue("size", size());
+    settings.setValue("pos", pos());
+    settings.endGroup();
 }
 
 void MainWindow::readSettings()
 {
-    settings->beginGroup("MainWindow");
-    resize(settings->value("size", QSize(400, 400)).toSize());
-    move(settings->value("pos", QPoint(200, 200)).toPoint());
-    settings->endGroup();
+    settings.beginGroup("MainWindow");
+    resize(settings.value("size", QSize(400, 400)).toSize());
+    move(settings.value("pos", QPoint(200, 200)).toPoint());
+    settings.endGroup();
 
-    if (settings->value("time_fmt").isNull()) {
-        settings->setValue("time_fmt", "yyyy.MM.dd - hh:mm:ss:zzz");
+    if (settings.value("time_fmt").isNull()) {
+        settings.setValue("time_fmt", "yyyy.MM.dd - hh:mm:ss:zzz");
     }
 }
 
 void MainWindow::on_actionEdit_triggered()
 {
-    serverSettingsWindow = new ServerSettings(this, settings);
+    serverSettingsWindow = new ServerSettings(this, &settings);
     serverSettingsWindow->setAttribute(Qt::WA_DeleteOnClose);
     serverSettingsWindow->show();
     serverSettingsWindow->raise();
@@ -280,8 +264,8 @@ void MainWindow::on_commandLinkButton_clicked()
 {
     ui->commandLinkButton->setEnabled(false);
 
-    mySqlPacketStore->emptyStore();
-    mySqlEventStore->emptyStore();
+    mySqlPacketStore.emptyStore();
+    mySqlEventStore.emptyStore();
 
     progress_ = new QProgressDialog("Loading Packets from Database","Cancel",0,100);
     progress_->setMinimumDuration(0);
@@ -290,15 +274,25 @@ void MainWindow::on_commandLinkButton_clicked()
 
     QDateTime begin_ = ui->dateTimeEdit_start->dateTime();
     QDateTime end_ = ui->dateTimeEdit_stop->dateTime();
-    SqlWorker* worker = new SqlWorker(settings, begin_, end_, progress_, myPITranslator->getList(), myPICTranslator->getList());
-    worker->setMySqlPacketStore(mySqlPacketStore);
-    worker->setMySqlEventStore(mySqlEventStore);
-    worker->setMySqlDumpStore(mySqlDumpStore);
-    connect(worker, SIGNAL(dbAccessError(QString)), this, SLOT(displayStatusBarMessage(QString)));
-    connect(worker, SIGNAL(progressMade(int)), progress_, SLOT(setValue(int)));
-    connect(worker, SIGNAL(newMaxProgress(int)), progress_, SLOT(setMaximum(int)));
-    connect(worker, SIGNAL(newText(QString)), progress_, SLOT(setLabelText(QString)));
-    connect(worker, SIGNAL(finished()), this, SLOT(sqlWorkerFinished()));
+    SqlWorker* worker = new SqlWorker(&settings, begin_, end_, progress_);
+    connect(worker, SIGNAL(dbAccessError(QString)),
+            this, SLOT(displayStatusBarMessage(QString)));
+    connect(worker, SIGNAL(progressMade(int)),
+            progress_, SLOT(setValue(int)));
+    connect(worker, SIGNAL(newMaxProgress(int)),
+            progress_, SLOT(setMaximum(int)));
+    connect(worker, SIGNAL(newText(QString)),
+            progress_, SLOT(setLabelText(QString)));
+    connect(worker, SIGNAL(packetReceived(SourcePacket*)),
+            &mySqlPacketStore, SLOT(putPacket(SourcePacket*)));
+    connect(worker, SIGNAL(eventReceived(Event*)),
+            &mySqlEventStore, SLOT(putEvent(Event*)));
+    connect(worker, SIGNAL(dumpSummaryReceived(SourcePacket*)),
+            &myDumpStore, SLOT(putDumpSummaryPacket(SourcePacket*)));
+    connect(worker, SIGNAL(dumpSummaryReceived(SourcePacket*)),
+            &mySqlPacketStore, SLOT(putPacket(SourcePacket*)));
+    connect(worker, SIGNAL(finished()),
+            this, SLOT(sqlWorkerFinished()));
 
     mySqlWorkerThread = new QThread();
 
@@ -326,15 +320,15 @@ void MainWindow::eventMode_triggered()
     setupPacketFilters();
     setupEventFilters();
     if (!action_EventMode->isChecked()) {
-        ui->treeView->setModel(myPacketStore->proxy_model);
-        ui->treeView_arch->setModel(mySqlPacketStore->proxy_model);
-        settings->setValue("ui/eventmode", false);
+        ui->treeView->setModel(myPacketStore.proxy_model);
+        ui->treeView_arch->setModel(mySqlPacketStore.proxy_model);
+        settings.setValue("ui/eventmode", false);
         ui->groupBox->setLayout(LivePacketFilterLayout);
         ui->groupBox_2->setLayout(SqlPacketFilterLayout);
     } else {
-        ui->treeView->setModel(myEventStore->proxy_model);
-        ui->treeView_arch->setModel(mySqlEventStore->proxy_model);
-        settings->setValue("ui/eventmode", true);
+        ui->treeView->setModel(myEventStore.proxy_model);
+        ui->treeView_arch->setModel(mySqlEventStore.proxy_model);
+        settings.setValue("ui/eventmode", true);
         ui->groupBox->setLayout(LiveEventFilterLayout);
         ui->groupBox_2->setLayout(SqlEventFilterLayout);
     }
@@ -388,10 +382,14 @@ void MainWindow::setupEventFilters()
     LiveEventFilterLayout->addWidget(LiveExpandAll);
 
     // The RegEx Filters for the EventStores
-    connect(LiveRegFilter, SIGNAL(textChanged(QString)),myEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
-    connect(LiveRegFilter, SIGNAL(returnPressed()),myEventStore->proxy_model, SLOT(invalidate()));
-    connect(SqlRegFilter, SIGNAL(textChanged(QString)),mySqlEventStore->proxy_model, SLOT(setFilterRegExp(QString)));
-    connect(SqlRegFilter, SIGNAL(returnPressed()),mySqlEventStore->proxy_model, SLOT(invalidate()));
+    connect(LiveRegFilter, SIGNAL(textChanged(QString)),
+            myEventStore.proxy_model, SLOT(setFilterRegExp(QString)));
+    connect(LiveRegFilter, SIGNAL(returnPressed()),
+            myEventStore.proxy_model, SLOT(invalidate()));
+    connect(SqlRegFilter, SIGNAL(textChanged(QString)),
+            mySqlEventStore.proxy_model, SLOT(setFilterRegExp(QString)));
+    connect(SqlRegFilter, SIGNAL(returnPressed()),
+            mySqlEventStore.proxy_model, SLOT(invalidate()));
 
     // Connect the expand all button
     connect(LiveExpandAll, SIGNAL(clicked(bool)), this, SLOT(live_expand_all_clicked()));
@@ -415,7 +413,7 @@ void MainWindow::setupPacketFilters()
     SqlTypeFilter->setFixedWidth(100);
     SqlPacketFilterLayout->addWidget(SqlTypeFilter);
     // Directly set the filter string so that the default value gets applied
-    mySqlPacketStore->proxy_model->setFilterFixedString(currentSqlType);
+    mySqlPacketStore.proxy_model->setFilterFixedString(currentSqlType);
 
     LivePacketFilterLayout = new QHBoxLayout;
     LivePacketFilterLayout->setAlignment(Qt::AlignLeft);
@@ -428,11 +426,13 @@ void MainWindow::setupPacketFilters()
     LiveTypeFilter->setFixedWidth(100);
     LivePacketFilterLayout->addWidget(LiveTypeFilter);
     // Directly set the filter string so that the default value gets applied
-    myPacketStore->proxy_model->setFilterFixedString(currentLiveType);
+    myPacketStore.proxy_model->setFilterFixedString(currentLiveType);
 
     // The RegEx Filters for the PAcketStores
-    connect(SqlTypeFilter, SIGNAL(textChanged(QString)),mySqlPacketStore->proxy_model, SLOT(setFilterFixedString(QString)));
-    connect(LiveTypeFilter, SIGNAL(textChanged(QString)),myPacketStore->proxy_model, SLOT(setFilterFixedString(QString)));
+    connect(SqlTypeFilter, SIGNAL(textChanged(QString)),
+            mySqlPacketStore.proxy_model, SLOT(setFilterFixedString(QString)));
+    connect(LiveTypeFilter, SIGNAL(textChanged(QString)),
+            myPacketStore.proxy_model, SLOT(setFilterFixedString(QString)));
 
     // Connect the Filters Memory
     connect(SqlTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlType(QString)));
@@ -442,18 +442,18 @@ void MainWindow::setupPacketFilters()
 void MainWindow::loadObjectView(QModelIndex index)
 {
     Store* selectedStore;
-    if (index.model() == myEventStore->proxy_model || index.model() == mySqlEventStore->proxy_model
-            || index.model() == myEventStore->getModel() || index.model() == mySqlEventStore->getModel()) {
-        if (index.model() == myEventStore->proxy_model || index.model() == myEventStore->getModel()) {
-            selectedStore = (Store*)myEventStore;
+    if (index.model() == myEventStore.proxy_model || index.model() == mySqlEventStore.proxy_model
+            || index.model() == myEventStore.getModel() || index.model() == mySqlEventStore.getModel()) {
+        if (index.model() == myEventStore.proxy_model || index.model() == myEventStore.getModel()) {
+            selectedStore = (Store*)&myEventStore;
         } else {
-            selectedStore = (Store*)mySqlEventStore;
+            selectedStore = (Store*)&mySqlEventStore;
         }
 //        selectedStore = (Store*)index.model()->parent();
         if (selectedStore != NULL) {
             if (selectedStore->itemInStore(index.data().toString())) {
                 QModelIndex sourceIndex;
-                if (index.model() == myEventStore->proxy_model || index.model() == mySqlEventStore->proxy_model) {
+                if (index.model() == myEventStore.proxy_model || index.model() == mySqlEventStore.proxy_model) {
                     // The mapping to the source model is required because index is of the proxy_model and
                     // needs to be mapped to the source model in order to be resolved
                     sourceIndex = selectedStore->getProxyModel()->mapToSource(index);
@@ -474,11 +474,24 @@ void MainWindow::loadObjectView(QModelIndex index)
         }
         return;
     }
-    if (index.model() == myPacketStore->proxy_model || index.model() == mySqlPacketStore->proxy_model
-            || index.model() == myPacketStore->getModel() || index.model() == mySqlPacketStore->getModel()) {
+    if (index.model() == myPacketStore.proxy_model || index.model() == mySqlPacketStore.proxy_model
+            || index.model() == myPacketStore.getModel() || index.model() == mySqlPacketStore.getModel()) {
         selectedStore = (Store*)index.model()->parent();
         if (selectedStore != NULL) {
             // Get the index from the item in column zero... This can then be used to look up the packet in the stores packet-list
+            QModelIndex pktIndex = index.model()->index(index.row(),1);
+            qulonglong pkt_id = pktIndex.data(ListIndexRole).toLongLong();
+            PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);
+            pktView->setAttribute(Qt::WA_DeleteOnClose);
+            pktView->show();
+            pktView->raise();
+            pktView->activateWindow();
+        }
+        return;
+    }
+    if (index.model() == myDumpStore.proxy_model) {
+        selectedStore = (Store*)index.model()->parent();
+        if (selectedStore != NULL) {
             QModelIndex pktIndex = index.model()->index(index.row(),1);
             qulonglong pkt_id = pktIndex.data(ListIndexRole).toLongLong();
             PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);
@@ -492,12 +505,7 @@ void MainWindow::loadObjectView(QModelIndex index)
 
 void MainWindow::translation_triggered()
 {
-    TranslationViewer* transView = new TranslationViewer(this,
-                                                         myObjectTranslator,
-                                                         myEventTranslator,
-                                                         mySPIDTranslator,
-                                                         myPITranslator,
-                                                         myPICTranslator);
+    TranslationViewer* transView = new TranslationViewer(this);
     connect(transView, SIGNAL(addObjectWatchlist(QString)), this, SLOT(addObjectToWatchList(QString)));
     transView->setAttribute(Qt::WA_DeleteOnClose);
     transView->show();
@@ -512,15 +520,15 @@ void MainWindow::exportTriggered()
                                "Type (*.csv)");
     if (ui->tabWidget->currentIndex() == 0) { // Archive Tab
         if (!action_EventMode->isChecked()) {
-            mySqlPacketStore->exportToFile(filename);
+            mySqlPacketStore.exportToFile(filename);
         } else {
-            mySqlEventStore->exportToFile(filename);
+            mySqlEventStore.exportToFile(filename);
         }
     } else if (ui->tabWidget->currentIndex() == 1) { // Live Tab
         if (!action_EventMode->isChecked()) {
-            myPacketStore->exportToFile(filename);
+            myPacketStore.exportToFile(filename);
         } else {
-            myEventStore->exportToFile(filename);
+            myEventStore.exportToFile(filename);
         }
     }
 }
@@ -600,7 +608,7 @@ void MainWindow::openEventView(QString name_)
         }
     }
     // If not open a new one
-    QStandardItem* obj_ = myEventStore->findItemInStore(name_);
+    QStandardItem* obj_ = myEventStore.findItemInStore(name_);
     if (obj_ != NULL) {
         loadObjectView(obj_->index());
     }
@@ -617,9 +625,9 @@ void MainWindow::show_packet_action()
 {
     Store* selectedStore;
     if(ui->tabWidget->currentIndex() == 0) {
-        selectedStore = mySqlPacketStore;
+        selectedStore = &mySqlPacketStore;
     } else if (ui->tabWidget->currentIndex() == 1) {
-        selectedStore = myPacketStore;
+        selectedStore = &myPacketStore;
     } else {
         return;
     }
@@ -641,9 +649,12 @@ void MainWindow::checksum_triggered()
     if (myChecksumView == NULL) {
         myChecksumView = new ChecksumView(this);
         myChecksumView->setAttribute(Qt::WA_DeleteOnClose);
-        connect(myPacketStore, SIGNAL(newChecksum(qint32,qint16)), myChecksumView, SLOT(receiveChecksum(qint32,qint16)));
-        connect(myPacketStore, SIGNAL(newChecksum(qint32,qint16)), this, SLOT(notifyOnChecksumReception(qint32,qint16)));
-        connect(myChecksumView, SIGNAL(destroyed(QObject*)), this, SLOT(notifyOnChecksumViewDestruction(QObject*)));
+        connect(&myPacketStore, SIGNAL(newChecksum(qint32,qint16)),
+                myChecksumView, SLOT(receiveChecksum(qint32,qint16)));
+        connect(&myPacketStore, SIGNAL(newChecksum(qint32,qint16)),
+                this, SLOT(notifyOnChecksumReception(qint32,qint16)));
+        connect(myChecksumView, SIGNAL(destroyed(QObject*)),
+                this, SLOT(notifyOnChecksumViewDestruction(QObject*)));
     }
     myChecksumView->show();
     myChecksumView->raise();
@@ -669,18 +680,18 @@ void MainWindow::loadTranslationTable()
     // Get the translation data from the database
     QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
 
-    db.setHostName(settings->value("db/host").toString());
-    db.setPort(settings->value("db/port").toInt());
-    db.setDatabaseName(settings->value("mib/db").toString());
-    db.setUserName(settings->value("mib/user").toString());
-    db.setPassword(settings->value("mib/pw").toString());
+    db.setHostName(settings.value("db/host").toString());
+    db.setPort(settings.value("db/port").toInt());
+    db.setDatabaseName(settings.value("mib/db").toString());
+    db.setUserName(settings.value("mib/user").toString());
+    db.setPassword(settings.value("mib/pw").toString());
 
     if (db.open()) {
-        myEventTranslator->loadHash(&db);
-        myObjectTranslator->loadHash(&db);
-        mySPIDTranslator->loadHash(&db);
-        myPICTranslator->loadHash(&db);
-        myPITranslator->loadHash(&db);
+        myEventTranslator.loadHash(&db);
+        myObjectTranslator.loadHash(&db);
+        mySPIDTranslator.loadHash(&db);
+        myPICTranslator.loadHash(&db);
+        myPITranslator.loadHash(&db);
         db.close();
     } else {
         qWarning() << "SQL Error " << db.lastError().text();
@@ -695,10 +706,10 @@ void MainWindow::addTranslation(int key_, QString trans_, int list_index_)
 {
     switch(list_index_) {
     case EventListIndex:
-        myEventTranslator->addEntry(key_, trans_);
+        myEventTranslator.addEntry(key_, trans_);
         break;
     case ObjectListIndex:
-        myObjectTranslator->addEntry(key_, trans_);
+        myObjectTranslator.addEntry(key_, trans_);
         break;
     }
     emit hashUpdated();
@@ -721,8 +732,8 @@ void MainWindow::live_expand_all_clicked()
 {
     treeviewExpanded = !treeviewExpanded;
     QModelIndex index;
-    for (int row = 0; row < myEventStore->getNumberOfItems(); ++row) {
-        index = myEventStore->proxy_model->index(row, 0);
+    for (int row = 0; row < myEventStore.getNumberOfItems(); ++row) {
+        index = myEventStore.proxy_model->index(row, 0);
         ui->treeView->setExpanded(index, treeviewExpanded);
     }
     if (treeviewExpanded) {
@@ -736,8 +747,8 @@ void MainWindow::sql_expand_all_clicked()
 {
     treeviewExpanded_Arch = !treeviewExpanded_Arch;
     QModelIndex index;
-    for (int row = 0; row < mySqlEventStore->getNumberOfItems(); ++row) {
-        index = mySqlEventStore->proxy_model->index(row, 0);
+    for (int row = 0; row < mySqlEventStore.getNumberOfItems(); ++row) {
+        index = mySqlEventStore.proxy_model->index(row, 0);
         ui->treeView_arch->setExpanded(index, treeviewExpanded_Arch);
     }
     if (treeviewExpanded_Arch) {

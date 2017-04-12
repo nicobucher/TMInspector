@@ -25,6 +25,9 @@ public:
     uint8_t getDump_id() const;
     uint32_t getObject_id() const;
 
+    QString getObject_name() const;
+    void setObject_name(const QString &value);
+
 private:
     /*
      * A dump summary is identified by a combination of onboard object id and
@@ -32,6 +35,7 @@ private:
      */
     uint8_t id;
     uint32_t object_id;
+    QString object_name;
     QHash<uint16_t, DumpSummaryPacket*> l_summary_packets;
     QHash<uint16_t, uint16_t> l_missingcounts;
     QDateTime reception_time;

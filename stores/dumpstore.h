@@ -11,8 +11,9 @@ class DumpModel;
 
 class DumpStore : public Store
 {
+    Q_OBJECT
 public:
-    DumpStore(QObject *parent);
+    DumpStore(QObject *parent = 0);
 
     bool itemInStore(QString obj_id);
 
@@ -32,8 +33,6 @@ public:
         return this->proxy_model;
     }
 
-    void putDumpSummaryPacket(DumpSummaryPacket* dps_);
-
     DumpSummary* getDumpSummary(qulonglong id_);
     DumpSummary* getDumpSummary(uint8_t dump_id, uint32_t object_id);
 
@@ -45,13 +44,16 @@ public:
     }
 
     int getNumberOfDumps();
-    void putDumpStatusPacket(Event *store_event_);
+
 public slots:
     void exportToFile(QString filename_);
+    void putDumpSummaryPacket(SourcePacket *dps_);
 
 private:
     DumpModel* model;
     QHash<qulonglong, DumpSummary*> l_summaries;
 };
+
+extern DumpStore myDumpStore;
 
 #endif // DUMPSTORE_H

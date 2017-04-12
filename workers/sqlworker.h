@@ -15,35 +15,30 @@ class SqlWorker : public QObject
 {
     Q_OBJECT
 public:
-    SqlWorker(QSettings *settings, QDateTime begin_, QDateTime end_, QProgressDialog* prg_, QHash<int, QVariant> *l_pis_, QHash<int, QVariant> *l_pics_);
+    SqlWorker(QSettings *settings, QDateTime begin_, QDateTime end_, QProgressDialog* prg_);
     ~SqlWorker();
     QList<SourcePacket*> fetchPackets(QDateTime b_, QDateTime e_);
-    void setMySqlPacketStore(PacketStore *value);
-    void setMySqlEventStore(EventStore *value);
-    void setMySqlDumpStore(DumpStore *value);
 
 private:
     QSqlDatabase db;
     QDateTime begin;
     QDateTime end;
 
-    PacketStore* mySqlPacketStore;
-    EventStore* mySqlEventStore;
-    DumpStore* mySqlDumpStore;
-
     QProgressDialog* progress;
 
     int foundPackets;
     bool quit;
 
-    QHash<int,QVariant>* l_pis;
-    QHash<int,QVariant>* l_pics;
 signals:
     void dbAccessError(QString message);
     void progressMade(int progress);
     void newText(QString);
     void newMaxProgress(int);
     void finished();
+    void dumpSummaryReceived(SourcePacket*);
+    void eventReceived(Event*);
+    void packetReceived(SourcePacket*);
+
 public slots:
     void doWork();
     void abortWork();

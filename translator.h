@@ -6,6 +6,7 @@
 #include <QSqlDatabase>
 #include "definitions.h"
 
+
 class Translator : public QObject
 {
     Q_OBJECT
@@ -56,6 +57,8 @@ protected:
     QHash<int, QVariant> translation_list;
 };
 
+
+
 class SPIDTranslator : public Translator
 {
 public:
@@ -65,6 +68,9 @@ public:
 private:
 
 };
+
+
+
 
 class PITranslator : public Translator
 {
@@ -76,6 +82,9 @@ private:
 
 };
 
+
+
+
 class PICTranslator : public Translator
 {
 public:
@@ -85,6 +94,9 @@ public:
 private:
 
 };
+
+
+
 
 class EventTranslator : public Translator
 {
@@ -96,6 +108,9 @@ private:
 
 };
 
+
+
+
 class ObjectTranslator : public Translator
 {
 public:
@@ -105,5 +120,12 @@ public:
 private:
 
 };
+
+
+extern SPIDTranslator mySPIDTranslator;
+extern PITranslator myPITranslator;
+extern PICTranslator myPICTranslator;
+extern EventTranslator myEventTranslator;
+extern ObjectTranslator myObjectTranslator;
 
 #endif // TRANSLATOR_H

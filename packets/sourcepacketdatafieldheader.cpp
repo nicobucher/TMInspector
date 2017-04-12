@@ -83,7 +83,6 @@ TMSourcePacketDataFieldHeader::decodeFromCDS(uint8_t pField, unsigned long *ts_f
     unsigned long tv_sec = days * SECONDS_PER_DAY;
     uint32_t msDay = (pointer[0] << 24) + (pointer[1] << 16) + (pointer[2] << 8) + pointer[3];
     pointer += 4;
-    tv_sec += (msDay / 1000);
     unsigned long tv_usec = 0;
     if ((pField & 0b11) == 0b01) {
             uint16_t usecs = (pointer[0] << 16) + pointer[1];
@@ -107,7 +106,7 @@ TMSourcePacketDataFieldHeader::decodeFromCDS(uint8_t pField, unsigned long *ts_f
     this->setBootCount(info_field & 0x7f);
     this->setCoreId((info_field & 0b10000000) >> 7);
 
-    unsigned long resultingTimeMs = (tv_sec * 1000) + tv_usec;
+    unsigned long resultingTimeMs = (tv_sec * 1000) + msDay;
     this->setTimestampValid(true);
 
     ts_.setMSecsSinceEpoch(resultingTimeMs);

@@ -27,7 +27,7 @@ class EventStore : public Store
 {
     Q_OBJECT
 public:
-    EventStore(QObject *parent, EventTranslator* event_trans_, ObjectTranslator* obj_trans_);
+    EventStore(QObject *parent = 0);
 
     bool itemInStore(QString obj_id);
 
@@ -37,7 +37,6 @@ public:
 
     QStandardItemModel* getModel();
 
-    void putEvent(Event* e_);
     int checkChildObjExists(int objId_);
 
     TreeViewFilterProxyModel* proxy_model;
@@ -62,9 +61,13 @@ private:
 
 public slots:
     void exportToFile(QString filename_);
+    void putEvent(Event* e_);
 
 signals:
     void openView(QString name_);
 };
+
+extern EventStore myEventStore;
+extern EventStore mySqlEventStore;
 
 #endif // EVENTSTORE_H

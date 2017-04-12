@@ -1,12 +1,13 @@
 #include "dumpstore.h"
 #include "mainwindow.h"
+#include <QSettings>
+
+extern QSettings settings;
 
 DumpStore::DumpStore(QObject *parent) :
     Store(parent)
 {
-    MainWindow* mainwindow = (MainWindow*)parent;
-
-    this->model = new DumpModel(this, mainwindow->settings->value("time_fmt").toString());
+    this->model = new DumpModel(this, settings.value("time_fmt").toString());
     this->proxy_model = new QSortFilterProxyModel(this);
     this->setSourceModel(this->model);
 }
@@ -34,14 +35,17 @@ QStandardItemModel *DumpStore::getModel()
     return this->model;
 }
 
-void DumpStore::putDumpStatusPacket(Event *store_event_)
+void DumpStore::putDumpSummaryPacket(SourcePacket *packet_)
 {
-    // TODO -> Include dump start and dump finished events in summary view
-}
+    // TODO This should be moved here, was formerly in PacketWorker, should be commented out once stores are global
+//    QHash<uint16_t, uint16_t> missingCounts = checkSequenceCounts(ds_packet->getL_sequencecounts());
 
-void DumpStore::putDumpSummaryPacket(DumpSummaryPacket *dps_)
-{
+//    ds_packet->setL_missing_sequencecounts(missingCounts);
+//    DumpSummary* summary = dump_store->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
+//    summary->addMissingCounts(missingCounts);
+
     DumpSummary* dump_summary_;
+    DumpSummaryPacket* dps_ = (DumpSummaryPacket*)packet_;
 
     qulonglong id_ = generateId(dps_->getOnboardStoreObject_id(), dps_->getDumpid());
     if (!this->containsDumpId(id_)) {

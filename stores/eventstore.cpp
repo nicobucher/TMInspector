@@ -1,20 +1,19 @@
 #include "eventstore.h"
 #include <QDebug>
-#include "mainwindow.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <QSettings>
+
+extern QSettings settings;
+
 using namespace std;
 
-EventStore::EventStore(QObject* parent, EventTranslator *event_trans_, ObjectTranslator *obj_trans_) :
+EventStore::EventStore(QObject* parent) :
     Store(parent),
     watch_list(NULL)
 {
-    MainWindow* mainwindow = (MainWindow*)parent;
-
-    this->model = new EventModel(this, mainwindow->settings->value("time_fmt").toString());
-    this->model->setEventTranslator(event_trans_);
-    this->model->setObjectTranslator(obj_trans_);
+    this->model = new EventModel(this, settings.value("time_fmt").toString());
     this->proxy_model = new TreeViewFilterProxyModel(this);
     this->setSourceModel(this->model);
 
@@ -67,7 +66,7 @@ void EventStore::putEvent(Event* e_)
         QStringList list_ = watch_list->stringList();
         QString name_ = e_->getObjectName();
         if (list_.contains(name_)) {
-            emit openView(e_->getObjectIdAsString());
+            emit openView(e_->getObjectName());
         }
     }
 }

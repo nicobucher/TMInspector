@@ -3,35 +3,43 @@
 #include <fstream>
 #include <iomanip>
 #include <QDebug>
-#include "mainwindow.h"
+#include <QSettings>
 #include "packets/checksumpacket.h"
+#include "stores/dumpstore.h"
+
+extern QSettings settings;
+
 using namespace std;
 
-PacketStore::PacketStore(QObject* parent, SPIDTranslator* trans_) :
+PacketStore::PacketStore(QObject* parent) :
     Store(parent)
 {   
-    MainWindow* mainwindow = (MainWindow*)parent;
-    this->model = new PacketModel(mainwindow->settings->value("time_fmt").toString());
-    this->model->setTranslator(trans_);
+    this->model = new PacketModel(settings.value("time_fmt").toString());
     this->proxy_model = new PacketViewFilterProxyModel(this);
     this->setSourceModel(this->model);
     // Initialize the hash key
 //    id = 0;
 }
 
-qulonglong
-PacketStore::putPacket(SourcePacket* p_) {
+void PacketStore::putPacket(SourcePacket* p_) {
+
+    DumpSummaryPacket* ds_packet = dynamic_cast<DumpSummaryPacket*>(p_);
+    if (ds_packet!=0) {
+        QHash<uint16_t, uint16_t> missingCounts = checkSequenceCounts(ds_packet->getL_sequencecounts());
+
+        ds_packet->setL_missing_sequencecounts(missingCounts);
+        DumpSummary* summary = myDumpStore.getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
+        summary->addMissingCounts(missingCounts);
+    }
+
     *this->model << p_;
 
-    qulonglong id_ = this->model->getCurrentId();
-    l_packets.insert(id_, p_);
+    l_packets.insert(p_->getId(), p_);
 
     if (p_->getDataFieldHeader()->getServiceType() == 6 && p_->getDataFieldHeader()->getSubServiceType() == 10) {
         ChecksumPacket new_checksum_packet(*p_);
         emit newChecksum(new_checksum_packet.getAddress(), new_checksum_packet.getChecksum());
     }
-
-    return id_;
 }
 
 void
