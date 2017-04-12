@@ -12,6 +12,8 @@ class Store : public QObject
 public:
     Store(QObject *parent);
 
+    virtual void setModelTimestampFmt(const QString &value) = 0;
+
     virtual bool itemInStore(QString obj_id) = 0;
 
     virtual int getNumberOfItems() = 0;

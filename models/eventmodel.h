@@ -1,8 +1,8 @@
 #ifndef EVENTMODEL_H
 #define EVENTMODEL_H
 
-#include "stores/eventstore.h"
 #include "translator.h"
+#include "stores/eventstore.h"
 
 class EventStore;
 
@@ -14,7 +14,7 @@ class EventModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    EventModel(EventStore* parentStore_, QString time_fmt_);
+    EventModel(EventStore* parentStore_);
 
   /*
    * Convenience operator for putting a new sting into the model list.
@@ -22,6 +22,8 @@ public:
     EventModel& operator<<(Event* event_);
 
     QList<QStandardItem*> prepareRow(Event* event_);
+
+    void setMyTimestampFmt(const QString &value);
 
 private:
     EventStore* parentStore;

@@ -10,7 +10,7 @@ class DumpModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    DumpModel(DumpStore* parentStore_, QString time_fmt);
+    DumpModel(DumpStore* parentStore_);
 
     DumpModel& operator <<(DumpSummary *dump_summary_);
     DumpModel& operator <<(DumpSummaryPacket *dump_summary_packet_);
@@ -18,6 +18,8 @@ public:
     int getNumberOfDumps();
     int checkDumpExists(uint8_t dumpId_);
     void clear();
+
+    void setMyTimestampFmt(const QString &value);
 
 private:
     DumpStore* parentStore;

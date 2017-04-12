@@ -13,7 +13,7 @@ EventStore::EventStore(QObject* parent) :
     Store(parent),
     watch_list(NULL)
 {
-    this->model = new EventModel(this, settings.value("time_fmt").toString());
+    this->model = new EventModel(this);
     this->proxy_model = new TreeViewFilterProxyModel(this);
     this->setSourceModel(this->model);
 
@@ -26,6 +26,10 @@ EventStore::EventStore(QObject* parent) :
                                      << "                        Param2"
                                      << "                     Timestamp" << endl;
     QTextStream(&export_file_header) << "#" << endl;
+}
+
+void EventStore::setModelTimestampFmt(const QString &value) {
+    this->model->setMyTimestampFmt(value);
 }
 
 void

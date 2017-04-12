@@ -1,8 +1,7 @@
 #include "dumpmodel.h"
 
-DumpModel::DumpModel(DumpStore *parentStore_, QString time_fmt) :
-    parentStore(parentStore_),
-    myTimestampFmt(time_fmt)
+DumpModel::DumpModel(DumpStore *parentStore_) :
+    parentStore(parentStore_)
 {
 
 }
@@ -79,4 +78,9 @@ int DumpModel::checkDumpExists(uint8_t dumpId_)
 void DumpModel::clear()
 {
     this->clear();
+}
+
+void DumpModel::setMyTimestampFmt(const QString &value)
+{
+    myTimestampFmt = value;
 }

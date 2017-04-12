@@ -13,8 +13,6 @@
 #include "models/eventmodel.h"
 #include "translator.h"
 
-class EventModel;
-
 enum ListIndex {
     EventListIndex = 0,
     ObjectListIndex,
@@ -23,11 +21,15 @@ enum ListIndex {
     PIC_VALUESListIndex
 };
 
+class EventModel;
+
 class EventStore : public Store
 {
     Q_OBJECT
 public:
     EventStore(QObject *parent = 0);
+
+    void setModelTimestampFmt(const QString &value);
 
     bool itemInStore(QString obj_id);
 

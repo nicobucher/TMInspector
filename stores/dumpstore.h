@@ -15,6 +15,8 @@ class DumpStore : public Store
 public:
     DumpStore(QObject *parent = 0);
 
+    void setModelTimestampFmt(const QString &value);
+
     bool itemInStore(QString obj_id);
 
     int getNumberOfItems();

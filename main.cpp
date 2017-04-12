@@ -72,6 +72,16 @@ int main(int argc, char *argv[])
     myObjectTranslator.Translator::loadHash();
     myEventTranslator.Translator::loadHash();
 
+    // Initial Settings
+    if (settings.value("time_fmt").isNull()) {
+        settings.setValue("time_fmt", "yyyy.MM.dd - hh:mm:ss:zzz");
+    }
+    myPacketStore.setModelTimestampFmt(settings.value("time_fmt").toString());
+    mySqlPacketStore.setModelTimestampFmt(settings.value("time_fmt").toString());
+    myEventStore.setModelTimestampFmt(settings.value("time_fmt").toString());
+    mySqlEventStore.setModelTimestampFmt(settings.value("time_fmt").toString());
+    myDumpStore.setModelTimestampFmt(settings.value("time_fmt").toString());
+
     qInstallMessageHandler(myMessageOutput);
     QApplication a(argc, argv);
     a.setWindowIcon(QIcon("./icon.png"));

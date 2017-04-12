@@ -1,9 +1,8 @@
 #include "eventmodel.h"
 #include <QDebug>
 
-EventModel::EventModel(EventStore* parentStore_, QString time_fmt_) :
-    parentStore(parentStore_),
-    myTimestampFmt(time_fmt_)
+EventModel::EventModel(EventStore* parentStore_) :
+    parentStore(parentStore_)
 {
     QStringList labels;
     labels << "Object ID" << "Event ID" << "Param 1" << "Param 2" << "Timestamp";
@@ -48,6 +47,11 @@ EventModel::prepareRow(Event* event_)
     row << new QStandardItem(event_->getTimestamp().toString(myTimestampFmt));
 
     return row;
+}
+
+void EventModel::setMyTimestampFmt(const QString &value)
+{
+    myTimestampFmt = value;
 }
 
 void

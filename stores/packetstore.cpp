@@ -14,11 +14,36 @@ using namespace std;
 PacketStore::PacketStore(QObject* parent) :
     Store(parent)
 {   
-    this->model = new PacketModel(settings.value("time_fmt").toString());
+    this->model = new PacketModel(this);
     this->proxy_model = new PacketViewFilterProxyModel(this);
     this->setSourceModel(this->model);
     // Initialize the hash key
 //    id = 0;
+}
+
+void PacketStore::setModelTimestampFmt(const QString &value) {
+    this->model->setMyTimestampFmt(value);
+}
+
+bool PacketStore::itemInStore(QString obj_id) {
+    QList<QStandardItem*> list = this->model->findItems(obj_id);
+    if(list.length() > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+int PacketStore::getNumberOfItems() {
+    return this->model->rowCount();
+}
+
+void PacketStore::emptyStore() {
+    this->model->removeRows(0, this->model->rowCount());
+}
+
+QStandardItemModel* PacketStore::getModel() {
+    return this->model;
 }
 
 void PacketStore::putPacket(SourcePacket* p_) {
@@ -123,4 +148,9 @@ PacketStore::checkSequenceCounts(QHash<uint16_t, uint16_t> searchForCounts, QDat
         }
     }
     return missingCounts;
+}
+
+void PacketModel::setMyTimestampFmt(const QString &value)
+{
+    myTimestampFmt = value;
 }

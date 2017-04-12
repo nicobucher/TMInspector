@@ -225,10 +225,6 @@ void MainWindow::readSettings()
     resize(settings.value("size", QSize(400, 400)).toSize());
     move(settings.value("pos", QPoint(200, 200)).toPoint());
     settings.endGroup();
-
-    if (settings.value("time_fmt").isNull()) {
-        settings.setValue("time_fmt", "yyyy.MM.dd - hh:mm:ss:zzz");
-    }
 }
 
 void MainWindow::on_actionEdit_triggered()

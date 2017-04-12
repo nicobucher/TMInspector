@@ -7,9 +7,13 @@ extern QSettings settings;
 DumpStore::DumpStore(QObject *parent) :
     Store(parent)
 {
-    this->model = new DumpModel(this, settings.value("time_fmt").toString());
+    this->model = new DumpModel(this);
     this->proxy_model = new QSortFilterProxyModel(this);
     this->setSourceModel(this->model);
+}
+
+void DumpStore::setModelTimestampFmt(const QString &value) {
+    this->model->setMyTimestampFmt(value);
 }
 
 bool DumpStore::itemInStore(QString obj_id)

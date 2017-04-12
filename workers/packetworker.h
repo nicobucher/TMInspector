@@ -5,9 +5,8 @@
 #include <QThread>
 #include <QMutex>
 #include <QTcpSocket>
-#include "stores/packetstore.h"
-#include "stores/eventstore.h"
-#include "stores/dumpstore.h"
+#include "packets/sourcepacket.h"
+#include "event.h"
 
 class PacketWorker : public QObject
 {

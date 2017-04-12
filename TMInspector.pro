@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     dumpsummary.cpp \
     views/checksumview.cpp \
     packets/checksumpacket.cpp \
-    models/dumpmodel.cpp
+    models/dumpmodel.cpp \
+    models/packetmodel.cpp
 
 HEADERS  += mainwindow.h \
     event.h \
@@ -70,7 +71,8 @@ HEADERS  += mainwindow.h \
     dumpsummary.h \
     views/checksumview.h \
     packets/checksumpacket.h \
-    models/dumpmodel.h
+    models/dumpmodel.h \
+    models/packetmodel.h
 
 FORMS    += mainwindow.ui \
     dialogs/serversettings.ui \
