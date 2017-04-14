@@ -40,16 +40,12 @@ QStandardItemModel *DumpStore::getModel()
 }
 
 void DumpStore::putDumpSummaryPacket(SourcePacket *packet_)
-{
-    // TODO This should be moved here, was formerly in PacketWorker, should be commented out once stores are global
-//    QHash<uint16_t, uint16_t> missingCounts = checkSequenceCounts(ds_packet->getL_sequencecounts());
-
-//    ds_packet->setL_missing_sequencecounts(missingCounts);
-//    DumpSummary* summary = dump_store->getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
-//    summary->addMissingCounts(missingCounts);
-
+{      
     DumpSummary* dump_summary_;
     DumpSummaryPacket* dps_ = (DumpSummaryPacket*)packet_;
+
+    QHash<uint16_t, uint16_t> missingCounts = myPacketStore.checkSequenceCounts(dps_->getL_sequencecounts());
+    dps_->setL_missing_sequencecounts(missingCounts);
 
     qulonglong id_ = generateId(dps_->getOnboardStoreObject_id(), dps_->getDumpid());
     if (!this->containsDumpId(id_)) {
@@ -69,6 +65,7 @@ void DumpStore::putDumpSummaryPacket(SourcePacket *packet_)
             *this->model << dump_summary_;
         }
     }
+    dump_summary_->addMissingCounts(missingCounts);
 }
 
 void DumpStore::exportToFile(QString filename_)
