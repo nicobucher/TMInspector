@@ -49,6 +49,7 @@ SourcePacket::SourcePacket(int type_, int version_, int apid_) :
 SourcePacket::~SourcePacket()
 {
     free(this->data);
+    delete this->dataFieldHeader;
 }
 
 void SourcePacket::setName(QString name_)
