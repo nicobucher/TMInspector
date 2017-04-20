@@ -51,6 +51,11 @@ SourcePacket::~SourcePacket()
     free(this->data);
 }
 
+void SourcePacket::setName(QString name_)
+{
+    this->name = name_;
+}
+
 QString SourcePacket::getName() const
 {
     return name;

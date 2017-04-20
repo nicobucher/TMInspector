@@ -188,6 +188,7 @@ public:
     int makeSPID();
     void makePI_VALUES();
     QString getName() const;
+    void setName(QString name_);
 };
 
 #endif // SOURCEPACKET_H

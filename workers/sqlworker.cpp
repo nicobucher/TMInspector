@@ -82,6 +82,13 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             packet->makePI_VALUES();
             packet->makeSPID();
 
+            QVariant pkt_name_ = mySPIDTranslator.translate(packet->getSpid());
+            if (pkt_name_.isValid()) {
+                packet->setName(pkt_name_.toString());
+            } else {
+                packet->setName("no description available");
+            }
+
             list << packet;
         }
         emit dbAccessError("DB Success, found " + QString::number(list.count()) + " Packets");
