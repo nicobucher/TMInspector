@@ -75,6 +75,7 @@ PacketWorker::doWork()
                                 DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
 
                                 emit dumpSummaryReceived(ds_packet);
+                                emit packetReceived(ds_packet);
                             } else {
                                 emit packetReceived(packet);
                             }
