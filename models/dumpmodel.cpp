@@ -47,7 +47,7 @@ void DumpModel::appendSummaryPacket(QStandardItem* item_, DumpSummaryPacket* dum
     new_summary_packet_->setData(dump_summary_packet_->getDumpcounter(), IdentifierRole);
     new_summary_packet_->setData(dump_summary_packet_->getId(), ListIndexRole);
     if (dump_summary_packet_->isComplete()) {
-        new_summary_packet_->setData(QVariant(QBrush(Qt::green)), Qt::BackgroundColorRole);
+        new_summary_packet_->setData(QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
     }
     QHashIterator<uint16_t, uint16_t> it(dump_summary_packet_->getL_sequencecounts());
     while (it.hasNext()) {
