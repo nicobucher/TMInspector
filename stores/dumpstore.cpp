@@ -47,7 +47,7 @@ void DumpStore::putDumpSummaryPacket(SourcePacket *packet_)
     QHash<uint16_t, uint16_t> missingCounts = myPacketStore.checkSequenceCounts(dps_->getL_sequencecounts());
     dps_->setL_missing_sequencecounts(missingCounts);
 
-    qulonglong id_ = generateId(dps_->getOnboardStoreObject_id(), dps_->getDumpid());
+    qulonglong id_ = dps_->generateUniqueId();
     if (!this->containsDumpId(id_)) {
         dump_summary_ = new DumpSummary(this, dps_);
         l_summaries.insert(id_, dump_summary_);
@@ -76,15 +76,6 @@ void DumpStore::exportToFile(QString filename_)
 DumpSummary *DumpStore::getDumpSummary(qulonglong id_)
 {
     return this->l_summaries.value(id_);
-}
-
-DumpSummary *DumpStore::getDumpSummary(uint8_t dump_id, uint32_t object_id)
-{
-    return this->l_summaries.value(generateId(object_id, dump_id));
-}
-
-bool DumpStore::containsDumpId(uint32_t obj_id_, uint8_t dump_id_) {
-    return this->l_summaries.contains(generateId(obj_id_, dump_id_));
 }
 
 bool DumpStore::containsDumpId(qulonglong id_) {

@@ -16,8 +16,7 @@ public:
     DumpModel& operator <<(DumpSummaryPacket *dump_summary_packet_);
 
     int getNumberOfDumps();
-    int checkDumpExists(uint8_t dumpId_);
-    void clear();
+    int checkDumpExists(qulonglong dumpId_);
 
     void setMyTimestampFmt(const QString &value);
 

@@ -30,6 +30,8 @@ public:
 
     QString getObject_name() const;
 
+    qulonglong generateUniqueId();
+
 protected:
     /*
      * 'l_sequencecounts' holds combinations of sequence counts (key) and APID (value)

@@ -53,7 +53,7 @@ void PacketStore::putPacket(SourcePacket* p_) {
         QHash<uint16_t, uint16_t> missingCounts = checkSequenceCounts(ds_packet->getL_sequencecounts());
 
         ds_packet->setL_missing_sequencecounts(missingCounts);
-        DumpSummary* summary = myDumpStore.getDumpSummary(ds_packet->getDumpid(), ds_packet->getOnboardStoreObject_id());
+        DumpSummary* summary = myDumpStore.getDumpSummary(ds_packet->generateUniqueId());
         summary->addMissingCounts(missingCounts);
     }
 

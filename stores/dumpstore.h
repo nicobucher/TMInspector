@@ -36,14 +36,8 @@ public:
     }
 
     DumpSummary* getDumpSummary(qulonglong id_);
-    DumpSummary* getDumpSummary(uint8_t dump_id, uint32_t object_id);
 
     bool containsDumpId(qulonglong id_);
-    bool containsDumpId(uint32_t obj_id_, uint8_t dump_id_);
-
-    static qulonglong generateId(uint32_t obj_id_, uint8_t dump_id_) {
-         return ((qulonglong)obj_id_ << 32) + dump_id_;
-    }
 
     int getNumberOfDumps();
 

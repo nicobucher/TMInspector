@@ -4,7 +4,8 @@ DumpSummary::DumpSummary(QObject* parent, DumpSummaryPacket* init_packet) : QObj
 {
     this->object_id = init_packet->getOnboardStoreObject_id();
     this->object_name = init_packet->getObject_name();
-    this->id = init_packet->getDumpid();
+    this->uniqueId = init_packet->generateUniqueId();
+    this->dumpId = init_packet->getDumpid();
     this->reception_time = QDateTime::currentDateTime();
     putDumpSummaryPacket(init_packet);
 }
@@ -38,11 +39,6 @@ QHash<uint16_t, uint16_t> *DumpSummary::getMissingCounts()
     return &l_missingcounts;
 }
 
-uint8_t DumpSummary::getDump_id() const
-{
-    return this->id;
-}
-
 uint32_t DumpSummary::getObject_id() const
 {
     return object_id;
@@ -56,4 +52,24 @@ QString DumpSummary::getObject_name() const
 void DumpSummary::setObject_name(const QString &value)
 {
     object_name = value;
+}
+
+uint8_t DumpSummary::getDumpId() const
+{
+    return dumpId;
+}
+
+void DumpSummary::setDumpId(const uint8_t &value)
+{
+    dumpId = value;
+}
+
+qulonglong DumpSummary::getUniqueId() const
+{
+    return uniqueId;
+}
+
+void DumpSummary::setUniqueId(const qulonglong &value)
+{
+    uniqueId = value;
 }

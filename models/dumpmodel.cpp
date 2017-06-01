@@ -8,15 +8,15 @@ DumpModel::DumpModel(DumpStore *parentStore_) :
 
 DumpModel &DumpModel::operator <<(DumpSummary *dump_summary_)
 {
-    int row = checkDumpExists(dump_summary_->getDump_id());
+    int row = checkDumpExists(dump_summary_->getUniqueId());
 
     if (row < 0) {
         // New Dump
     } else {
         this->removeRow(row);
     }
-    QStandardItem* new_dump = new QStandardItem(dump_summary_->getObject_name() + " (No. " + QString::number(dump_summary_->getDump_id()) + ")");
-    new_dump->setData(dump_summary_->getDump_id(), IdentifierRole);
+    QStandardItem* new_dump = new QStandardItem(dump_summary_->getObject_name() + " (No. " + QString::number(dump_summary_->getDumpId()) + ")");
+    new_dump->setData(dump_summary_->getUniqueId(), IdentifierRole);
 
     QHashIterator<uint16_t, DumpSummaryPacket*> it(dump_summary_->getSummaryPackets());
     while (it.hasNext()) {
@@ -31,7 +31,7 @@ DumpModel &DumpModel::operator <<(DumpSummary *dump_summary_)
 DumpModel &DumpModel::operator <<(DumpSummaryPacket* dump_summary_packet_)
 {
     QStandardItem *root = invisibleRootItem();
-    int row = checkDumpExists(dump_summary_packet_->getDumpid());
+    int row = checkDumpExists(dump_summary_packet_->generateUniqueId());
 
     if (row < 0) {
         // No Existing Dump Found, can not be appended
@@ -65,19 +65,14 @@ void DumpModel::appendSummaryPacket(QStandardItem* item_, DumpSummaryPacket* dum
     item_->appendRow(new_summary_packet_);
 }
 
-int DumpModel::checkDumpExists(uint8_t dumpId_)
+int DumpModel::checkDumpExists(qulonglong dumpId_)
 {
     QStandardItem *root = this->invisibleRootItem();
     for (int i = 0; i < root->rowCount(); i++) {
-        int test_id = root->child(i)->data(IdentifierRole).toInt();
+        qulonglong test_id = root->child(i)->data(IdentifierRole).toLongLong();
         if (test_id == dumpId_) return i;
     }
     return -1;
-}
-
-void DumpModel::clear()
-{
-    this->clear();
 }
 
 void DumpModel::setMyTimestampFmt(const QString &value)

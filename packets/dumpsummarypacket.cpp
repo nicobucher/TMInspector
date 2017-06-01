@@ -89,3 +89,8 @@ QString DumpSummaryPacket::getObject_name() const
 {
     return object_name;
 }
+
+qulonglong DumpSummaryPacket::generateUniqueId()
+{
+    return ((qulonglong)this->object_id << 32) + this->dumpid;
+}

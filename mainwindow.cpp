@@ -260,6 +260,7 @@ void MainWindow::on_commandLinkButton_clicked()
 
     mySqlPacketStore.emptyStore();
     mySqlEventStore.emptyStore();
+    myDumpStore.emptyStore();
 
     progress_ = new QProgressDialog("Loading Packets from Database","Cancel",0,100);
     progress_->setMinimumDuration(0);
@@ -283,8 +284,6 @@ void MainWindow::on_commandLinkButton_clicked()
             &mySqlEventStore, SLOT(putEvent(Event*)));
     connect(worker, SIGNAL(dumpSummaryReceived(SourcePacket*)),
             &myDumpStore, SLOT(putDumpSummaryPacket(SourcePacket*)));
-    connect(worker, SIGNAL(dumpSummaryReceived(SourcePacket*)),
-            &mySqlPacketStore, SLOT(putPacket(SourcePacket*)));
     connect(worker, SIGNAL(finished()),
             this, SLOT(sqlWorkerFinished()));
 
