@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-//    settings = new QSettings();
+    //    settings = new QSettings();
 
     statusLabel = new QLabel(this);
     QPalette pal;
@@ -64,8 +64,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeView->setUniformRowHeights(true);   // <- should increase performance
     ui->treeView_arch->setUniformRowHeights(true);   // <- should increase performance
     // todo: this can be enabled if required...
-//    ui->treeView->setAlternatingRowColors(true);
-//    ui->treeView->setSortingEnabled(true);
+    //    ui->treeView->setAlternatingRowColors(true);
+    //    ui->treeView->setSortingEnabled(true);
     currentLiveType = "*";
     currentSqlType = "*";
     setupEventFilters();
@@ -112,7 +112,7 @@ MainWindow::MainWindow(QWidget *parent) :
         QTextStream in(&filein);
         while (!in.atEnd())
         {
-           watch_list.append(in.readLine());
+            watch_list.append(in.readLine());
         }
         filein.close();
     }
@@ -442,7 +442,7 @@ void MainWindow::loadObjectView(QModelIndex index)
         } else {
             selectedStore = (Store*)&mySqlEventStore;
         }
-//        selectedStore = (Store*)index.model()->parent();
+        //        selectedStore = (Store*)index.model()->parent();
         if (selectedStore != NULL) {
             if (selectedStore->itemInStore(index.data().toString())) {
                 QModelIndex sourceIndex;
@@ -471,7 +471,7 @@ void MainWindow::loadObjectView(QModelIndex index)
             || index.model() == myPacketStore.getModel() || index.model() == mySqlPacketStore.getModel()) {
         selectedStore = (Store*)index.model()->parent();
         if (selectedStore != NULL) {
-            // Get the index from the item in column zero... This can then be used to look up the packet in the stores packet-list
+            // Get the index from the item in column one... This can then be used to look up the packet in the stores packet-list
             QModelIndex pktIndex = index.model()->index(index.row(),1);
             qulonglong pkt_id = pktIndex.data(ListIndexRole).toLongLong();
             PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);
@@ -485,13 +485,15 @@ void MainWindow::loadObjectView(QModelIndex index)
     if (index.model() == myDumpStore.proxy_model) {
         selectedStore = (Store*)index.model()->parent();
         if (selectedStore != NULL) {
-            QModelIndex pktIndex = index.model()->index(index.row(),1);
-            qulonglong pkt_id = pktIndex.data(ListIndexRole).toLongLong();
-            PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);
-            pktView->setAttribute(Qt::WA_DeleteOnClose);
-            pktView->show();
-            pktView->raise();
-            pktView->activateWindow();
+            if (myPacketStore->itemInStore(index.data().toString())) {
+                QModelIndex pktIndex = index.model()->index(index.row(),2);
+                qulonglong pkt_id = pktIndex.data(ListIndexRole).toLongLong();
+                PacketContentView* pktView = new PacketContentView(this, myPacketStore, pkt_id);
+                pktView->setAttribute(Qt::WA_DeleteOnClose);
+                pktView->show();
+                pktView->raise();
+                pktView->activateWindow();
+            }
         }
     }
 }
@@ -509,8 +511,8 @@ void MainWindow::translation_triggered()
 void MainWindow::exportTriggered()
 {
     QString filename = QFileDialog::getSaveFileName(this, "Save File",
-                               "",
-                               "Type (*.csv)");
+                                                    "",
+                                                    "Type (*.csv)");
     if (ui->tabWidget->currentIndex() == 0) { // Archive Tab
         if (!action_EventMode->isChecked()) {
             mySqlPacketStore.exportToFile(filename);
