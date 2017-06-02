@@ -68,9 +68,9 @@ public:
      * Takes a hash-map of sequence counts and corresponding apids and checks this store
      * if the list entries are present.
      * Returns:
-     * - A hash-map of missing source sequence counts and APID combinations
+     * - A list of pointers to the corresponding source packets in the packet store
      */
-    QHash<uint16_t, uint16_t> checkSequenceCounts(QHash<uint16_t, uint16_t> searchForCounts);
+    QList<SourcePacket *> checkSequenceCounts(QHash<uint32_t, bool> &searchForCounts);
 
     /*
      * Takes a hash-map of sequence counts and corresponding apids and checks this store

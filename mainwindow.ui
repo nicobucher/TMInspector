@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>913</width>
+    <width>925</width>
     <height>449</height>
    </rect>
   </property>
@@ -39,7 +39,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -149,6 +149,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QToolButton" name="clearButton">
+            <property name="text">
+             <string>clear</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
@@ -201,6 +208,15 @@
         </property>
         <item>
          <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+           <string/>
+          </property>
+          <zorder>treeView</zorder>
+          <zorder>treeView</zorder>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_3">
           <property name="title">
            <string>Filters</string>
           </property>
@@ -276,8 +292,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>913</width>
-     <height>22</height>
+     <width>925</width>
+     <height>19</height>
     </rect>
    </property>
   </widget>

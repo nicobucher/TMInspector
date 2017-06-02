@@ -5,6 +5,7 @@
 #include <QMutexLocker>
 #include <QDebug>
 #include <QNetworkProxy>
+#include "stores/packetstore.h"
 
 PacketWorker::PacketWorker()
 {
@@ -64,6 +65,7 @@ PacketWorker::doWork()
                     } else {
                         // Create the packet
                         SourcePacket* packet = new SourcePacket();
+                        packet->setStorePointer(&myPacketStore);
                         packet->makePacketFromData((unsigned char*)header_buffer.data(), (unsigned char*)data_buffer.data(), data_length);
 
                         if (packet->getQuality() == GOOD &&

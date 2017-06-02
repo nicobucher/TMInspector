@@ -9,6 +9,7 @@
 #include <QTableView>
 #include <QDateTime>
 #include <QFileDialog>
+#include "helpers/variantptr.h"
 
 extern QSettings settings;
 
@@ -485,15 +486,13 @@ void MainWindow::loadObjectView(QModelIndex index)
     if (index.model() == myDumpStore.proxy_model) {
         selectedStore = (Store*)index.model()->parent();
         if (selectedStore != NULL) {
-            if (myPacketStore->itemInStore(index.data().toString())) {
-                QModelIndex pktIndex = index.model()->index(index.row(),2);
-                qulonglong pkt_id = pktIndex.data(ListIndexRole).toLongLong();
-                PacketContentView* pktView = new PacketContentView(this, myPacketStore, pkt_id);
-                pktView->setAttribute(Qt::WA_DeleteOnClose);
-                pktView->show();
-                pktView->raise();
-                pktView->activateWindow();
-            }
+            PacketStore *store = VariantPtr<PacketStore>::asPtr(index.data(StorePointerRole));
+            qulonglong pkt_id = index.data(ListIndexRole).toLongLong();
+            PacketContentView* pktView = new PacketContentView(this, store, pkt_id);
+            pktView->setAttribute(Qt::WA_DeleteOnClose);
+            pktView->show();
+            pktView->raise();
+            pktView->activateWindow();
         }
     }
 }

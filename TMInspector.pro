@@ -72,7 +72,8 @@ HEADERS  += mainwindow.h \
     views/checksumview.h \
     packets/checksumpacket.h \
     models/dumpmodel.h \
-    models/packetmodel.h
+    models/packetmodel.h \
+    helpers/variantptr.h
 
 FORMS    += mainwindow.ui \
     dialogs/serversettings.ui \

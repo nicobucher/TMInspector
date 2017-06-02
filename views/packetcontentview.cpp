@@ -14,10 +14,13 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
 {
     ui->setupUi(this);
 
-    // Find the selected packet
-    selectedPacket = store->getPacket(idx_);
+    selectedPacket = NULL;
+    if (store != NULL) {
+        // Find the selected packet
+        selectedPacket = store->getPacket(idx_);
+    }
 
-    if (selectedPacket!=0) {
+    if (selectedPacket!=NULL) {
         ui->ssc_label->setText(QString::number(selectedPacket->getSourceSequenceCount()));
         ui->type_label->setText(QString::number(selectedPacket->getSourcePacketType()));
         ui->version_label->setText(QString::number(selectedPacket->getVersion()));
@@ -39,17 +42,22 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
             QString ssc_summary_;
             QTextStream(&ssc_summary_) << "Dump Summary Packet of 0x" << QString::number(ds_packet->getOnboardStoreObject_id(), 16) << " (" << ds_packet->getObject_name() << ")" << endl;
             QTextStream(&ssc_summary_) << "Dump-ID=" << ds_packet->getDumpid() << endl;
-            QTextStream(&ssc_summary_) << "Missing " << ds_packet->getNumberOfMissingSSC() << " packets:" << endl;
-            QHashIterator<uint16_t, uint16_t> it(ds_packet->getL_missing_sequencecounts());
+
+            QHashIterator<uint32_t, bool> it(ds_packet->getL_sequencecounts());
+            QTextStream(&ssc_summary_) << "\nMissing " << ds_packet->getNumberOfMissingSSC() << " packets:" << endl;
             while (it.hasNext()) {
                 it.next();
-                QTextStream(&ssc_summary_) << it.key() << endl;
+                if(it.value() == false) {
+                    QTextStream(&ssc_summary_) << (it.key() & 0xFFFF) << endl;
+                }
             }
-            QTextStream(&ssc_summary_) << "\nFound " << ds_packet->getNumberOfSSC() << " packets:" << endl;
-            it = QHashIterator<uint16_t, uint16_t>(ds_packet->getL_sequencecounts());
+            QTextStream(&ssc_summary_) << "\nFound " << ds_packet->getNumberOfFoundSSC() << " packets:" << endl;
+            it.toFront();
             while (it.hasNext()) {
                 it.next();
-                QTextStream(&ssc_summary_) << it.key() << endl;
+                if(it.value() == true) {
+                    QTextStream(&ssc_summary_) << (it.key() & 0xFFFF) << endl;
+                }
             }
             ui->data_line_edit->setText(ssc_summary_);
         } else {

@@ -5,7 +5,8 @@
 
 SourcePacket::SourcePacket() :
     sequence(STANDALONE_PACKET),
-    quality(GOOD)
+    quality(GOOD),
+    storePointer(NULL)
 {
     //
     this->sourceSequenceCount = 0;
@@ -22,7 +23,7 @@ SourcePacket::SourcePacket(SourcePacket &packet) :
     sourceSequenceCount(packet.getSourceSequenceCount()),
     apid(packet.getApid()),
     spid(packet.getSpid()),
-    unique_id(packet.getId())
+    storePointer(packet.getStorePointer())
 {
     this->setDataField((unsigned char*)packet.getData().data(), packet.getDataLength());
 
@@ -35,7 +36,8 @@ SourcePacket::SourcePacket(SourcePacket &packet) :
 
 SourcePacket::SourcePacket(int type_, int version_, int apid_) :
     sequence(STANDALONE_PACKET),
-    quality(GOOD)
+    quality(GOOD),
+    storePointer(NULL)
 {
     // Initialization Constructor
     this->sourceSequenceCount = 0;
@@ -50,6 +52,16 @@ SourcePacket::~SourcePacket()
 {
     free(this->data);
     delete this->dataFieldHeader;
+}
+
+PacketStore *SourcePacket::getStorePointer() const
+{
+    return storePointer;
+}
+
+void SourcePacket::setStorePointer(PacketStore *value)
+{
+    storePointer = value;
 }
 
 void SourcePacket::setName(QString name_)
@@ -113,8 +125,6 @@ SourcePacket* SourcePacket::makePacketFromData(unsigned char* pHeader_, unsigned
         // Set datafield header
         dataFieldHeader = new TMSourcePacketDataFieldHeader();
         dataFieldHeader->makeDataFieldHeaderFromData(pData_);
-        qulonglong id_ = ((qulonglong)dataFieldHeader->getTimestampSeconds() << 32) + this->getSourceSequenceCount();
-        this->setId(id_);
     }
 
     makePI_VALUES();

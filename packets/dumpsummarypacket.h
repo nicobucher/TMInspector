@@ -6,6 +6,7 @@
 
 class DumpSummaryPacket : public SourcePacket
 {
+    Q_OBJECT
 public:
     /*
      * Copy Constructor to copy a source packet
@@ -14,16 +15,13 @@ public:
 
     void decode();
 
-    QHash<uint16_t, uint16_t> getL_sequencecounts() const;
+    QHash<uint32_t, bool> getL_sequencecounts() const;
 
     uint32_t getOnboardStoreObject_id() const;
     uint16_t getDumpcounter() const;
     uint8_t getDumpid() const;
 
     bool isComplete() const;
-
-    QHash<uint16_t, uint16_t> getL_missing_sequencecounts() const;
-    void setL_missing_sequencecounts(const QHash<uint16_t, uint16_t> &value);
 
     int getNumberOfMissingSSC();
     int getNumberOfSSC();
@@ -32,12 +30,14 @@ public:
 
     qulonglong generateUniqueId();
 
+    QList<SourcePacket *> getL_found_packets() const;
+    void checkPackets();
+    void add_found_packets(const QList<SourcePacket *> &value);
+
+    int getNumberOfFoundSSC();
 protected:
-    /*
-     * 'l_sequencecounts' holds combinations of sequence counts (key) and APID (value)
-     */
-    QHash<uint16_t, uint16_t> l_sequencecounts;
-    QHash<uint16_t, uint16_t> l_missing_sequencecounts;
+    QList<SourcePacket*> l_found_packets;
+    QHash<uint32_t, bool> l_sequencecounts;
     uint32_t object_id;
     QString object_name;
     uint16_t dumpcounter;

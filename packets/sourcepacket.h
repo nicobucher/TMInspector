@@ -6,6 +6,8 @@
 #include <QStandardItem>
 #include <QObject>
 
+class PacketStore;
+
 enum Quality {
     GOOD,
     BAD
@@ -45,9 +47,10 @@ protected:
     unsigned char* header;
     unsigned char* data;
     int dataLength;
-    qulonglong unique_id;
     QString mibVersion;
     QString name;
+
+    PacketStore* storePointer;
 
 public:
     int getVersion() {
@@ -166,11 +169,7 @@ public:
     }
 
     qulonglong getId() {
-        return this->unique_id;
-    }
-
-    void setId(const qulonglong &value) {
-        this->unique_id = value;
+        return ((qulonglong)this->dataFieldHeader->getTimestampSeconds() << 32) + this->getSourceSequenceCount();
     }
 
     QString getMibVersion() {
@@ -189,6 +188,8 @@ public:
     void makePI_VALUES();
     QString getName() const;
     void setName(QString name_);
+    PacketStore *getStorePointer() const;
+    void setStorePointer(PacketStore *value);
 };
 
 #endif // SOURCEPACKET_H

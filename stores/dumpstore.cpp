@@ -44,8 +44,7 @@ void DumpStore::putDumpSummaryPacket(SourcePacket *packet_)
     DumpSummary* dump_summary_;
     DumpSummaryPacket* dps_ = (DumpSummaryPacket*)packet_;
 
-    QHash<uint16_t, uint16_t> missingCounts = myPacketStore.checkSequenceCounts(dps_->getL_sequencecounts());
-    dps_->setL_missing_sequencecounts(missingCounts);
+    dps_->checkPackets();
 
     qulonglong id_ = dps_->generateUniqueId();
     if (!this->containsDumpId(id_)) {
@@ -65,7 +64,6 @@ void DumpStore::putDumpSummaryPacket(SourcePacket *packet_)
             *this->model << dump_summary_;
         }
     }
-    dump_summary_->addMissingCounts(missingCounts);
 }
 
 void DumpStore::exportToFile(QString filename_)

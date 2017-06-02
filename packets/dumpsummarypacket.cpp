@@ -1,5 +1,6 @@
 #include "dumpsummarypacket.h"
 #include "translator.h"
+#include "stores/packetstore.h"
 
 DumpSummaryPacket::DumpSummaryPacket(SourcePacket &packet) : SourcePacket(packet)
 {
@@ -21,7 +22,6 @@ void DumpSummaryPacket::decode()
     this->dumpcounter = (p_[5] << 8) + p_[6];
     uint8_t n = p_[7];
 
-    int new_ssc_ = 0;
     int ssc_apid_ = 0;
     int pos = 7 + n*4;
     if (pos > this->dataLength) {
@@ -29,14 +29,13 @@ void DumpSummaryPacket::decode()
         return;
     }
     while(pos > 7) {
-        ssc_apid_ = (p_[pos-3] << 8) + p_[pos-2];
-        new_ssc_ = (p_[pos-1] << 8) + p_[pos];
-        this->l_sequencecounts.insert(new_ssc_, ssc_apid_);
+        ssc_apid_ = (p_[pos-3] << 24) + (p_[pos-2] << 16) + (p_[pos-1] << 8) + p_[pos];
+        this->l_sequencecounts.insert(ssc_apid_, false);
         pos = pos - 4;
     }
 }
 
-QHash<uint16_t, uint16_t> DumpSummaryPacket::getL_sequencecounts() const
+QHash<uint32_t, bool> DumpSummaryPacket::getL_sequencecounts() const
 {
     return l_sequencecounts;
 }
@@ -58,31 +57,26 @@ uint8_t DumpSummaryPacket::getDumpid() const
 
 bool DumpSummaryPacket::isComplete() const
 {
-    if (l_missing_sequencecounts.size() == 0)
+    if (l_sequencecounts.size() == l_found_packets.size())
         return true;
     else {
         return false;
     }
 }
 
-QHash<uint16_t, uint16_t> DumpSummaryPacket::getL_missing_sequencecounts() const
-{
-    return l_missing_sequencecounts;
-}
-
-void DumpSummaryPacket::setL_missing_sequencecounts(const QHash<uint16_t, uint16_t> &value)
-{
-    l_missing_sequencecounts = value;
-}
-
 int DumpSummaryPacket::getNumberOfMissingSSC()
 {
-    return l_missing_sequencecounts.size();
+    return l_sequencecounts.size() - l_found_packets.size();
 }
 
 int DumpSummaryPacket::getNumberOfSSC()
 {
     return l_sequencecounts.size();
+}
+
+int DumpSummaryPacket::getNumberOfFoundSSC()
+{
+    return l_found_packets.size();
 }
 
 QString DumpSummaryPacket::getObject_name() const
@@ -93,4 +87,21 @@ QString DumpSummaryPacket::getObject_name() const
 qulonglong DumpSummaryPacket::generateUniqueId()
 {
     return ((qulonglong)this->object_id << 32) + this->dumpid;
+}
+
+QList<SourcePacket *> DumpSummaryPacket::getL_found_packets() const
+{
+    return l_found_packets;
+}
+
+void DumpSummaryPacket::add_found_packets(const QList<SourcePacket *> &value)
+{
+    l_found_packets.append(value);
+}
+
+void DumpSummaryPacket::checkPackets()
+{
+    if(this->storePointer != NULL) {
+        add_found_packets(this->storePointer->checkSequenceCounts(this->l_sequencecounts));
+    }
 }

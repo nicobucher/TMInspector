@@ -13,6 +13,7 @@ DumpSummary::DumpSummary(QObject* parent, DumpSummaryPacket* init_packet) : QObj
 void DumpSummary::putDumpSummaryPacket(DumpSummaryPacket *pkt_)
 {
     this->l_summary_packets.insert(pkt_->getDumpcounter(), pkt_);
+    add_found_packets(pkt_->getL_found_packets());
 }
 
 QDateTime DumpSummary::getReception_time() const
@@ -72,4 +73,14 @@ qulonglong DumpSummary::getUniqueId() const
 void DumpSummary::setUniqueId(const qulonglong &value)
 {
     uniqueId = value;
+}
+
+QList<SourcePacket *> DumpSummary::getL_found_packets() const
+{
+    return l_found_packets;
+}
+
+void DumpSummary::add_found_packets(const QList<SourcePacket *> &value)
+{
+    l_found_packets.append(value);
 }

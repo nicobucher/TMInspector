@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QCoreApplication>
+#include "stores/packetstore.h"
 
 SqlWorker::SqlWorker(QSettings* settings, QDateTime begin_, QDateTime end_, QProgressDialog* prg_) :
     begin(begin_),
@@ -118,6 +119,7 @@ SqlWorker::doWork() {
             emit progressMade(foundPackets+i);
 
             SourcePacket* packet = retrievedPackets.at(i);
+            packet->setStorePointer(&mySqlPacketStore);
 
             if (packet->getDataFieldHeader()->getServiceType() == 15 &&
                     packet->getDataFieldHeader()->getSubServiceType() == 128) {

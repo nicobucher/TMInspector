@@ -33,6 +33,9 @@ public:
     qulonglong getUniqueId() const;
     void setUniqueId(const qulonglong &value);
 
+    QList<SourcePacket *> getL_found_packets() const;
+    void add_found_packets(const QList<SourcePacket *> &value);
+
 private:
     /*
      * A dump summary is identified by a combination of onboard object id and
@@ -44,6 +47,7 @@ private:
     QString object_name;
     QHash<uint16_t, DumpSummaryPacket*> l_summary_packets;
     QHash<uint16_t, uint16_t> l_missingcounts;
+    QList<SourcePacket*> l_found_packets;
     QDateTime reception_time;
 };
 
