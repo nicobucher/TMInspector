@@ -62,6 +62,11 @@ private:
     QPushButton* LiveExpandAll;
     QPushButton* SqlExpandAll;
 
+    QPushButton* liveEventClearButton;
+    QPushButton* livePacketClearButton;
+    QPushButton* sqlEventClearButton;
+    QPushButton* sqlPacketClearButton;
+
     QString currentSqlRegEx;
     QString currentSqlType;
     QString currentLiveRegEx;
@@ -116,6 +121,8 @@ public slots:
     void removeObjectView(ObjectView* p_);
     void openEventView(QString name_);
     void addObjectToWatchList(QString object_name_);
+    void clearSqlStores();
+    void clearLiveStores();
 
 private slots:
     void on_actionTo_Server_triggered();

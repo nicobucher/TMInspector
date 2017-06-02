@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>925</width>
+    <width>961</width>
     <height>449</height>
    </rect>
   </property>
@@ -149,13 +149,6 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QToolButton" name="clearButton">
-            <property name="text">
-             <string>clear</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </item>
         <item>
@@ -210,15 +203,6 @@
          <widget class="QGroupBox" name="groupBox">
           <property name="title">
            <string/>
-          </property>
-          <zorder>treeView</zorder>
-          <zorder>treeView</zorder>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_3">
-          <property name="title">
-           <string>Filters</string>
           </property>
          </widget>
         </item>
@@ -292,8 +276,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>925</width>
-     <height>19</height>
+     <width>961</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
