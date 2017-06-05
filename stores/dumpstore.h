@@ -5,6 +5,7 @@
 #include "dumpsummary.h"
 #include "models/dumpmodel.h"
 #include "event.h"
+#include "models/dumpviewfilterproxymodel.h"
 #include <QDateTime>
 
 class DumpModel;
@@ -25,7 +26,7 @@ public:
 
     QStandardItemModel* getModel();
 
-    QSortFilterProxyModel* proxy_model;
+    DumpViewFilterProxyModel* proxy_model;
 
     void setSourceModel(QAbstractItemModel* src_) {
         this->proxy_model->setSourceModel(src_);

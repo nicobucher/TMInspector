@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     views/checksumview.cpp \
     packets/checksumpacket.cpp \
     models/dumpmodel.cpp \
-    models/packetmodel.cpp
+    models/packetmodel.cpp \
+    models/dumpviewfilterproxymodel.cpp
 
 HEADERS  += mainwindow.h \
     event.h \
@@ -73,7 +74,8 @@ HEADERS  += mainwindow.h \
     packets/checksumpacket.h \
     models/dumpmodel.h \
     models/packetmodel.h \
-    helpers/variantptr.h
+    helpers/variantptr.h \
+    models/dumpviewfilterproxymodel.h
 
 FORMS    += mainwindow.ui \
     dialogs/serversettings.ui \

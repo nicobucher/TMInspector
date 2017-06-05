@@ -8,8 +8,7 @@ DumpStore::DumpStore(QObject *parent) :
     Store(parent)
 {
     this->model = new DumpModel(this);
-    this->proxy_model = new QSortFilterProxyModel(this);
-    this->setSourceModel(this->model);
+    this->proxy_model = new DumpViewFilterProxyModel(this);
 }
 
 void DumpStore::setModelTimestampFmt(const QString &value) {

@@ -7,7 +7,9 @@ enum ExtraRoles {
     RawDataRole,
     ListIndexRole,
     IdentifierRole,
-    StorePointerRole
+    StorePointerRole,
+    TimestampRole,
+    ObjectRole
 };
 
 struct PIC_VALUES {

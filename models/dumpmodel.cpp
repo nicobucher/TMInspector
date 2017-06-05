@@ -17,6 +17,7 @@ DumpModel &DumpModel::operator <<(DumpSummary *dump_summary_)
         this->removeRow(row);
     }
     QStandardItem* new_dump = new QStandardItem(dump_summary_->getObject_name() + " (No. " + QString::number(dump_summary_->getDumpId()) + ")");
+    new_dump->setData(VariantPtr<QObject>::asQVariant(dump_summary_), ObjectRole);
     new_dump->setData(dump_summary_->getUniqueId(), IdentifierRole);
 
     QHashIterator<uint16_t, DumpSummaryPacket*> it(dump_summary_->getSummaryPackets());
@@ -48,17 +49,20 @@ void DumpModel::appendSummaryPacket(QStandardItem* item_, DumpSummaryPacket* dum
     new_summary_packet_->setData(dump_summary_packet_->getDumpcounter(), IdentifierRole);
     new_summary_packet_->setData(dump_summary_packet_->getId(), ListIndexRole);
     new_summary_packet_->setData(VariantPtr<PacketStore>::asQVariant(dump_summary_packet_->getStorePointer()), StorePointerRole);
+    new_summary_packet_->setData(VariantPtr<QObject>::asQVariant(dump_summary_packet_), ObjectRole);
     if (dump_summary_packet_->isComplete()) {
         new_summary_packet_->setData(QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
     }
-    QListIterator<SourcePacket*> it(dump_summary_packet_->getL_found_packets());
-    while (it.hasNext()) {
-        SourcePacket* nextPkt_ = it.next();
-        QStandardItem* new_packet_ = new QStandardItem(QString::number(nextPkt_->getSourceSequenceCount()) + " (APID: " + QString::number(nextPkt_->getApid()) + ")");
-        new_packet_->setData(nextPkt_->getId(), ListIndexRole);
-        new_packet_->setData(VariantPtr<PacketStore>::asQVariant(nextPkt_->getStorePointer()), StorePointerRole);
-        new_summary_packet_->appendRow(new_packet_);
-    }
+    // TODO Don't append single packets to this model... The main packetstore is now used for this
+//    QListIterator<SourcePacket*> it(dump_summary_packet_->getL_found_packets());
+//    while (it.hasNext()) {
+//        SourcePacket* nextPkt_ = it.next();
+//        QStandardItem* new_packet_ = new QStandardItem(QString::number(nextPkt_->getSourceSequenceCount()) + " (APID: " + QString::number(nextPkt_->getApid()) + ")");
+//        new_packet_->setData(nextPkt_->getId(), ListIndexRole);
+//        new_packet_->setData(VariantPtr<PacketStore>::asQVariant(nextPkt_->getStorePointer()), StorePointerRole);
+//        new_packet_->setData(nextPkt_->getDataFieldHeader()->getTimestamp(), TimestampRole);
+//        new_summary_packet_->appendRow(new_packet_);
+//    }
     item_->appendRow(new_summary_packet_);
 }
 

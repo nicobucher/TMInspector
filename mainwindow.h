@@ -121,7 +121,7 @@ private slots:
     void on_actionTo_Server_triggered();
     void closeEvent(QCloseEvent *event);
     void on_actionEdit_triggered();
-    void on_actionClear_triggered();
+    void clear_triggered();
     void translation_triggered();
     void on_commandLinkButton_clicked();
     void eventMode_triggered();
@@ -148,6 +148,7 @@ private:
     void setupEventFilters();
     void setupPacketFilters();
     void removeAndeDeleteLayout(QLayout *layout_);
+    void setupDumpFilters();
 };
 
 #endif // MAINWINDOW_H

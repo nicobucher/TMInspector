@@ -1,4 +1,5 @@
 #include "packetmodel.h"
+#include "helpers/variantptr.h"
 
 PacketModel::PacketModel(PacketStore* parentStore_) :
     parentStore(parentStore_),
@@ -33,6 +34,7 @@ PacketModel& PacketModel::operator<<(SourcePacket* packet_) {
     lastSequenceCounts[apid_] = ssc;
     // This is the hidden key information to find the item in the packet list
     setData(index(0, 1), currentId, ListIndexRole);
+    setData(index(0, 1), VariantPtr<SourcePacket>::asQVariant(packet_), ObjectRole);
 
     // LENGTH
     setData(index(0, 4), packet_->getDataLength()+1);

@@ -53,8 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     dataMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
     dataMenu->addAction("Export", this, SLOT(exportTriggered()));
     dataMenu->addAction("Settings", this, SLOT(on_actionEdit_triggered()));
-    dataMenu->addAction("Clear Data", this, SLOT(on_actionClear_triggered()));
-
+    dataMenu->addAction("Clear Data", this, SLOT(clear_triggered()));
 
     // Read the global settings
     readSettings();
@@ -62,13 +61,14 @@ MainWindow::MainWindow(QWidget *parent) :
     // Setup the treeviews
     ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->treeView_arch->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->treeView_dump->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->treeView->setRootIsDecorated(true);
     ui->treeView_arch->setRootIsDecorated(true);
+    ui->treeView_dump->setRootIsDecorated(true);
     ui->treeView->setUniformRowHeights(true);   // <- should increase performance
     ui->treeView_arch->setUniformRowHeights(true);   // <- should increase performance
-    // todo: this can be enabled if required...
-    //    ui->treeView->setAlternatingRowColors(true);
-    //    ui->treeView->setSortingEnabled(true);
+    ui->treeView_dump->setUniformRowHeights(true);   // <- should increase performance
+
     currentLiveType = "*";
     currentSqlType = "*";
     setupEventFilters();
@@ -85,12 +85,16 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->groupBox->setLayout(LivePacketFilterLayout);
         ui->groupBox_2->setLayout(SqlPacketFilterLayout);
     }
-    ui->columnView->setModel(myDumpStore.proxy_model);
+    ui->treeView_2->setModel(myDumpStore.getModel());
+    ui->treeView_dump->setModel(myDumpStore.getProxyModel());
+    setupDumpFilters();
 
     // Double Click actions
     connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
     connect(ui->treeView_arch, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
-    connect(ui->columnView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+    connect(ui->treeView_dump, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+    connect(ui->treeView_2, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+    connect(ui->listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
 
     // Right Click menu
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -203,6 +207,9 @@ void MainWindow::on_actionTo_Server_triggered()
             statusLabel->setText("Connected");
             statusLabel->setStyleSheet("background-color:#00CC00;");
             action_Connect->setText("Disconnect");
+            myDumpStore.emptyStore();
+            myDumpStore.setSourceModel(myPacketStore.getModel());
+            myDumpStore.getProxyModel()->setParent(&myPacketStore);
         } else {
             QString str;
             QTextStream(&str) << "Could not connect to " << settings.value("server/host").toString()
@@ -237,7 +244,7 @@ void MainWindow::on_actionEdit_triggered()
     serverSettingsWindow->activateWindow();
 }
 
-void MainWindow::on_actionClear_triggered()
+void MainWindow::clear_triggered()
 {
     QMessageBox msgBox;
     msgBox.setText("This will clear all local data.");
@@ -281,6 +288,9 @@ void MainWindow::on_commandLinkButton_clicked()
     mySqlPacketStore.emptyStore();
     mySqlEventStore.emptyStore();
     myDumpStore.emptyStore();
+
+    myDumpStore.setSourceModel(mySqlPacketStore.getModel());
+    myDumpStore.getProxyModel()->setParent(&mySqlPacketStore);
 
     progress_ = new QProgressDialog("Loading Packets from Database","Cancel",0,100);
     progress_->setMinimumDuration(0);
@@ -411,6 +421,12 @@ void MainWindow::setupEventFilters()
     // Connect the Filters Memory
     connect(SqlRegFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlRegEx(QString)));
     connect(LiveRegFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentLiveRegEx(QString)));
+}
+
+void MainWindow::setupDumpFilters()
+{
+    connect(ui->treeView_2->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            myDumpStore.proxy_model, SLOT(setFilterIndex(QModelIndex,QModelIndex)));
 }
 
 void MainWindow::setupPacketFilters()
