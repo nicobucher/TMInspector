@@ -9,6 +9,7 @@
 #include <QTableView>
 #include <QDateTime>
 #include <QFileDialog>
+#include <QMessageBox>
 #include "helpers/variantptr.h"
 
 extern QSettings settings;
@@ -52,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     dataMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
     dataMenu->addAction("Export", this, SLOT(exportTriggered()));
     dataMenu->addAction("Settings", this, SLOT(on_actionEdit_triggered()));
+    dataMenu->addAction("Clear Data", this, SLOT(on_actionClear_triggered()));
 
 
     // Read the global settings
@@ -235,6 +237,23 @@ void MainWindow::on_actionEdit_triggered()
     serverSettingsWindow->activateWindow();
 }
 
+void MainWindow::on_actionClear_triggered()
+{
+    QMessageBox msgBox;
+    msgBox.setText("This will clear all local data.");
+    msgBox.setInformativeText("Are you sure you want to clear all local data?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+    int ret = msgBox.exec();
+    if (ret == QMessageBox::Yes) {
+        myDumpStore.emptyStore();
+        myPacketStore.emptyStore();
+        myEventStore.emptyStore();
+        mySqlPacketStore.emptyStore();
+        mySqlEventStore.emptyStore();
+    }
+}
+
 void MainWindow::displayStatusBarMessage(const QString message)
 {
     this->statusBar()->showMessage(message);
@@ -357,10 +376,6 @@ void MainWindow::setupEventFilters()
     SqlExpandAll->setFixedWidth(100);
     SqlEventFilterLayout->addWidget(SqlExpandAll);
 
-    sqlEventClearButton = new QPushButton("clear");
-    sqlEventClearButton->setFixedWidth(75);
-    SqlEventFilterLayout->addWidget(sqlEventClearButton);
-
     // Create the Live Event Filter Group Layout
 
     LiveEventFilterLayout = new QHBoxLayout;
@@ -379,10 +394,6 @@ void MainWindow::setupEventFilters()
 
     LiveEventFilterLayout->addWidget(LiveExpandAll);
 
-    liveEventClearButton = new QPushButton("clear");
-    liveEventClearButton->setFixedWidth(75);
-    LiveEventFilterLayout->addWidget(liveEventClearButton);
-
     // The RegEx Filters for the EventStores
     connect(LiveRegFilter, SIGNAL(textChanged(QString)),
             myEventStore.proxy_model, SLOT(setFilterRegExp(QString)));
@@ -396,10 +407,6 @@ void MainWindow::setupEventFilters()
     // Connect the expand all button
     connect(LiveExpandAll, SIGNAL(clicked(bool)), this, SLOT(live_expand_all_clicked()));
     connect(SqlExpandAll, SIGNAL(clicked(bool)), this, SLOT(sql_expand_all_clicked()));
-
-    // Connect clear buttons
-    connect(livePacketClearButton, SIGNAL(clicked()), this, SLOT(clearLiveStores()));
-    connect(sqlEventClearButton, SIGNAL(clicked()), this, SLOT(clearSqlStores()));
 
     // Connect the Filters Memory
     connect(SqlRegFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlRegEx(QString)));
@@ -419,10 +426,6 @@ void MainWindow::setupPacketFilters()
     SqlTypeFilter->setFixedWidth(100);
     SqlPacketFilterLayout->addWidget(SqlTypeFilter);
 
-    sqlPacketClearButton = new QPushButton("clear");
-    sqlPacketClearButton->setFixedWidth(75);
-    SqlPacketFilterLayout->addWidget(sqlPacketClearButton);
-
     // Directly set the filter string so that the default value gets applied
     mySqlPacketStore.proxy_model->setFilterFixedString(currentSqlType);
 
@@ -437,10 +440,6 @@ void MainWindow::setupPacketFilters()
     LiveTypeFilter->setFixedWidth(100);
     LivePacketFilterLayout->addWidget(LiveTypeFilter);
 
-    livePacketClearButton = new QPushButton("clear");
-    livePacketClearButton->setFixedWidth(75);
-    LivePacketFilterLayout->addWidget(livePacketClearButton);
-
     // Directly set the filter string so that the default value gets applied
     myPacketStore.proxy_model->setFilterFixedString(currentLiveType);
 
@@ -449,10 +448,6 @@ void MainWindow::setupPacketFilters()
             mySqlPacketStore.proxy_model, SLOT(setFilterFixedString(QString)));
     connect(LiveTypeFilter, SIGNAL(textChanged(QString)),
             myPacketStore.proxy_model, SLOT(setFilterFixedString(QString)));
-
-    // Connect clear buttons
-    connect(livePacketClearButton, SIGNAL(clicked()), this, SLOT(clearLiveStores()));
-    connect(sqlPacketClearButton, SIGNAL(clicked()), this, SLOT(clearSqlStores()));
 
     // Connect the Filters Memory
     connect(SqlTypeFilter, SIGNAL(textChanged(QString)), this, SLOT(set_currentSqlType(QString)));
@@ -593,7 +588,6 @@ void MainWindow::addToWatchlist_clicked()
     addObjectToWatchList(clicked_item_index.data(Qt::DisplayRole).toString());
 }
 
-
 void MainWindow::on_listView_customContextMenuRequested(const QPoint &pos)
 {
     QMenu* menu=new QMenu(this);
@@ -607,7 +601,6 @@ void MainWindow::deleteFromWatchlist_clicked()
 {
     removeObjectFromWatchList(ui->listView->selectionModel()->currentIndex().row());
 }
-
 
 void MainWindow::removeObjectFromWatchList(int idx)
 {
@@ -639,20 +632,6 @@ void MainWindow::addObjectToWatchList(const QString object_name_)
     QStringList list_ = watch_list_model->stringList();
     list_ << object_name_;
     watch_list_model->setStringList(list_);
-}
-
-void MainWindow::clearSqlStores()
-{
-    mySqlPacketStore.emptyStore();
-    mySqlEventStore.emptyStore();
-    myDumpStore.emptyStore();
-}
-
-void MainWindow::clearLiveStores()
-{
-    myPacketStore.emptyStore();
-    myEventStore.emptyStore();
-    myDumpStore.emptyStore();
 }
 
 void MainWindow::show_packet_action()
