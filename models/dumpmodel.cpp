@@ -18,8 +18,10 @@ DumpModel &DumpModel::operator <<(DumpSummary *dump_summary_)
     }
     QStandardItem* new_dump = new QStandardItem(dump_summary_->getObject_name() + " (No. " + QString::number(dump_summary_->getDumpId()) + ")");
     new_dump->setData(VariantPtr<QObject>::asQVariant(dump_summary_), ObjectRole);
-    new_dump->setData(VariantPtr<PacketStore>::asQVariant(dump_summary_->getSummaryPackets()[0]->getStorePointer()), StorePointerRole);
     new_dump->setData(dump_summary_->getUniqueId(), IdentifierRole);
+
+    PacketStore* store = dump_summary_->getSummaryPackets().begin().value()->getStorePointer();
+    new_dump->setData(VariantPtr<PacketStore>::asQVariant(store), StorePointerRole);
 
     QHashIterator<uint16_t, DumpSummaryPacket*> it(dump_summary_->getSummaryPackets());
     while (it.hasNext()) {

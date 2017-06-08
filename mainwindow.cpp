@@ -646,7 +646,13 @@ void MainWindow::openEventView(QString name_)
 void MainWindow::changeDumpView(QModelIndex newIndex, QModelIndex oldIndex)
 {
     PacketStore *store = VariantPtr<PacketStore>::asPtr(newIndex.data(StorePointerRole));
-    ui->treeView_dump->setModel(store->getProxyModel());
+    if (store == &mySqlPacketStore) {
+        myDumpStore.proxy_model->setSourceModel(mySqlPacketStore.getModel());
+        myDumpStore.getProxyModel()->setParent(&mySqlPacketStore);
+    } else if (store == &myPacketStore) {
+        myDumpStore.proxy_model->setSourceModel(myPacketStore.getModel());
+        myDumpStore.getProxyModel()->setParent(&myPacketStore);
+    }
     myDumpStore.proxy_model->setFilterIndex(newIndex);
 }
 
