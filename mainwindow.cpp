@@ -506,7 +506,8 @@ void MainWindow::loadObjectView(QModelIndex index)
         return;
     }
     if (index.model() == myPacketStore.proxy_model || index.model() == mySqlPacketStore.proxy_model
-            || index.model() == myPacketStore.getModel() || index.model() == mySqlPacketStore.getModel()) {
+            || index.model() == myPacketStore.getModel() || index.model() == mySqlPacketStore.getModel()
+            || index.model() == myDumpStore.proxy_model) {
         selectedStore = (Store*)index.model()->parent();
         if (selectedStore != NULL) {
             // Get the index from the item in column one... This can then be used to look up the packet in the stores packet-list
@@ -520,17 +521,17 @@ void MainWindow::loadObjectView(QModelIndex index)
         }
         return;
     }
-    if (index.model() == myDumpStore.proxy_model) {
-        selectedStore = (Store*)index.model()->parent();
-        if (selectedStore != NULL) {
-            PacketStore *store = VariantPtr<PacketStore>::asPtr(index.data(StorePointerRole));
-            qulonglong pkt_id = index.data(ListIndexRole).toLongLong();
+    if (index.model() == myDumpStore.getModel()) {
+        PacketStore *store = VariantPtr<PacketStore>::asPtr(index.data(StorePointerRole));
+        qulonglong pkt_id = index.data(ListIndexRole).toLongLong();
+        if (pkt_id != 0) {
             PacketContentView* pktView = new PacketContentView(this, store, pkt_id);
             pktView->setAttribute(Qt::WA_DeleteOnClose);
             pktView->show();
             pktView->raise();
             pktView->activateWindow();
         }
+        return;
     }
 }
 
