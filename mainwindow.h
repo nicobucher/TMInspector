@@ -116,6 +116,7 @@ public slots:
     void removeObjectView(ObjectView* p_);
     void openEventView(QString name_);
     void addObjectToWatchList(QString object_name_);
+    void changeDumpView(QModelIndex newIndex, QModelIndex oldIndex);
 
 private slots:
     void on_actionTo_Server_triggered();

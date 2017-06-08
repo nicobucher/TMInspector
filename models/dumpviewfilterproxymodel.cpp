@@ -25,7 +25,7 @@ DumpViewFilterProxyModel::filterAcceptsColumn(int source_column, const QModelInd
     return true;
 }
 
-void DumpViewFilterProxyModel::setFilterIndex(QModelIndex newindex, QModelIndex oldindex)
+void DumpViewFilterProxyModel::setFilterIndex(QModelIndex newindex)
 {
     QObject* object = VariantPtr<QObject>::asPtr(myDumpStore.getModel()->data(newindex, ObjectRole));
     DumpSummaryPacket* dpsp_ = qobject_cast<DumpSummaryPacket*>(object);

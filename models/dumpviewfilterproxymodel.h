@@ -15,8 +15,8 @@ protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const Q_DECL_OVERRIDE;
     bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const Q_DECL_OVERRIDE;
 
-public slots:
-    void setFilterIndex(QModelIndex newindex, QModelIndex oldindex);
+public:
+    void setFilterIndex(QModelIndex newindex);
 
 private:
     QList<SourcePacket*> acceptList;

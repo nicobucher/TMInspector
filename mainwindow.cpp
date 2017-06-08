@@ -426,7 +426,7 @@ void MainWindow::setupEventFilters()
 void MainWindow::setupDumpFilters()
 {
     connect(ui->treeView_2->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            myDumpStore.proxy_model, SLOT(setFilterIndex(QModelIndex,QModelIndex)));
+            this, SLOT(changeDumpView(QModelIndex,QModelIndex)));
 }
 
 void MainWindow::setupPacketFilters()
@@ -641,6 +641,13 @@ void MainWindow::openEventView(QString name_)
     if (obj_ != NULL) {
         loadObjectView(obj_->index());
     }
+}
+
+void MainWindow::changeDumpView(QModelIndex newIndex, QModelIndex oldIndex)
+{
+    PacketStore *store = VariantPtr<PacketStore>::asPtr(newIndex.data(StorePointerRole));
+    ui->treeView_dump->setModel(store->getProxyModel());
+    myDumpStore.proxy_model->setFilterIndex(newIndex);
 }
 
 void MainWindow::addObjectToWatchList(const QString object_name_)
