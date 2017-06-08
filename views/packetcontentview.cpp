@@ -66,28 +66,28 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
             VariablePacket* v_packet = new VariablePacket(*selectedPacket);
 
             QString vp_summary_;
-            QTextStream(&vp_summary_) << "Variable Packet:" << endl;
-            QTextStream(&vp_summary_) << "Parameter Object ID = 0x" << QString::number(v_packet->getParr_obj_id(), 16) << endl;
-            QTextStream(&vp_summary_) << "Parameter Module ID = 0x" << QString::number(v_packet->getParr_module_id(), 16) << endl;
-            QTextStream(&vp_summary_) << "Parameter Array ID = 0x" << QString::number(v_packet->getParr_array_id(), 16) << endl;
-            QTextStream(&vp_summary_) << "Parameter Index = 0x" << QString::number(v_packet->getParr_index(), 16) << endl;
+            QTextStream text(&vp_summary_);
+            text << "Variable Packet:" << endl;
+            text << "Parameter Object ID = 0x" << QString::number(v_packet->getParr_obj_id(), 16) << endl;
+            text << "Parameter Module ID = 0x" << QString::number(v_packet->getParr_module_id(), 16) << endl;
+            text << "Parameter Array ID = 0x" << QString::number(v_packet->getParr_array_id(), 16) << endl;
+            text << "Parameter Index = 0x" << QString::number(v_packet->getParr_index(), 16) << endl;
 
-            QTextStream(&vp_summary_) << "\n Data:" << endl;
+            text << "\n Data:" << endl;
             for (int i = 0; i < v_packet->getRows(); i++) {
-                for (int j = 0; i < v_packet->getColumns(); i++) {
+                text << qSetFieldWidth(0) << "\n";
+                for (int j = 0; j < v_packet->getColumns(); j++) {
                     QVariant value_ = v_packet->getValues()[i + j];
-                    if (value_.canConvert<int>()) {
-                        QTextStream(&vp_summary_) << QString::number(value_.toInt(), 16);
-                    } else if (value_.canConvert<float>()) {
-                        QTextStream(&vp_summary_) << QString::number(value_.toInt(), 16);
+                    if (value_.type() == QMetaType::Float || value_.type() == QMetaType::Double) {
+                        text << qSetFieldWidth(16) << left << fixed << QString::number(value_.toFloat());
+                    } else if (value_.canConvert<int>()) {
+                        text << "0x" << qSetFieldWidth(16) << left << QString::number(value_.toInt(), 16);
                     } else if (value_.canConvert<QString>()) {
-                        QTextStream(&vp_summary_) << QString::number(value_.toFloat());
+                        text << qSetFieldWidth(0) << value_.toString();
                     } else {
-                        QTextStream(&vp_summary_) << "NaN";
+                        text << "NaN";
                     }
-                    QTextStream(&vp_summary_) << "   " << endl;
                 }
-                QTextStream(&vp_summary_) << "\n";
             }
             ui->data_line_edit->setText(vp_summary_);
         } else {
