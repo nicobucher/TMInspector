@@ -2,6 +2,7 @@
 #include "ui_packetcontentview.h"
 #include "packets/sourcepacket.h"
 #include "packets/dumpsummarypacket.h"
+#include "packets/variablepacket.h"
 #include <QSettings>
 #include <QDebug>
 
@@ -60,6 +61,35 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
                 }
             }
             ui->data_line_edit->setText(ssc_summary_);
+        } else if (selectedPacket->getDataFieldHeader()->getServiceType() == 206) {
+            // Variable Packet
+            VariablePacket* v_packet = new VariablePacket(*selectedPacket);
+
+            QString vp_summary_;
+            QTextStream(&vp_summary_) << "Variable Packet:" << endl;
+            QTextStream(&vp_summary_) << "Parameter Object ID = 0x" << QString::number(v_packet->getParr_obj_id(), 16) << endl;
+            QTextStream(&vp_summary_) << "Parameter Module ID = 0x" << QString::number(v_packet->getParr_module_id(), 16) << endl;
+            QTextStream(&vp_summary_) << "Parameter Array ID = 0x" << QString::number(v_packet->getParr_array_id(), 16) << endl;
+            QTextStream(&vp_summary_) << "Parameter Index = 0x" << QString::number(v_packet->getParr_index(), 16) << endl;
+
+            QTextStream(&vp_summary_) << "\n Data:" << endl;
+            for (int i = 0; i < v_packet->getRows(); i++) {
+                for (int j = 0; i < v_packet->getColumns(); i++) {
+                    QVariant value_ = v_packet->getValues()[i + j];
+                    if (value_.canConvert<int>()) {
+                        QTextStream(&vp_summary_) << QString::number(value_.toInt(), 16);
+                    } else if (value_.canConvert<float>()) {
+                        QTextStream(&vp_summary_) << QString::number(value_.toInt(), 16);
+                    } else if (value_.canConvert<QString>()) {
+                        QTextStream(&vp_summary_) << QString::number(value_.toFloat());
+                    } else {
+                        QTextStream(&vp_summary_) << "NaN";
+                    }
+                    QTextStream(&vp_summary_) << "   " << endl;
+                }
+                QTextStream(&vp_summary_) << "\n";
+            }
+            ui->data_line_edit->setText(vp_summary_);
         } else {
             ui->data_line_edit->setText(selectedPacket->getData().toHex());
         }
