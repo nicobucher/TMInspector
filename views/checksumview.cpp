@@ -1,5 +1,6 @@
 #include "checksumview.h"
 #include "ui_checksumview.h"
+#include "definitions.h"
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
@@ -22,6 +23,11 @@ ChecksumView::~ChecksumView()
     delete ui;
 }
 
+bool ChecksumView::getAutoFocus()
+{
+    return ui->check_Box_focus->isChecked();
+}
+
 void ChecksumView::receiveChecksum(qint32 address, qint16 checksum)
 {
     qulonglong pair;
@@ -29,8 +35,16 @@ void ChecksumView::receiveChecksum(qint32 address, qint16 checksum)
     pair = (longaddress << 32) + checksum;
     for (int row = 0; row < this->model->rowCount(); ++row) {
         QModelIndex index = this->model->index(row, 0);
-        if (pair == this->model->data(index, Qt::UserRole)) {
-            this->model->setData(index, QVariant(QBrush(Qt::green)), Qt::ForegroundRole);
+        if(longaddress == this->model->data(index, ExtraRoles::ListIndexRole)) {
+            if (ui->checkBox_scroll->isChecked()) {
+                ui->listView->scrollTo(index);
+            }
+            QString text = this->model->data(index).toString();
+            text = text.append(" (received %0)").arg(QString::number(checksum, 16));
+            this->model->setData(index, text);
+            if (pair == this->model->data(index, Qt::UserRole)) {
+                this->model->setData(index, QVariant(QBrush(Qt::green)), Qt::ForegroundRole);
+            }
         }
     }
 }
@@ -82,6 +96,7 @@ void ChecksumView::loadChecksumFile()
               QStandardItem *checksumitem = new QStandardItem(text);
               this->model->appendRow(checksumitem);
               this->model->setData(this->model->indexFromItem(checksumitem), pair, Qt::UserRole);
+              this->model->setData(this->model->indexFromItem(checksumitem), adr_int, ExtraRoles::ListIndexRole);
           }
        }
        inputFile.close();

@@ -707,9 +707,11 @@ void MainWindow::checksum_triggered()
 void MainWindow::notifyOnChecksumReception(qint32, qint16)
 {
     if(myChecksumView != NULL) {
-        myChecksumView->show();
-        myChecksumView->raise();
-        myChecksumView->activateWindow();
+        if(myChecksumView->getAutoFocus()) {
+            myChecksumView->show();
+            myChecksumView->raise();
+            myChecksumView->activateWindow();
+        }
     }
 }
 

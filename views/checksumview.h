@@ -16,6 +16,8 @@ public:
     explicit ChecksumView(QWidget *parent = 0);
     ~ChecksumView();
 
+    bool getAutoFocus();
+
 private:
     Ui::Checksumview *ui;
     QStandardItemModel *model;
