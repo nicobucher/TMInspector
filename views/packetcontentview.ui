@@ -225,31 +225,13 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="label_5">
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Packet Data Field (hex)</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="bytes_label">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QTextEdit" name="data_line_edit"/>
+    <widget class="QTextEdit" name="data_line_edit">
+     <property name="font">
+      <font>
+       <family>Courier</family>
+      </font>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

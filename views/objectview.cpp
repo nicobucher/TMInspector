@@ -1,13 +1,18 @@
 #include "objectview.h"
 #include "ui_objectview.h"
+#include "definitions.h"
 
 ObjectView::ObjectView(QWidget *parent, QModelIndex clickedIndex, QStandardItemModel* sourceModel) :
     QDialog(parent),
     ui(new Ui::ObjectView)
 {
     this->ui->setupUi(this);
-    this->setWindowTitle(clickedIndex.data(Qt::DisplayRole).toString());
-    this->ui->label->setText("Object-Adress: " + clickedIndex.data(Qt::ToolTipRole).toString());
+
+    QString windowtitle = clickedIndex.data(Qt::DisplayRole).toString();
+    if (("0x" + clickedIndex.data(RawDataRole).toString()) != clickedIndex.data(Qt::DisplayRole)) {
+        windowtitle.append(" (0x" + clickedIndex.data(RawDataRole).toString() + ")");
+    }
+    this->setWindowTitle(windowtitle);
 
     this->ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     this->ui->treeView->setRootIsDecorated(false);

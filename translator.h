@@ -19,6 +19,7 @@ public:
 
     void addEntry(const int key_, const QVariant value_) {
         translation_list.insert(key_, value_);
+        saveHash();
     }
 
     void deleteEntry(const int key_) {

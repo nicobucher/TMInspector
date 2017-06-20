@@ -28,7 +28,6 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
         ui->apid_label->setText(QString::number(selectedPacket->getApid()));
         ui->dfh_label->setText(QString::number(selectedPacket->hasDataFieldHeader()));
         ui->sequence_label->setText(QString::number(selectedPacket->getSequence()));
-        ui->bytes_label->setText(QString::number(selectedPacket->getDataLength()+1) + " byte(s)");
         ui->PI1_value->setText(QString::number(selectedPacket->getPI_1()));
         ui->PI2_value->setText(QString::number(selectedPacket->getPI_2()));
         ui->SPID->setText(QString::number(selectedPacket->getSpid()));
@@ -91,7 +90,11 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
             }
             ui->data_line_edit->setText(vp_summary_);
         } else {
-            ui->data_line_edit->setText(selectedPacket->getData().toHex());
+            QString packet_text;
+            QTextStream text(&packet_text);
+            text << "Raw Content (" << selectedPacket->getDataLength() + 1 << " bytes):\n" << endl;
+            text << selectedPacket->getData().toHex();
+            ui->data_line_edit->setText(packet_text);
         }
 
     } else {

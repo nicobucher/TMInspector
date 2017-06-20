@@ -40,7 +40,7 @@ void ChecksumView::receiveChecksum(qint32 address, qint16 checksum)
                 ui->listView->scrollTo(index);
             }
             QString text = this->model->data(index).toString();
-            text = text.append(" (received %0)").arg(QString::number(checksum, 16));
+            text = text.append(" (received %0)").arg(QString::number((quint32)checksum, 16));
             this->model->setData(index, text);
             if (pair == this->model->data(index, Qt::UserRole)) {
                 this->model->setData(index, QVariant(QBrush(Qt::green)), Qt::ForegroundRole);
