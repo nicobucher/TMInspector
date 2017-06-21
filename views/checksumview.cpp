@@ -32,15 +32,17 @@ void ChecksumView::receiveChecksum(qint32 address, qint16 checksum)
 {
     qulonglong pair;
     qulonglong longaddress = (qulonglong)address;
-    pair = (longaddress << 32) + checksum;
+    quint16 unsigned_checksum = (quint16)checksum;
+    pair = (longaddress << 32) + unsigned_checksum;
     for (int row = 0; row < this->model->rowCount(); ++row) {
         QModelIndex index = this->model->index(row, 0);
         if(longaddress == this->model->data(index, ExtraRoles::ListIndexRole)) {
             if (ui->checkBox_scroll->isChecked()) {
-                ui->listView->scrollTo(index);
+                // Scroll to the next row...
+                ui->listView->scrollTo(this->model->index(row + 1, 0));
             }
             QString text = this->model->data(index).toString();
-            text = text.append(" (received %0)").arg(QString::number((quint32)checksum, 16));
+            text = text.append(" (received 0x%0)").arg(unsigned_checksum, 4, 16, QLatin1Char( '0' ));
             this->model->setData(index, text);
             if (pair == this->model->data(index, Qt::UserRole)) {
                 this->model->setData(index, QVariant(QBrush(Qt::green)), Qt::ForegroundRole);
@@ -81,17 +83,23 @@ void ChecksumView::loadChecksumFile()
               count++;
           }
           if (address != "" && crc != "") {
-              QString text(QString("Address: %0, Checksum: %1").arg(address).arg(crc));
-              bool ok;
+              QString text("");
+
+              bool adr_ok;
+              qulonglong adr_int = address.toInt(&adr_ok, 16);
+              if (!adr_ok) {
+                  text.append("Could not convert address; ");
+              }
+              bool crc_ok;
+              quint16 crc_int = crc.toInt(&crc_ok, 16);
+              if (!crc_ok) {
+                  text.append("Could not convert checksum; ");
+              }
+              if (adr_ok && crc_ok) {
+                  text.append(QString("Address: 0x%0, Checksum: 0x%1").arg(adr_int, 8, 16, QLatin1Char( '0' )).arg(crc_int, 4, 16, QLatin1Char( '0' )));
+              }
+
               qulonglong pair;
-              qulonglong adr_int = address.toInt(&ok, 16);
-              if (!ok) {
-                  text.append(", could not convert address");
-              }
-              qint16 crc_int = crc.toInt(&ok, 16);
-              if (!ok) {
-                  text.append(", could not convert checksum");
-              }
               pair = (adr_int << 32) + crc_int;
               QStandardItem *checksumitem = new QStandardItem(text);
               this->model->appendRow(checksumitem);
