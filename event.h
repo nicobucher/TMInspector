@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include "animatedstandarditem.h"
 #include "definitions.h"
+#include "packets/sourcepacket.h"
 
 enum Severity {
     Info = 1,
@@ -20,7 +21,8 @@ class Event : public QObject, public QStandardItem
 public:
     Event();
     Event(QDateTime ts_, Severity sev_);
-    Event(QDateTime ts_, Severity sev_, unsigned char* data_);
+    Event(QDateTime ts_, Severity sev_, QByteArray data_);
+    Event(SourcePacket *packet);
     virtual QStandardItem* clone() const;
 
 private:
@@ -133,7 +135,7 @@ public:
         return this->packet_reference;
     }
 
-    void makeEventfromPacketData(unsigned char* pData_);
+    void makeEventfromPacketData(QByteArray pData_);
 };
 
 #endif // EVENT_H

@@ -308,12 +308,6 @@ void MainWindow::on_commandLinkButton_clicked()
             progress_, SLOT(setMaximum(int)));
     connect(worker, SIGNAL(newText(QString)),
             progress_, SLOT(setLabelText(QString)));
-    connect(worker, SIGNAL(packetReceived(SourcePacket*)),
-            &mySqlPacketStore, SLOT(putPacket(SourcePacket*)));
-    connect(worker, SIGNAL(eventReceived(Event*)),
-            &mySqlEventStore, SLOT(putEvent(Event*)));
-    connect(worker, SIGNAL(dumpSummaryReceived(SourcePacket*)),
-            &myDumpStore, SLOT(putDumpSummaryPacket(SourcePacket*)));
     connect(worker, SIGNAL(finished()),
             this, SLOT(sqlWorkerFinished()));
 
@@ -323,8 +317,6 @@ void MainWindow::on_commandLinkButton_clicked()
     connect(mySqlWorkerThread, SIGNAL(started()), worker, SLOT(doWork()));
     connect(progress_, SIGNAL(canceled()), worker, SLOT(abortWork()));
     mySqlWorkerThread->start();
-
-    ui->commandLinkButton->setEnabled(true);
 }
 
 void MainWindow::sqlWorkerFinished()
@@ -332,6 +324,7 @@ void MainWindow::sqlWorkerFinished()
     progress_->hide();
     mySqlWorkerThread->quit();
     mySqlWorkerThread->wait();
+    ui->commandLinkButton->setEnabled(true);
 }
 
 void MainWindow::eventMode_triggered()

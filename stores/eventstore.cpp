@@ -64,6 +64,7 @@ EventStore::exportToFile(QString filename_)
 
 void EventStore::putEvent(Event* e_)
 {
+    qDebug() << "EventStore::Putting Event " << e_->getPacketReference();
     *this->model << e_;
     // Open the object view if the object is in the wacht list
     if (watch_list != NULL) {

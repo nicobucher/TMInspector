@@ -35,9 +35,6 @@ signals:
     void newText(QString);
     void newMaxProgress(int);
     void finished();
-    void dumpSummaryReceived(SourcePacket*);
-    void eventReceived(Event*);
-    void packetReceived(SourcePacket*);
 
 public slots:
     void doWork();

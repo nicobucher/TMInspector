@@ -85,7 +85,7 @@ PacketWorker::doWork()
                             // If the packet contains an event (Events have Service Type 5)
                             if (packet->hasDataFieldHeader()) {
                                 if (packet->getDataFieldHeader()->getServiceType() == 5) {
-                                    Event* event = new Event(packet->getDataFieldHeader()->getTimestamp(), (Severity)packet->getDataFieldHeader()->getSubServiceType(), (unsigned char*)packet->getData().data());
+                                    Event* event = new Event(packet);
                                     event->setPacketReference(packet->getId());
                                     // Put the event into the event store
                                     emit eventReceived(event);

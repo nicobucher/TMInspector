@@ -44,7 +44,6 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
 
         int i = 0;
         while (query.next()) {
-            qApp->processEvents();
             if (this->quit) {
                 break;
             }
@@ -108,44 +107,38 @@ SqlWorker::doWork() {
     QList<SourcePacket*> retrievedPackets;
     retrievedPackets = fetchPackets(begin, end);
     if (retrievedPackets.size() > 0) {
-        emit newText("Adding Packets...");
-        unsigned char* complete_packet_data = (unsigned char*) malloc(SourcePacket::MAX_PACKET_SIZE); // Maximum TM packet size
         for (int i = 0; i < retrievedPackets.size(); ++i) {
+            qDebug() << "Adding packet " << i;
             // This is for the progress bar to not get stuck
-            qApp->processEvents();
+            emit progressMade(foundPackets+i);
+            emit newText("Adding Packets... (" + QString::number(i) + "/" + QString::number(foundPackets) + ")");
             if (this->quit) {
                 break;
             }
-            emit progressMade(foundPackets+i);
 
             SourcePacket* packet = retrievedPackets.at(i);
             packet->setStorePointer(&mySqlPacketStore);
 
-            if (packet->getDataFieldHeader()->getServiceType() == 15 &&
-                    packet->getDataFieldHeader()->getSubServiceType() == 128) {
-                DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
-
-                emit dumpSummaryReceived(ds_packet);
-                emit packetReceived(ds_packet);
-            } else {
-                emit packetReceived(packet);
-            }
-
             if (packet->hasDataFieldHeader()) {
-                if (packet->getDataFieldHeader()->getServiceType() == 5) {
-                    Event* event = new Event(packet->getDataFieldHeader()->getTimestamp(), (Severity)packet->getDataFieldHeader()->getSubServiceType());
-                    int data_length = packet->getDataLength();
-                    if ( data_length > 0 && data_length < SourcePacket::MAX_PACKET_SIZE ) {
-                        memcpy(complete_packet_data, packet->getData(), packet->getDataLength());
-                        event->makeEventfromPacketData(complete_packet_data);
-                    }
+
+                if (packet->getDataFieldHeader()->getServiceType() == 15 &&
+                        packet->getDataFieldHeader()->getSubServiceType() == 128) {
+                    DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
+                    myDumpStore.putDumpSummaryPacket(ds_packet);
+                } else if (packet->getDataFieldHeader()->getServiceType() == 5) {
+                    Event* event = new Event(packet);
                     event->setPacketReference(packet->getId());
                     // Put the event into the event store
-                    emit eventReceived(event);
+                    mySqlEventStore.putEvent(event);
+                    // TODO: This should be outside the if condition,
+                    // however for some packets of type 15 this crashes so until
+                    // the problem is solved it stays here...
+                    mySqlPacketStore.putPacket(packet);
+                } else {
+                    mySqlPacketStore.putPacket(packet);
                 }
             }
         }
-        free(complete_packet_data);
     }
     emit finished();
 }

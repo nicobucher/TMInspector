@@ -57,6 +57,8 @@ void PacketStore::putPacket(SourcePacket* p_) {
 //        summary->addMissingCounts(missingCounts);
 //    }
 
+    qDebug() << "PacketStore::Putting Packet " << p_->getSourceSequenceCount();
+
     *this->model << p_;
 
     l_packets.insert(p_->getId(), p_);

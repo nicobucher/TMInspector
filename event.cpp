@@ -23,7 +23,7 @@ Event::Event(QDateTime ts_, Severity sev_) : timestamp(ts_), severity(sev_)
     setSeverity(sev_);
 }
 
-Event::Event(QDateTime ts_, Severity sev_, unsigned char* data_) : timestamp(ts_)
+Event::Event(QDateTime ts_, Severity sev_, QByteArray data_) : timestamp(ts_)
 {
     this->event_id = new QStandardItem("");
     this->object_name = new QStandardItem("");
@@ -33,6 +33,21 @@ Event::Event(QDateTime ts_, Severity sev_, unsigned char* data_) : timestamp(ts_
     this->severity_item = new AnimatedStandardItem("");
     setSeverity(sev_);
     makeEventfromPacketData(data_);
+}
+
+Event::Event(SourcePacket* packet)
+{
+    this->timestamp = packet->getDataFieldHeader()->getTimestamp();
+    this->event_id = new QStandardItem("");
+    this->object_name = new QStandardItem("");
+    this->event_msg = new QStandardItem("");
+    this->param1 = new QStandardItem("");
+    this->param2 = new QStandardItem("");
+    this->severity_item = new AnimatedStandardItem("");
+    setSeverity((Severity)packet->getDataFieldHeader()->getSubServiceType());
+    if ( packet->getDataLength() > 0 && packet->getDataLength() < SourcePacket::MAX_PACKET_SIZE ) {
+        makeEventfromPacketData(packet->getData());
+    }
 }
 
 QStandardItem* Event::clone() const
@@ -67,16 +82,16 @@ void Event::setEventId(int evid_)
 }
 
 void
-Event::makeEventfromPacketData(unsigned char* pData_)
+Event::makeEventfromPacketData(QByteArray pData_)
 {
     unsigned int value;
-    pData_ = pData_ + 12; // Skip the DFH
-    value = (pData_[0] << 8) + pData_[1];
+    // Skip the DFH
+    value = (pData_[12] << 8) + pData_[13];
     setEventId(value);
-    value = (pData_[2] << 24) + (pData_[3] << 16) + (pData_[4] << 8) + pData_[5];
+    value = (pData_[14] << 24) + (pData_[15] << 16) + (pData_[16] << 8) + pData_[17];
     setObjectId(value);
-    value = (pData_[6] << 24) + (pData_[7] << 16) + (pData_[8] << 8) + pData_[9];
+    value = (pData_[18] << 24) + (pData_[19] << 16) + (pData_[20] << 8) + pData_[21];
     this->param1->setData(QString::number(value), Qt::DisplayRole);
-    value = (pData_[10] << 24) + (pData_[11] << 16) + (pData_[12] << 8) + pData_[13];
+    value = (pData_[22] << 24) + (pData_[23] << 16) + (pData_[24] << 8) + pData_[25];
     this->param2->setData(QString::number(value), Qt::DisplayRole);
 }
