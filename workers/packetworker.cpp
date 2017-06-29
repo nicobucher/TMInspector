@@ -71,28 +71,26 @@ PacketWorker::doWork()
                         if (packet->getQuality() == GOOD &&
                                 packet->getApid() != SourcePacket::APID_IDLEPACKET) {
 
-                            // Dump Summary Packet
-                            if (packet->getDataFieldHeader()->getServiceType() == 15 &&
-                                    packet->getDataFieldHeader()->getSubServiceType() == 128) {
-                                DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
-
-                                emit dumpSummaryReceived(ds_packet);
-                                emit packetReceived(ds_packet);
-                            } else {
-                                emit packetReceived(packet);
-                            }
-
-                            // If the packet contains an event (Events have Service Type 5)
                             if (packet->hasDataFieldHeader()) {
-                                if (packet->getDataFieldHeader()->getServiceType() == 5) {
-                                    Event* event = new Event(packet);
-                                    event->setPacketReference(packet->getId());
-                                    // Put the event into the event store
-                                    emit eventReceived(event);
-                                    emit eventAdded(event);
+                                emit packetReceived(packet);
+                                switch (packet->getDataFieldHeader()->getServiceType()) {
+                                case 5:
+                                    {
+                                        Event* event = new Event(packet);
+                                        emit eventReceived(event);
+                                        emit eventAdded(event);
+                                    }
+                                    break;
+                                case 15:
+                                    {
+                                        if (packet->getDataFieldHeader()->getSubServiceType() == 128) {
+                                            DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
+                                            emit dumpSummaryReceived(ds_packet);
+                                        }
+                                    }
+                                    break;
                                 }
                             }
-
                         } else {
                             // If the packet is either bad or an idle packet...
 //                            qDebug() << data_buffer.toHex();

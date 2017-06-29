@@ -48,7 +48,10 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
                 break;
             }
 
-            emit progressMade(i++);
+            i++;
+            if (i % 1000 == 0) {
+                emit progressMade(i);
+            }
 
             QSqlRecord rec = query.record();
             qDebug() << "Found a packet... scc=" << query.value(rec.indexOf("sequenceCount")).toInt();
@@ -110,8 +113,10 @@ SqlWorker::doWork() {
         for (int i = 0; i < retrievedPackets.size(); ++i) {
             qDebug() << "Adding packet " << i;
             // This is for the progress bar to not get stuck
-            emit progressMade(foundPackets+i);
-            emit newText("Adding Packets... (" + QString::number(i) + "/" + QString::number(foundPackets) + ")");
+            if (i % 1000 == 0) {
+                emit progressMade(foundPackets+i);
+                emit newText("Adding Packets... (" + QString::number(i) + "/" + QString::number(foundPackets) + ")");
+            }
             if (this->quit) {
                 break;
             }
@@ -120,22 +125,22 @@ SqlWorker::doWork() {
             packet->setStorePointer(&mySqlPacketStore);
 
             if (packet->hasDataFieldHeader()) {
-
-                if (packet->getDataFieldHeader()->getServiceType() == 15 &&
-                        packet->getDataFieldHeader()->getSubServiceType() == 128) {
-                    DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
-                    myDumpStore.putDumpSummaryPacket(ds_packet);
-                } else if (packet->getDataFieldHeader()->getServiceType() == 5) {
-                    Event* event = new Event(packet);
-                    event->setPacketReference(packet->getId());
-                    // Put the event into the event store
-                    mySqlEventStore.putEvent(event);
-                    // TODO: This should be outside the if condition,
-                    // however for some packets of type 15 this crashes so until
-                    // the problem is solved it stays here...
-                    mySqlPacketStore.putPacket(packet);
-                } else {
-                    mySqlPacketStore.putPacket(packet);
+                mySqlPacketStore.putPacket(packet);
+                switch (packet->getDataFieldHeader()->getServiceType()) {
+                case 5:
+                    {
+                        Event* event = new Event(packet);
+                        mySqlEventStore.putEvent(event);
+                    }
+                    break;
+                case 15:
+                    {
+                        if (packet->getDataFieldHeader()->getSubServiceType() == 128) {
+                            DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
+                            myDumpStore.putDumpSummaryPacket(ds_packet);
+                        }
+                    }
+                    break;
                 }
             }
         }
