@@ -51,21 +51,23 @@ PacketModel& PacketModel::operator<<(SourcePacket* packet_) {
         }
 
         if (header_->getServiceType() == 15 && header_->getSubServiceType() == 128) {
-            DumpSummaryPacket* ds_packet_ = (DumpSummaryPacket*)packet_;
-            if(ds_packet_->isComplete()) {
-                setData(index(0, 1), QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
-                setData(index(0, 2), QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
-                setData(index(0, 3), QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
-                setData(index(0, 4), QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
-                setData(index(0, 5), QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
-                setData(index(0, 6), QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
-            } else {
-                setData(index(0, 1), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
-                setData(index(0, 2), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
-                setData(index(0, 3), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
-                setData(index(0, 4), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
-                setData(index(0, 5), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
-                setData(index(0, 6), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+            DumpSummaryPacket* ds_packet_ = dynamic_cast<DumpSummaryPacket*>(packet_);
+            if(ds_packet_ != 0) {
+                if(ds_packet_->isComplete()) {
+                    setData(index(0, 1), QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 2), QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 3), QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 4), QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 5), QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 6), QVariant(QBrush(QColor(0, 200, 0, 127))), Qt::BackgroundColorRole);
+                } else {
+                    setData(index(0, 1), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 2), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 3), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 4), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 5), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+                    setData(index(0, 6), QVariant(QBrush(QColor(255, 0, 0, 127))), Qt::BackgroundColorRole);
+                }
             }
         }
     }
