@@ -45,6 +45,7 @@ EventModel::prepareRow(Event* event_)
     row << event_->getParam1();
     row << event_->getParam2();
     row << new QStandardItem(event_->getTimestamp().toString(myTimestampFmt));
+    row.at(0)->setData(event_->getPacketReference(), ListIndexRole);
 
     return row;
 }

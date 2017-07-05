@@ -36,7 +36,7 @@ private:
     Severity severity;
     AnimatedStandardItem* severity_item;
 
-    int packet_reference;
+    qulonglong packet_reference;
 
 public:
     void setTimestamp(QDateTime ts_) {
@@ -127,11 +127,11 @@ public:
         return this->severity_item;
     }
 
-    void setPacketReference(int id_) {
+    void setPacketReference(qulonglong id_) {
         this->packet_reference = id_;
     }
 
-    int getPacketReference() {
+    qulonglong getPacketReference() {
         return this->packet_reference;
     }
 

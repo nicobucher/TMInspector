@@ -575,24 +575,36 @@ void MainWindow::tree_item_right_click(QPoint p_)
     }
     if (l_indexes.count() > 0) {
         QMenu* menu=new QMenu(this);
-        Store* selectedStore = (Store*)l_indexes.at(0).model()->parent();
-        // Check if the user clicked on an object or an event (check if the item is in the store)
-        if (selectedStore->itemInStore(l_indexes.at(0).data().toString())) {
-            QAction* add_watchlist = new QAction("Add to Watch List", this);
-            add_watchlist->setData(l_indexes.at(0));
-            menu->addAction(add_watchlist);
+        EventStore* eventStore = dynamic_cast<EventStore*>(l_indexes.at(0).model()->parent());
+        if (eventStore != 0) {
+            // Check if the user clicked on an object or an event (check if the item is in the store)
+            if (eventStore->itemInStore(l_indexes.at(0).data().toString())) {
+                QAction* add_watchlist = new QAction("Add to Watch List", this);
+                add_watchlist->setData(l_indexes.at(0));
+                menu->addAction(add_watchlist);
 
-            connect(add_watchlist, SIGNAL(triggered()), this, SLOT(addToWatchlist_clicked()));
+                connect(add_watchlist, SIGNAL(triggered()), this, SLOT(addToWatchlist_clicked()));
+            } else {
+                // Item not found in store -> means we have not clicked on an object
+                QAction* packet_inspect = new QAction("Show Packet Content", this);
+                packet_inspect->setData(l_indexes.at(0));
+                menu->addAction(packet_inspect);
+
+                connect(packet_inspect, SIGNAL(triggered()), this, SLOT(show_packet_action()));
+            }
         } else {
             // Item not found in store -> means we have not clicked on an object
-            QAction* packet_inspect = new QAction("Show Packet", this);
-            packet_inspect->setData(l_indexes.at(0));
+            QAction* packet_inspect = new QAction("Show Packet Content", this);
+            packet_inspect->setData(l_indexes.at(1));
             menu->addAction(packet_inspect);
 
             connect(packet_inspect, SIGNAL(triggered()), this, SLOT(show_packet_action()));
         }
-
-        menu->popup(ui->treeView->viewport()->mapToGlobal(p_));
+        if(ui->tabWidget->currentIndex() == 0) {
+            menu->popup(ui->treeView_arch->viewport()->mapToGlobal(p_));
+        } else if (ui->tabWidget->currentIndex() == 1) {
+            menu->popup(ui->treeView->viewport()->mapToGlobal(p_));
+        }
     }
 }
 
@@ -679,7 +691,8 @@ void MainWindow::show_packet_action()
     QAction* pAction = qobject_cast<QAction*>(sender());
     QModelIndex clicked_item_index = pAction->data().toModelIndex();
 
-    int pkt_id = clicked_item_index.data(ListIndexRole).toInt();
+    qulonglong pkt_id = clicked_item_index.data(ListIndexRole).toLongLong();
+
     PacketContentView* pktView = new PacketContentView(this, (PacketStore*)selectedStore, pkt_id);
     pktView->setAttribute(Qt::WA_DeleteOnClose);
     pktView->show();
