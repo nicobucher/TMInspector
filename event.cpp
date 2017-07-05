@@ -85,14 +85,15 @@ void Event::setEventId(int evid_)
 void
 Event::makeEventfromPacketData(QByteArray pData_)
 {
-    unsigned int value;
+    const unsigned char *data = (const unsigned char*)pData_.constData();
+    unsigned int value = 0;
     // Skip the DFH
-    value = (pData_[12] << 8) + pData_[13];
+    value = (data[12] << 8) + data[13];
     setEventId(value);
-    value = (pData_[14] << 24) + (pData_[15] << 16) + (pData_[16] << 8) + pData_[17];
+    value = (data[14] << 24) + (data[15] << 16) + (data[16] << 8) + data[17];
     setObjectId(value);
-    value = (pData_[18] << 24) + (pData_[19] << 16) + (pData_[20] << 8) + pData_[21];
+    value = (data[18] << 24) + (data[19] << 16) + (data[20] << 8) + data[21];
     this->param1->setData(QString::number(value), Qt::DisplayRole);
-    value = (pData_[22] << 24) + (pData_[23] << 16) + (pData_[24] << 8) + pData_[25];
+    value = (data[22] << 24) + (data[23] << 16) + (data[24] << 8) + data[25];
     this->param2->setData(QString::number(value), Qt::DisplayRole);
 }

@@ -135,7 +135,7 @@ public:
         return this->packet_reference;
     }
 
-    void makeEventfromPacketData(QByteArray pData_);
+    void makeEventfromPacketData(QByteArray data);
 };
 
 #endif // EVENT_H
