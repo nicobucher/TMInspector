@@ -1,7 +1,5 @@
 #include "workers/packetworker.h"
 #include "packets/sourcepacket.h"
-#include "packets/dumpsummarypacket.h"
-#include "event.h"
 #include <QMutexLocker>
 #include <QDebug>
 #include <QNetworkProxy>
@@ -70,27 +68,7 @@ PacketWorker::doWork()
 
                         if (packet->getQuality() == GOOD &&
                                 packet->getApid() != SourcePacket::APID_IDLEPACKET) {
-
-                            if (packet->hasDataFieldHeader()) {
-                                emit packetReceived(packet);
-                                switch (packet->getDataFieldHeader()->getServiceType()) {
-                                case 5:
-                                    {
-                                        Event* event = new Event(packet);
-                                        emit eventReceived(event);
-                                        emit eventAdded(event);
-                                    }
-                                    break;
-                                case 15:
-                                    {
-                                        if (packet->getDataFieldHeader()->getSubServiceType() == 128) {
-                                            DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
-                                            emit dumpSummaryReceived(ds_packet);
-                                        }
-                                    }
-                                    break;
-                                }
-                            }
+                                processPacket(packet);
                         } else {
                             // If the packet is either bad or an idle packet...
 //                            qDebug() << data_buffer.toHex();

@@ -57,15 +57,17 @@ void PacketStore::putPacket(SourcePacket* p_) {
 //        summary->addMissingCounts(missingCounts);
 //    }
 
-    qDebug() << "PacketStore::Putting Packet " << p_->getSourceSequenceCount();
+    if (p_->getSourceSequenceCount() != 0) {
+        qDebug() << "PacketStore::Putting Packet " << p_->getSourceSequenceCount();
 
-    *this->model << p_;
+        *this->model << p_;
 
-    l_packets.insert(p_->getId(), p_);
+        l_packets.insert(p_->getId(), p_);
 
-    if (p_->getDataFieldHeader()->getServiceType() == 6 && p_->getDataFieldHeader()->getSubServiceType() == 10) {
-        ChecksumPacket new_checksum_packet(*p_);
-        emit newChecksum(new_checksum_packet.getAddress(), new_checksum_packet.getChecksum());
+        if (p_->getDataFieldHeader()->getServiceType() == 6 && p_->getDataFieldHeader()->getSubServiceType() == 10) {
+            ChecksumPacket new_checksum_packet(*p_);
+            emit newChecksum(new_checksum_packet.getAddress(), new_checksum_packet.getChecksum());
+        }
     }
 }
 

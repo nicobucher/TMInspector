@@ -10,8 +10,9 @@
 #include "stores/packetstore.h"
 #include "stores/eventstore.h"
 #include "stores/dumpstore.h"
+#include "workers/worker.h"
 
-class SqlWorker : public QObject
+class SqlWorker : public Worker
 {
     Q_OBJECT
 public:

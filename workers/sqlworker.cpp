@@ -124,25 +124,7 @@ SqlWorker::doWork() {
             SourcePacket* packet = retrievedPackets.at(i);
             packet->setStorePointer(&mySqlPacketStore);
 
-            if (packet->hasDataFieldHeader()) {
-                mySqlPacketStore.putPacket(packet);
-                switch (packet->getDataFieldHeader()->getServiceType()) {
-                case 5:
-                    {
-                        Event* event = new Event(packet);
-                        mySqlEventStore.putEvent(event);
-                    }
-                    break;
-                case 15:
-                    {
-                        if (packet->getDataFieldHeader()->getSubServiceType() == 128) {
-                            DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*packet);
-                            myDumpStore.putDumpSummaryPacket(ds_packet);
-                        }
-                    }
-                    break;
-                }
-            }
+            processPacket(packet);
         }
     }
     emit finished();

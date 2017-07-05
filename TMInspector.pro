@@ -44,7 +44,8 @@ SOURCES += main.cpp\
     models/dumpmodel.cpp \
     models/packetmodel.cpp \
     models/dumpviewfilterproxymodel.cpp \
-    packets/variablepacket.cpp
+    packets/variablepacket.cpp \
+    workers/worker.cpp
 
 HEADERS  += mainwindow.h \
     event.h \
@@ -77,7 +78,8 @@ HEADERS  += mainwindow.h \
     models/packetmodel.h \
     helpers/variantptr.h \
     models/dumpviewfilterproxymodel.h \
-    packets/variablepacket.h
+    packets/variablepacket.h \
+    workers/worker.h
 
 FORMS    += mainwindow.ui \
     dialogs/serversettings.ui \

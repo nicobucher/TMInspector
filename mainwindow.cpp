@@ -311,6 +311,13 @@ void MainWindow::on_commandLinkButton_clicked()
     connect(worker, SIGNAL(finished()),
             this, SLOT(sqlWorkerFinished()));
 
+    connect(worker, SIGNAL(packetReceived(SourcePacket*)),
+            &mySqlPacketStore, SLOT(putPacket(SourcePacket*)));
+    connect(worker, SIGNAL(eventReceived(Event*)),
+            &mySqlEventStore, SLOT(putEvent(Event*)));
+    connect(worker, SIGNAL(dumpSummaryReceived(SourcePacket*)),
+            &myDumpStore, SLOT(putDumpSummaryPacket(SourcePacket*)));
+
     mySqlWorkerThread = new QThread();
 
     worker->moveToThread(mySqlWorkerThread);

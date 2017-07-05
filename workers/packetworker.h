@@ -7,8 +7,9 @@
 #include <QTcpSocket>
 #include "packets/sourcepacket.h"
 #include "event.h"
+#include "workers/worker.h"
 
-class PacketWorker : public QObject
+class PacketWorker : public Worker
 {
     Q_OBJECT
 
@@ -31,13 +32,6 @@ public slots:
     void doWork();
     void networkError(QAbstractSocket::SocketError e_);
     void setup(QThread* th_, QString h_, int p_);
-
-signals:
-    void hasError(const QString& errormessage);
-    void dumpSummaryReceived(SourcePacket*);
-    void eventAdded(Event*);
-    void eventReceived(Event*);
-    void packetReceived(SourcePacket*);
 
 private:
     QTcpSocket* socket;
