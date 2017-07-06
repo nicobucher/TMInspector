@@ -53,7 +53,8 @@ public:
 
     void setWatch_list(QStringListModel *value);
 
-    QStandardItem* findItemInStore(QString obj_id);
+    QStandardItem* findItemInStore(QString obj_name);
+    QStandardItem* findItemInStore(int obj_id);
 private:
     EventModel* model;
 
@@ -66,7 +67,7 @@ public slots:
     void putEvent(Event* e_);
 
 signals:
-    void openView(QString name_);
+    void openView(QString name_, Store* store);
 };
 
 extern EventStore myEventStore;

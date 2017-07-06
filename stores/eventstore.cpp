@@ -71,7 +71,7 @@ void EventStore::putEvent(Event* e_)
         QStringList list_ = watch_list->stringList();
         QString name_ = e_->getObjectName();
         if (list_.contains(name_)) {
-            emit openView(e_->getObjectName());
+            emit openView(e_->getObjectName(), this);
         }
     }
 }
@@ -102,13 +102,23 @@ EventStore::itemInStore(QString obj_id) {
 }
 
 QStandardItem*
-EventStore::findItemInStore(QString obj_id) {
-    QList<QStandardItem*> list = this->model->findItems(obj_id);
+EventStore::findItemInStore(QString obj_name) {
+    QList<QStandardItem*> list = this->model->findItems(obj_name);
     if(list.length() == 1) {
         return list.at(0);
     } else {
         return NULL;
     }
+}
+
+QStandardItem*
+EventStore::findItemInStore(int obj_id) {
+    for (int i=0; i < this->model->rowCount(); ++i) {
+        if (this->model->item(i, 0)->data(RawDataRole) == obj_id) {
+            return this->model->item(i, 0);
+        }
+    }
+    return NULL;
 }
 
 int

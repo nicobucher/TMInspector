@@ -114,11 +114,12 @@ public slots:
     void loadTranslationTable();
     void animateNewEvent(Event* event);
     void removeObjectView(ObjectView* p_);
-    void openEventView(QString name_);
+    void openEventView(int id_, EventStore *selectedStore);
     void addObjectToWatchList(QString object_name_);
     void changeDumpView(QModelIndex newIndex, QModelIndex oldIndex);
 
 private slots:
+    void on_actionTo_CloseAllViews();
     void on_actionTo_Server_triggered();
     void closeEvent(QCloseEvent *event);
     void on_actionEdit_triggered();
@@ -143,8 +144,10 @@ private slots:
 
 private:
     QMenu *dataMenu;
+    QMenu *viewMenu;
     QAction *action_Connect;
     QAction *action_EventMode;
+    QAction *action_CloseObject;
 
     void setupEventFilters();
     void setupPacketFilters();

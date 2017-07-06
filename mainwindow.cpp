@@ -37,23 +37,29 @@ MainWindow::MainWindow(QWidget *parent) :
     myPacketWorkerThread = 0;
 
     // Initialize Stores
-    connect(&myEventStore, SIGNAL(openView(QString)), this, SLOT(openEventView(QString)));
+    connect(&myEventStore, SIGNAL(openView(int, EventStore*)), this, SLOT(openEventView(int, EventStore*)));
 
     // Add the Connect Menu Entry
     dataMenu = menuBar()->addMenu("Data");
     action_Connect = dataMenu->addAction("Connect");
     action_Connect->setShortcut(Qt::Key_F10);
     connect(action_Connect, SIGNAL(triggered()), this, SLOT(on_actionTo_Server_triggered()));
-    // Add the Switch to Event Mode Menu Entry and set the shortcut key to be Tab
-    action_EventMode = dataMenu->addAction("Event Mode");
-    action_EventMode->setCheckable(true);
-    action_EventMode->setShortcut(Qt::Key_Tab);
-    connect(action_EventMode, SIGNAL(triggered()), this, SLOT(eventMode_triggered()));
-    dataMenu->addAction("Checksum Checker", this, SLOT(checksum_triggered()));
-    dataMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
     dataMenu->addAction("Export", this, SLOT(exportTriggered()));
     dataMenu->addAction("Settings", this, SLOT(on_actionEdit_triggered()));
     dataMenu->addAction("Clear Data", this, SLOT(clear_triggered()));
+
+    // Add the Connect Menu Entry
+    viewMenu = menuBar()->addMenu("Views");
+    action_CloseObject = viewMenu->addAction("Close All");
+    action_CloseObject->setShortcut(Qt::Key_F4);
+    connect(action_CloseObject, SIGNAL(triggered()), this, SLOT(on_actionTo_CloseAllViews()));
+    // Add the Switch to Event Mode Menu Entry and set the shortcut key to be Tab
+    action_EventMode = viewMenu->addAction("Event Mode");
+    action_EventMode->setCheckable(true);
+    action_EventMode->setShortcut(Qt::Key_Tab);
+    connect(action_EventMode, SIGNAL(triggered()), this, SLOT(eventMode_triggered()));
+    viewMenu->addAction("Checksum Checker", this, SLOT(checksum_triggered()));
+    viewMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
 
     // Read the global settings
     readSettings();
@@ -167,6 +173,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     writeSettings();
     event->accept();
+}
+
+void MainWindow::on_actionTo_CloseAllViews()
+{
+    QListIterator<ObjectView*> it(l_openObjectViews);
+    while(it.hasNext()) {
+        ObjectView* view_ = it.next();
+//        removeObjectView(view_);
+        view_->close();
+        delete view_;
+    }
 }
 
 void MainWindow::on_actionTo_Server_triggered()
@@ -494,13 +511,7 @@ void MainWindow::loadObjectView(QModelIndex index)
                     // If the index is from the model itself no mapping is needed
                     sourceIndex = index;
                 }
-                ObjectView* objView = new ObjectView(this, sourceIndex, selectedStore->getModel());
-                objView->setAttribute(Qt::WA_DeleteOnClose);
-                objView->show();
-                objView->raise();
-                objView->activateWindow();
-                l_openObjectViews.append(objView);
-                connect(objView, SIGNAL(removeThisObjectView(ObjectView*)), this, SLOT(removeObjectView(ObjectView*)));
+                openEventView(index.data(RawDataRole).toInt(), (EventStore*)selectedStore);
             }
         }
         return;
@@ -638,21 +649,27 @@ void MainWindow::removeObjectFromWatchList(int idx)
     watch_list_model->setStringList(list_);
 }
 
-void MainWindow::openEventView(QString name_)
+void MainWindow::openEventView(int id_, EventStore* selectedStore)
 {
     // Check if the View is already open
     QListIterator<ObjectView*> it(l_openObjectViews);
     while(it.hasNext()) {
         ObjectView* view_ = it.next();
-        if (view_->windowTitle() == name_) {
+        if (view_->getObject_id() == id_) {
             view_->activateWindow();
             return;
         }
     }
-    // If not open a new one
-    QStandardItem* obj_ = myEventStore.findItemInStore(name_);
+    // If not open a new one    
+    QStandardItem* obj_ = selectedStore->findItemInStore(id_);
     if (obj_ != NULL) {
-        loadObjectView(obj_->index());
+        ObjectView* objView = new ObjectView(this, obj_->index(), selectedStore->getModel());
+        objView->setAttribute(Qt::WA_DeleteOnClose);
+        objView->show();
+        objView->raise();
+        objView->activateWindow();
+        l_openObjectViews.append(objView);
+        connect(objView, SIGNAL(removeThisObjectView(ObjectView*)), this, SLOT(removeObjectView(ObjectView*)));
     }
 }
 

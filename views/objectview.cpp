@@ -8,6 +8,8 @@ ObjectView::ObjectView(QWidget *parent, QModelIndex clickedIndex, QStandardItemM
 {
     this->ui->setupUi(this);
 
+    setObject_id(clickedIndex.data(RawDataRole).toInt());
+
     QString windowtitle = clickedIndex.data(Qt::DisplayRole).toString();
     if (("0x" + clickedIndex.data(RawDataRole).toString()) != clickedIndex.data(Qt::DisplayRole)) {
         windowtitle.append(" (0x" + clickedIndex.data(RawDataRole).toString() + ")");
@@ -35,6 +37,16 @@ ObjectView::~ObjectView()
 {
     emit removeThisObjectView(this);
     delete ui;
+}
+
+int ObjectView::getObject_id() const
+{
+    return object_id;
+}
+
+void ObjectView::setObject_id(int value)
+{
+    object_id = value;
 }
 
 void
