@@ -70,7 +70,7 @@ void EventStore::putEvent(Event* e_)
         QStringList list_ = watch_list->stringList();
         QString name_ = e_->getObjectName();
         if (list_.contains(name_)) {
-            emit openView(e_->getObjectName(), this);
+            emit openView(e_->getObjectIdAsInt(), this);
         }
     }
 }
