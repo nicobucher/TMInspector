@@ -40,7 +40,6 @@ QStandardItemModel *DumpStore::getModel()
 
 void DumpStore::putDumpSummaryPacket(SourcePacket *packet_)
 {
-    qDebug() << "DumpStore::Putting DumpSummary " << packet_->getSourceSequenceCount();
     DumpSummary* dump_summary_;
     DumpSummaryPacket* dps_ = (DumpSummaryPacket*)packet_;
 

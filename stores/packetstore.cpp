@@ -47,27 +47,13 @@ QStandardItemModel* PacketStore::getModel() {
 }
 
 void PacketStore::putPacket(SourcePacket* p_) {
+    *this->model << p_;
 
-//    DumpSummaryPacket* ds_packet = dynamic_cast<DumpSummaryPacket*>(p_);
-//    if (ds_packet!=0) {
-//        QHash<uint16_t, uint16_t> missingCounts = checkSequenceCounts(ds_packet->getL_sequencecounts());
+    l_packets.insert(p_->getId(), p_);
 
-//        ds_packet->setL_missing_sequencecounts(missingCounts);
-//        DumpSummary* summary = myDumpStore.getDumpSummary(ds_packet->generateUniqueId());
-//        summary->addMissingCounts(missingCounts);
-//    }
-
-    if (p_->getSourceSequenceCount() != 0) {
-        qDebug() << "PacketStore::Putting Packet " << p_->getSourceSequenceCount();
-
-        *this->model << p_;
-
-        l_packets.insert(p_->getId(), p_);
-
-        if (p_->getDataFieldHeader()->getServiceType() == 6 && p_->getDataFieldHeader()->getSubServiceType() == 10) {
-            ChecksumPacket new_checksum_packet(*p_);
-            emit newChecksum(new_checksum_packet.getAddress(), new_checksum_packet.getChecksum());
-        }
+    if (p_->getDataFieldHeader()->getServiceType() == 6 && p_->getDataFieldHeader()->getSubServiceType() == 10) {
+        ChecksumPacket new_checksum_packet(*p_);
+        emit newChecksum(new_checksum_packet.getAddress(), new_checksum_packet.getChecksum());
     }
 }
 

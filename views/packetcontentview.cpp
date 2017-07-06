@@ -38,7 +38,8 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
 
         if (selectedPacket->getDataFieldHeader()->getServiceType() == 15 && selectedPacket->getDataFieldHeader()->getSubServiceType() == 128) {
             // Special view for dump summary packets
-            DumpSummaryPacket* ds_packet = (DumpSummaryPacket*)selectedPacket;
+            DumpSummaryPacket* ds_packet = new DumpSummaryPacket(*selectedPacket);
+            ds_packet->checkPackets();
             QString ssc_summary_;
             QTextStream(&ssc_summary_) << "Dump Summary Packet of 0x" << QString::number(ds_packet->getOnboardStoreObject_id(), 16) << " (" << ds_packet->getObject_name() << ")" << endl;
             QTextStream(&ssc_summary_) << "Dump-ID=" << ds_packet->getDumpid() << endl;
