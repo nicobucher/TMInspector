@@ -119,7 +119,7 @@ public slots:
     void changeDumpView(QModelIndex newIndex, QModelIndex oldIndex);
 
 private slots:
-    void on_actionTo_CloseAllViews();
+    void closeAllViews();
     void on_actionTo_Server_triggered();
     void closeEvent(QCloseEvent *event);
     void on_actionEdit_triggered();

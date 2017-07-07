@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     viewMenu = menuBar()->addMenu("Views");
     action_CloseObject = viewMenu->addAction("Close All");
     action_CloseObject->setShortcut(Qt::Key_F4);
-    connect(action_CloseObject, SIGNAL(triggered()), this, SLOT(on_actionTo_CloseAllViews()));
+    connect(action_CloseObject, SIGNAL(triggered()), this, SLOT(closeAllViews()));
     // Add the Switch to Event Mode Menu Entry and set the shortcut key to be Tab
     action_EventMode = viewMenu->addAction("Event Mode");
     action_EventMode->setCheckable(true);
@@ -175,7 +175,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void MainWindow::on_actionTo_CloseAllViews()
+void MainWindow::closeAllViews()
 {
     QListIterator<ObjectView*> it(l_openObjectViews);
     while(it.hasNext()) {
@@ -506,12 +506,11 @@ void MainWindow::loadObjectView(QModelIndex index)
                     // needs to be mapped to the source model in order to be resolved
                     sourceIndex = selectedStore->getProxyModel()->mapToSource(index);
                     // Then pass the mapped sourceIndex to the ObjectView
-
                 } else {
                     // If the index is from the model itself no mapping is needed
                     sourceIndex = index;
                 }
-                openEventView(index.data(RawDataRole).toInt(), (EventStore*)selectedStore);
+                openEventView(sourceIndex.data(IdentifierRole).toInt(), (EventStore*)selectedStore);
             }
         }
         return;
@@ -689,6 +688,9 @@ void MainWindow::changeDumpView(QModelIndex newIndex, QModelIndex oldIndex)
 void MainWindow::addObjectToWatchList(const QString object_name_)
 {
     QStringList list_ = watch_list_model->stringList();
+    if (list_.contains(object_name_)) {
+        return;
+    }
     list_ << object_name_;
     watch_list_model->setStringList(list_);
 }

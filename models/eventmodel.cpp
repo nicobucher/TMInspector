@@ -22,7 +22,7 @@ EventModel::operator<<(Event* event_) {
         // If it does not exist, add a new object to the root item
         QStandardItem* new_object = new QStandardItem(event_->getObjectName());
 
-        new_object->setData(event_->getObjectIdAsString(), RawDataRole);
+        new_object->setData(event_->getObjectIdAsHexString(), RawDataRole);
         new_object->setData(event_->getObjectIdAsInt(), IdentifierRole);
         new_object->setData(-1, ListIndexRole);
         new_object->appendRow(new_row);

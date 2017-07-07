@@ -62,9 +62,9 @@ void Event::setObjectId(int id_)
     QVariant obj_name_ = myObjectTranslator.translate(object_id);
     if (obj_name_.isValid()) {
         setObjectName(obj_name_.toString());
-        this->object_name->setData("0x" + getObjectIdAsString(), Qt::ToolTipRole);
+        this->object_name->setData("0x" + getObjectIdAsHexString(), Qt::ToolTipRole);
     } else {
-        setObjectName("0x" + QString::number(this->object_id, 16));
+        setObjectName("0x" + getObjectIdAsHexString());
         this->object_name->setData("Cannot be resolved", Qt::ToolTipRole);
         this->object_name->setBackground(Qt::lightGray);
     }

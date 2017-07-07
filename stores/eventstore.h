@@ -67,7 +67,7 @@ public slots:
     void putEvent(Event* e_);
 
 signals:
-    void openView(int id, Store* store);
+    void openView(int id, EventStore* store);
 };
 
 extern EventStore myEventStore;

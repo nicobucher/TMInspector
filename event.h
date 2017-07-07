@@ -53,8 +53,12 @@ public:
         return this->object_name;
     }
 
-    QString getObjectIdAsString() {
+    QString getObjectIdAsHexString() {
         return QString::number(this->object_id, 16);
+    }
+
+    QString getObjectIdAsDecString() {
+        return QString::number(this->object_id, 10);
     }
 
     int getObjectIdAsInt() {

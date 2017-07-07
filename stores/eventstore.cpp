@@ -113,7 +113,8 @@ EventStore::findItemInStore(QString obj_name) {
 QStandardItem*
 EventStore::findItemInStore(int obj_id) {
     for (int i=0; i < this->model->rowCount(); ++i) {
-        if (this->model->item(i, 0)->data(RawDataRole) == obj_id) {
+        int id_ = this->model->item(i, 0)->data(IdentifierRole).toInt();
+        if (id_ == obj_id) {
             return this->model->item(i, 0);
         }
     }

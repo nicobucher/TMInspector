@@ -8,7 +8,7 @@ ObjectView::ObjectView(QWidget *parent, QModelIndex clickedIndex, QStandardItemM
 {
     this->ui->setupUi(this);
 
-    setObject_id(clickedIndex.data(RawDataRole).toInt());
+    setObject_id(clickedIndex.data(IdentifierRole).toInt());
 
     QString windowtitle = clickedIndex.data(Qt::DisplayRole).toString();
     if (("0x" + clickedIndex.data(RawDataRole).toString()) != clickedIndex.data(Qt::DisplayRole)) {
