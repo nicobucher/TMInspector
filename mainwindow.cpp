@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QPalette pal;
     pal.setColor(QPalette::Background, Qt::green);
     statusLabel->setPalette(pal);
-    statusLabel->setText("Disconneted");
+    statusLabel->setText("Disconnected");
     this->statusBar()->addPermanentWidget(statusLabel);
 
     myPacketWorker = 0;
