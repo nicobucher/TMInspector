@@ -3,6 +3,7 @@
 #include <QMutexLocker>
 #include <QDebug>
 #include <QNetworkProxy>
+#include <QHostInfo>
 #include "stores/packetstore.h"
 
 PacketWorker::PacketWorker()
@@ -20,13 +21,23 @@ PacketWorker::~PacketWorker()
 }
 
 void
-PacketWorker::setup(QThread* th_, QString h_, int p_)
+PacketWorker::setup(QThread* th_, QString* h_, quint16* p_)
 {
     connect(th_, SIGNAL(started()), this, SLOT(doWork()));
     connect(this->socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(networkError(QAbstractSocket::SocketError)));
 
-    this->host = h_;
-    this->port = p_;
+    if(!this->host.setAddress(*h_)) {
+        QHostInfo h_info = QHostInfo::fromName(*h_);
+        if(h_info.addresses().isEmpty()) {
+            qDebug() << "invalid host";
+            this->quit = true;
+            emit hasError("Invalid host");
+            return;
+        }
+        this->host = h_info.addresses().first();
+    }
+
+    this->port = *p_;
 
     this->socket->connectToHost(this->host, this->port);
     if (this->socket->waitForConnected(3000)) {

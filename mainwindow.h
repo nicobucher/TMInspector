@@ -21,6 +21,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QHostAddress>
 #include <views/checksumview.h>
 
 namespace Ui {
@@ -45,6 +46,9 @@ private:
     QThread* mySqlWorkerThread;
 
     QLabel* statusLabel;
+
+    QString host_string;
+    quint16 port;
 
     // Filter Elements
     QHBoxLayout* SqlEventFilterLayout;
@@ -103,7 +107,7 @@ private:
     QProgressDialog* progress_;
 
 signals:
-    void clientSetup(QThread* t_, QString host, int port);
+    void clientSetup(QThread* t_, QString* host, quint16* port);
     void hashUpdated();
 
 public slots:

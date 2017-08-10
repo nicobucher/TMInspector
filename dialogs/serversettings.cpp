@@ -7,8 +7,6 @@ ServerSettings::ServerSettings(QWidget *parent, QSettings* pSettings) :
     settings(pSettings)
 {
     ui->setupUi(this);
-    ui->lineEdit->setText(settings->value("server/host").toString());
-    ui->lineEdit_2->setText(settings->value("server/port").toString());
 
     ui->server->setText(settings->value("db/host").toString());
     ui->port->setText(settings->value("db/port").toString());
@@ -33,9 +31,6 @@ ServerSettings::~ServerSettings()
 
 void ServerSettings::accept()
 {
-    settings->setValue("server/host", ui->lineEdit->text());
-    settings->setValue("server/port", ui->lineEdit_2->text().toInt());
-
     settings->setValue("db/host", ui->server->text());
     settings->setValue("db/port", ui->port->text().toInt());
     settings->setValue("db/database", ui->db->text());

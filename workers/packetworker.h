@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QMutex>
 #include <QTcpSocket>
+#include <QHostAddress>
 #include "packets/sourcepacket.h"
 #include "event.h"
 #include "workers/worker.h"
@@ -17,7 +18,7 @@ public:
     PacketWorker();
     ~PacketWorker();
 
-    QString getHost() {
+    QHostAddress getHost() {
         return this->host;
     }
 
@@ -31,12 +32,12 @@ public:
 public slots:
     void doWork();
     void networkError(QAbstractSocket::SocketError e_);
-    void setup(QThread* th_, QString h_, int p_);
+    void setup(QThread* th_, QString *h_, quint16 *p_);
 
 private:
     QTcpSocket* socket;
     QMutex mutex;
-    QString host;
+    QHostAddress host;
     int port;
 };
 

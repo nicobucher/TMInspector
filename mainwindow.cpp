@@ -24,8 +24,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-    //    settings = new QSettings();
-
     statusLabel = new QLabel(this);
     QPalette pal;
     pal.setColor(QPalette::Background, Qt::green);
@@ -212,11 +210,21 @@ void MainWindow::on_actionTo_Server_triggered()
             &myEventStore, SLOT(putEvent(Event*)));
     connect(myPacketWorker, SIGNAL(dumpSummaryReceived(SourcePacket*)),
             &myDumpStore, SLOT(putDumpSummaryPacket(SourcePacket*)));
-    connect(this, SIGNAL(clientSetup(QThread*,QString,int)),
-            myPacketWorker, SLOT(setup(QThread*,QString,int)));
+    connect(this, SIGNAL(clientSetup(QThread*,QString*,quint16*)),
+            myPacketWorker, SLOT(setup(QThread*,QString*,quint16*)));
     myPacketWorkerThread = new QThread();
 
-    emit clientSetup(myPacketWorkerThread, settings.value("server/host").toString(), settings.value("server/port").toInt());
+    QString str;
+    bool ok;
+    port = ui->port->text().toInt(&ok, 10);
+    if(!ok) {
+        QTextStream(&str) << "Invalid port " << ui->port->text();
+        this->statusBar()->showMessage(str);
+        return;
+    }
+    host_string = ui->host->text();
+
+    emit clientSetup(myPacketWorkerThread, &host_string, &port);
     if (myPacketWorkerThread != 0 && myPacketWorker != 0) {
         if (myPacketWorker->isReady) {
             myPacketWorker->moveToThread(myPacketWorkerThread);
@@ -228,9 +236,8 @@ void MainWindow::on_actionTo_Server_triggered()
             myDumpStore.setSourceModel(myPacketStore.getModel());
             myDumpStore.getProxyModel()->setParent(&myPacketStore);
         } else {
-            QString str;
-            QTextStream(&str) << "Could not connect to " << settings.value("server/host").toString()
-                              << " on port " << settings.value("server/port").toInt();
+            QTextStream(&str) << "Could not connect to " << ui->host->text()
+                              << " on port " << ui->port->text();
             this->statusBar()->showMessage(str);
         }
     }
