@@ -150,6 +150,7 @@ private:
     QMenu *dataMenu;
     QMenu *viewMenu;
     QAction *action_Connect;
+    QAction *action_Clear;
     QAction *action_EventMode;
     QAction *action_CloseObject;
 

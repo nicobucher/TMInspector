@@ -44,7 +44,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(action_Connect, SIGNAL(triggered()), this, SLOT(on_actionTo_Server_triggered()));
     dataMenu->addAction("Export", this, SLOT(exportTriggered()));
     dataMenu->addAction("Settings", this, SLOT(on_actionEdit_triggered()));
-    dataMenu->addAction("Clear Data", this, SLOT(clear_triggered()));
+    action_Clear = dataMenu->addAction("Clear Data");
+    action_Clear->setShortcut(Qt::Key_F11);
+    connect(action_Clear, SIGNAL(triggered()), this, SLOT(clear_triggered()));
 
     // Add the Connect Menu Entry
     viewMenu = menuBar()->addMenu("Views");
@@ -54,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Add the Switch to Event Mode Menu Entry and set the shortcut key to be Tab
     action_EventMode = viewMenu->addAction("Event Mode");
     action_EventMode->setCheckable(true);
-    action_EventMode->setShortcut(Qt::Key_Tab);
+    action_EventMode->setShortcut(Qt::CTRL + Qt::Key_Tab);
     connect(action_EventMode, SIGNAL(triggered()), this, SLOT(eventMode_triggered()));
     viewMenu->addAction("Checksum Checker", this, SLOT(checksum_triggered()));
     viewMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
