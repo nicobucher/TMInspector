@@ -100,7 +100,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->treeView_arch, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
     connect(ui->treeView_dump, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
     connect(ui->treeView_2, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
-    connect(ui->listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+    connect(ui->watchlist_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
 
     // Right Click menu
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -119,18 +119,8 @@ MainWindow::MainWindow(QWidget *parent) :
     treeviewExpanded_Arch = false;
 
     // Initialize Watchlist
-    QFile filein("watchlist.txt");
-    QStringList watch_list;
-    if (filein.open(QIODevice::ReadOnly)) {
-        QTextStream in(&filein);
-        while (!in.atEnd())
-        {
-            watch_list.append(in.readLine());
-        }
-        filein.close();
-    }
-    watch_list_model = new QStringListModel(watch_list);
-    ui->listView->setModel(watch_list_model);
+    watch_list_model = new QStringListModel();
+    ui->watchlist_view->setModel(watch_list_model);
     myEventStore.setWatch_list(watch_list_model);
 
     myChecksumView = NULL;
@@ -138,17 +128,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    // Save the current watchlist
-    QFile fileout("watchlist.txt");
-    if (fileout.open(QIODevice::WriteOnly)) {
-        QTextStream out(&fileout);
-        QStringList list_ = watch_list_model->stringList();
-        for (int i = 0; i < list_.size(); ++i) {
-            out << list_.at(i) << '\n';
-        }
-        fileout.close();
-    }
-
     if (myPacketWorkerThread != 0) {
         // Signal the packet worker object to quit, then quit the packet worker thread and wait for it to finish
         myPacketWorker->quit = true;
@@ -636,18 +615,25 @@ void MainWindow::addToWatchlist_clicked()
     addObjectToWatchList(clicked_item_index.data(Qt::DisplayRole).toString());
 }
 
-void MainWindow::on_listView_customContextMenuRequested(const QPoint &pos)
+void MainWindow::on_watchlist_view_customContextMenuRequested(const QPoint &pos)
 {
+    QModelIndex index=ui->watchlist_view->indexAt(pos);
     QMenu* menu=new QMenu(this);
-    QAction* delete_watchlist_item = new QAction("Remove from Watchlist", this);
-    menu->addAction(delete_watchlist_item);
-    menu->popup(ui->listView->viewport()->mapToGlobal(pos));
-    connect(delete_watchlist_item, SIGNAL(triggered()), this, SLOT(deleteFromWatchlist_clicked()));
+    if (index.isValid()) {
+        QAction* delete_watchlist_item = new QAction("Remove from Watchlist", this);
+        menu->addAction(delete_watchlist_item);
+        connect(delete_watchlist_item, SIGNAL(triggered()), this, SLOT(deleteFromWatchlist_clicked()));
+    } else {
+        QAction* load_watchlist = new QAction("Load Watchlist from File", this);
+        menu->addAction(load_watchlist);
+        connect(load_watchlist, SIGNAL(triggered()), this, SLOT(loadWatchlistFromFile_clicked()));
+    }
+    menu->popup(ui->watchlist_view->viewport()->mapToGlobal(pos));
 }
 
 void MainWindow::deleteFromWatchlist_clicked()
 {
-    removeObjectFromWatchList(ui->listView->selectionModel()->currentIndex().row());
+    removeObjectFromWatchList(ui->watchlist_view->selectionModel()->currentIndex().row());
 }
 
 void MainWindow::removeObjectFromWatchList(int idx)
@@ -655,6 +641,37 @@ void MainWindow::removeObjectFromWatchList(int idx)
     QStringList list_ = watch_list_model->stringList();
     list_.removeAt(idx);
     watch_list_model->setStringList(list_);
+    // Save the current watchlist
+    QFile fileout(watchlist_filename);
+    if (fileout.open(QIODevice::WriteOnly)) {
+        QTextStream out(&fileout);
+        QStringList list_ = watch_list_model->stringList();
+        for (int i = 0; i < list_.size(); ++i) {
+            out << list_.at(i) << '\n';
+        }
+        fileout.close();
+    }
+}
+
+void MainWindow::loadWatchlistFromFile_clicked()
+{
+    watchlist_filename = QFileDialog::getOpenFileName(this, "Open Watchlist",
+                                                    "",
+                                                    "Type (*.wl)");
+    if (!watchlist_filename.isNull()) {
+        // Initialize Watchlist
+        QFile filein(watchlist_filename);
+        QStringList watch_list;
+        if (filein.open(QIODevice::ReadOnly)) {
+            QTextStream in(&filein);
+            while (!in.atEnd())
+            {
+                watch_list.append(in.readLine());
+            }
+            filein.close();
+        }
+        watch_list_model->setStringList(watch_list);
+    }
 }
 
 void MainWindow::openEventView(int id_, EventStore* selectedStore)
@@ -702,6 +719,16 @@ void MainWindow::addObjectToWatchList(const QString object_name_)
     }
     list_ << object_name_;
     watch_list_model->setStringList(list_);
+    // Save the current watchlist
+    QFile fileout(watchlist_filename);
+    if (fileout.open(QIODevice::WriteOnly)) {
+        QTextStream out(&fileout);
+        QStringList list_ = watch_list_model->stringList();
+        for (int i = 0; i < list_.size(); ++i) {
+            out << list_.at(i) << '\n';
+        }
+        fileout.close();
+    }
 }
 
 void MainWindow::show_packet_action()

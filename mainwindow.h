@@ -50,6 +50,8 @@ private:
     QString host_string;
     quint16 port;
 
+    QString watchlist_filename;
+
     // Filter Elements
     QHBoxLayout* SqlEventFilterLayout;
     QHBoxLayout* LiveEventFilterLayout;
@@ -144,8 +146,9 @@ private slots:
     void addToWatchlist_clicked();
     void deleteFromWatchlist_clicked();
 
-    void on_listView_customContextMenuRequested(const QPoint &pos);
+    void on_watchlist_view_customContextMenuRequested(const QPoint &pos);
 
+    void loadWatchlistFromFile_clicked();
 private:
     QMenu *dataMenu;
     QMenu *viewMenu;

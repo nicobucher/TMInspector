@@ -398,7 +398,7 @@
      <x>0</x>
      <y>0</y>
      <width>961</width>
-     <height>19</height>
+     <height>18</height>
     </rect>
    </property>
   </widget>
@@ -439,7 +439,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QListView" name="listView">
+      <widget class="QListView" name="watchlist_view">
        <property name="contextMenuPolicy">
         <enum>Qt::CustomContextMenu</enum>
        </property>
