@@ -79,7 +79,8 @@ HEADERS  += mainwindow.h \
     helpers/variantptr.h \
     models/dumpviewfilterproxymodel.h \
     packets/variablepacket.h \
-    workers/worker.h
+    workers/worker.h \
+    interfaces/workerplugininterface.h
 
 FORMS    += mainwindow.ui \
     dialogs/serversettings.ui \
