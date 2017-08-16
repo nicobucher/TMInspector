@@ -5,6 +5,7 @@
 #include <QMenuBar>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QtPlugin>
 
 static QMutex mutex;
 FILE* file_l_out;

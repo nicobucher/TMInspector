@@ -10,7 +10,9 @@
 #include <QDateTime>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QPluginLoader>
 #include "helpers/variantptr.h"
+#include "interfaces/workerplugininterface.h"
 
 extern QSettings settings;
 
@@ -60,6 +62,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(action_EventMode, SIGNAL(triggered()), this, SLOT(eventMode_triggered()));
     viewMenu->addAction("Checksum Checker", this, SLOT(checksum_triggered()));
     viewMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
+
+    // Add Plugins Menu
+    pluginsMenu = menuBar()->addMenu("Plugins");
 
     // Read the global settings
     readSettings();
@@ -124,6 +129,8 @@ MainWindow::MainWindow(QWidget *parent) :
     myEventStore.setWatch_list(watch_list_model);
 
     myChecksumView = NULL;
+
+    loadPlugins();
 }
 
 MainWindow::~MainWindow()
@@ -146,6 +153,46 @@ MainWindow::~MainWindow()
     if (myChecksumView != NULL) {
         delete myChecksumView;
     }
+}
+
+void MainWindow::loadPlugins()
+{
+    QDir pluginsDir = QDir(qApp->applicationDirPath());
+    pluginsDir.cd("plugins");
+
+    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+        QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
+        QObject *plugin = loader.instance();
+        qDebug() << loader.errorString();
+        if(plugin) {
+            WorkerPluginInterface* worker_plugin = qobject_cast<WorkerPluginInterface *>(plugin);
+            if (worker_plugin) {
+                QString plugin_name = loader.metaData().value("MetaData").toObject().value("name").toString();
+                pluginsMenu->addAction(plugin_name, this, SLOT(activatePlugin()));
+                pluginFileNames += fileName;
+            }
+        }
+    }
+
+
+    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+        if(QLibrary::isLibrary(pluginsDir.absoluteFilePath(fileName))) {
+            QLibrary lib(pluginsDir.absoluteFilePath(fileName));
+
+            typedef SourcePacket* (*MyPrototype)(SourcePacket*);
+            MyPrototype process = (MyPrototype) lib.resolve("process");
+            qDebug() << lib.errorString();
+            if (process) {
+                pluginsMenu->addAction("QLibrary Plugin", this, SLOT(activatePlugin()));
+            }
+            pluginFileNames += fileName;
+        }
+    }
+}
+
+void MainWindow::activatePlugin()
+{
+
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

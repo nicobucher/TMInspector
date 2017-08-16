@@ -51,6 +51,7 @@ private:
     quint16 port;
 
     QString watchlist_filename;
+    QStringList pluginFileNames;
 
     // Filter Elements
     QHBoxLayout* SqlEventFilterLayout;
@@ -106,6 +107,8 @@ private:
     void writeSettings();
     void readSettings();
 
+    void loadPlugins();
+
     QProgressDialog* progress_;
 
 signals:
@@ -123,6 +126,8 @@ public slots:
     void openEventView(int id_, EventStore *selectedStore);
     void addObjectToWatchList(QString object_name_);
     void changeDumpView(QModelIndex newIndex, QModelIndex oldIndex);
+
+    void activatePlugin();
 
 private slots:
     void closeAllViews();
@@ -152,6 +157,7 @@ private slots:
 private:
     QMenu *dataMenu;
     QMenu *viewMenu;
+    QMenu *pluginsMenu;
     QAction *action_Connect;
     QAction *action_Clear;
     QAction *action_EventMode;
