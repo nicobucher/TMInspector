@@ -22,14 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QCoreApplication::setOrganizationDomain("www.irs.uni-stuttgart.de");
     QCoreApplication::setApplicationName("TMInspector");
 
-    ui->setupUi(this);
-
-    statusLabel = new QLabel(this);
-    QPalette pal;
-    pal.setColor(QPalette::Background, Qt::green);
-    statusLabel->setPalette(pal);
-    statusLabel->setText("Disconnected");
-    this->statusBar()->addPermanentWidget(statusLabel);
+    setupUI();
 
     myPacketWorker = 0;
     myPacketWorkerThread = 0;
@@ -37,93 +30,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // Initialize Stores
     connect(&myEventStore, SIGNAL(openView(int, EventStore*)), this, SLOT(openEventView(int, EventStore*)));
 
-    // Add the Connect Menu Entry
-    dataMenu = menuBar()->addMenu("Data");
-    action_Connect = dataMenu->addAction("Connect");
-    action_Connect->setShortcut(Qt::Key_F10);
-    connect(action_Connect, SIGNAL(triggered()), this, SLOT(on_actionTo_Server_triggered()));
-    dataMenu->addAction("Export", this, SLOT(exportTriggered()));
-    dataMenu->addAction("Settings", this, SLOT(on_actionEdit_triggered()));
-    action_Clear = dataMenu->addAction("Clear Data");
-    action_Clear->setShortcut(Qt::Key_F11);
-    connect(action_Clear, SIGNAL(triggered()), this, SLOT(clear_triggered()));
-
-    // Add the Connect Menu Entry
-    viewMenu = menuBar()->addMenu("Views");
-    action_CloseObject = viewMenu->addAction("Close All");
-    action_CloseObject->setShortcut(Qt::Key_F4);
-    connect(action_CloseObject, SIGNAL(triggered()), this, SLOT(closeAllViews()));
-    // Add the Switch to Event Mode Menu Entry and set the shortcut key to be Tab
-    action_EventMode = viewMenu->addAction("Event Mode");
-    action_EventMode->setCheckable(true);
-    action_EventMode->setShortcut(Qt::CTRL + Qt::Key_Tab);
-    connect(action_EventMode, SIGNAL(triggered()), this, SLOT(eventMode_triggered()));
-    viewMenu->addAction("Checksum Checker", this, SLOT(checksum_triggered()));
-    viewMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
-
-    // Read the global settings
+    setupActions();
     readSettings();
-
-    // Setup the treeviews
-    ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui->treeView_arch->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui->treeView_dump->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui->treeView->setRootIsDecorated(true);
-    ui->treeView_arch->setRootIsDecorated(true);
-    ui->treeView_dump->setRootIsDecorated(true);
-    ui->treeView->setUniformRowHeights(true);   // <- should increase performance
-    ui->treeView_arch->setUniformRowHeights(true);   // <- should increase performance
-    ui->treeView_dump->setUniformRowHeights(true);   // <- should increase performance
-
-    currentLiveType = "*";
-    currentSqlType = "*";
-    setupEventFilters();
-    setupPacketFilters();
-    if (settings.value("ui/eventmode").toBool()) {
-        ui->treeView->setModel(myEventStore.proxy_model);
-        ui->treeView_arch->setModel(mySqlEventStore.proxy_model);
-        action_EventMode->setChecked(true);
-        ui->groupBox->setLayout(LiveEventFilterLayout);
-        ui->groupBox_2->setLayout(SqlEventFilterLayout);
-    } else {
-        ui->treeView_arch->setModel(mySqlPacketStore.proxy_model);
-        ui->treeView->setModel(myPacketStore.proxy_model);
-        ui->groupBox->setLayout(LivePacketFilterLayout);
-        ui->groupBox_2->setLayout(SqlPacketFilterLayout);
-    }
-    ui->treeView_2->setModel(myDumpStore.getModel());
-    ui->treeView_dump->setModel(myDumpStore.getProxyModel());
-    setupDumpFilters();
-
-    // Double Click actions
-    connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
-    connect(ui->treeView_arch, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
-    connect(ui->treeView_dump, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
-    connect(ui->treeView_2, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
-    connect(ui->watchlist_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
-
-    // Right Click menu
-    ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui->treeView_arch->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->treeView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tree_item_right_click(QPoint)));
-    connect(ui->treeView_arch, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tree_item_right_click(QPoint)));
-
-    // Initialize the DateTime Pickers
-    ui->dateTimeEdit_start->setCalendarPopup(true);
-    ui->dateTimeEdit_stop->setCalendarPopup(true);
-    QDateTime now = QDateTime::currentDateTime();
-    ui->dateTimeEdit_start->setDate(now.date());
-    ui->dateTimeEdit_stop->setDateTime(now);
-
-    treeviewExpanded = false;
-    treeviewExpanded_Arch = false;
-
-    // Initialize Watchlist
-    watch_list_model = new QStringListModel();
-    ui->watchlist_view->setModel(watch_list_model);
-    myEventStore.setWatch_list(watch_list_model);
-
-    myChecksumView = NULL;
+    setupViews();
 }
 
 MainWindow::~MainWindow()
@@ -238,6 +147,109 @@ void MainWindow::readSettings()
     resize(settings.value("size", QSize(400, 400)).toSize());
     move(settings.value("pos", QPoint(200, 200)).toPoint());
     settings.endGroup();
+}
+
+void MainWindow::setupUI()
+{
+    ui->setupUi(this);
+
+    statusLabel = new QLabel(this);
+    QPalette pal;
+    pal.setColor(QPalette::Background, Qt::green);
+    statusLabel->setPalette(pal);
+    statusLabel->setText("Disconnected");
+    this->statusBar()->addPermanentWidget(statusLabel);
+
+    // Initialize the DateTime Pickers
+    ui->dateTimeEdit_start->setCalendarPopup(true);
+    ui->dateTimeEdit_stop->setCalendarPopup(true);
+    QDateTime now = QDateTime::currentDateTime();
+    ui->dateTimeEdit_start->setDate(now.date());
+    ui->dateTimeEdit_stop->setDateTime(now);
+
+    treeviewExpanded = false;
+    treeviewExpanded_Arch = false;
+}
+
+void MainWindow::setupViews()
+{
+    // Setup the treeviews
+    ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->treeView_arch->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->treeView_dump->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->treeView->setRootIsDecorated(true);
+    ui->treeView_arch->setRootIsDecorated(true);
+    ui->treeView_dump->setRootIsDecorated(true);
+    ui->treeView->setUniformRowHeights(true);   // <- should increase performance
+    ui->treeView_arch->setUniformRowHeights(true);   // <- should increase performance
+    ui->treeView_dump->setUniformRowHeights(true);   // <- should increase performance
+
+    currentLiveType = "*";
+    currentSqlType = "*";
+    setupEventFilters();
+    setupPacketFilters();
+    if (settings.value("ui/eventmode").toBool()) {
+        ui->treeView->setModel(myEventStore.proxy_model);
+        ui->treeView_arch->setModel(mySqlEventStore.proxy_model);
+        action_EventMode->setChecked(true);
+        ui->groupBox->setLayout(LiveEventFilterLayout);
+        ui->groupBox_2->setLayout(SqlEventFilterLayout);
+    } else {
+        ui->treeView_arch->setModel(mySqlPacketStore.proxy_model);
+        ui->treeView->setModel(myPacketStore.proxy_model);
+        ui->groupBox->setLayout(LivePacketFilterLayout);
+        ui->groupBox_2->setLayout(SqlPacketFilterLayout);
+    }
+    ui->treeView_2->setModel(myDumpStore.getModel());
+    ui->treeView_dump->setModel(myDumpStore.getProxyModel());
+    setupDumpFilters();
+
+    // Double Click actions
+    connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+    connect(ui->treeView_arch, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+    connect(ui->treeView_dump, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+    connect(ui->treeView_2, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+    connect(ui->watchlist_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(loadObjectView(QModelIndex)));
+
+    // Right Click menu
+    ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->treeView_arch->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->treeView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tree_item_right_click(QPoint)));
+    connect(ui->treeView_arch, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tree_item_right_click(QPoint)));
+
+    // Initialize Watchlist
+    watch_list_model = new QStringListModel();
+    ui->watchlist_view->setModel(watch_list_model);
+    myEventStore.setWatch_list(watch_list_model);
+
+    myChecksumView = NULL;
+}
+
+void MainWindow::setupActions()
+{
+    // Add the Connect Menu Entry
+    dataMenu = menuBar()->addMenu("Data");
+    action_Connect = dataMenu->addAction("Connect");
+    action_Connect->setShortcut(Qt::Key_F10);
+    connect(action_Connect, SIGNAL(triggered()), this, SLOT(on_actionTo_Server_triggered()));
+    dataMenu->addAction("Export", this, SLOT(exportTriggered()));
+    dataMenu->addAction("Settings", this, SLOT(on_actionEdit_triggered()));
+    action_Clear = dataMenu->addAction("Clear Data");
+    action_Clear->setShortcut(Qt::Key_F11);
+    connect(action_Clear, SIGNAL(triggered()), this, SLOT(clear_triggered()));
+
+    // Add the Connect Menu Entry
+    viewMenu = menuBar()->addMenu("Views");
+    action_CloseObject = viewMenu->addAction("Close All");
+    action_CloseObject->setShortcut(Qt::Key_F4);
+    connect(action_CloseObject, SIGNAL(triggered()), this, SLOT(closeAllViews()));
+    // Add the Switch to Event Mode Menu Entry and set the shortcut key to be Tab
+    action_EventMode = viewMenu->addAction("Event Mode");
+    action_EventMode->setCheckable(true);
+    action_EventMode->setShortcut(Qt::CTRL + Qt::Key_Tab);
+    connect(action_EventMode, SIGNAL(triggered()), this, SLOT(eventMode_triggered()));
+    viewMenu->addAction("Checksum Checker", this, SLOT(checksum_triggered()));
+    viewMenu->addAction("Translation Table", this, SLOT(translation_triggered()));
 }
 
 void MainWindow::on_actionEdit_triggered()

@@ -105,6 +105,9 @@ private:
 
     void writeSettings();
     void readSettings();
+    void setupUI();
+    void setupViews();
+    void setupActions();
 
     QProgressDialog* progress_;
 
