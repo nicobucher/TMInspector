@@ -106,6 +106,9 @@ private:
 
     void writeSettings();
     void readSettings();
+    void setupUI();
+    void setupViews();
+    void setupActions();
 
     void loadPlugins();
 
