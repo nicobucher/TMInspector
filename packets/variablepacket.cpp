@@ -9,16 +9,9 @@ void VariablePacket::decode()
 {
     unsigned char* p_ = &this->data[12];
     this->parr_obj_id = (p_[0] << 24) + (p_[1] << 16) + (p_[2] << 8) + p_[3];
-    // Extract the dump id and dump counter
-    this->parr_module_id = p_[4];
-    this->parr_array_id = (p_[5] << 8) + p_[6];
-    this->parr_index = p_[7];
 
-    this->setPtc( p_[8] );
-    this->setPfc( p_[9] );
-
-    this->setColumns( p_[10] );
-    this->setRows( p_[11] );
+    this->setPtc( p_[4] );
+    this->setPfc( p_[5] );
 
     int datalength = 1;
     switch(ptc) {
@@ -56,9 +49,9 @@ void VariablePacket::decode()
         break;
     }
 
-    int data_size = this->columns * this->rows * datalength;
+    int data_size = p_[6] * datalength;
 
-    p_ = p_ + 11;
+    p_ = p_ + 6;
     int i = 0;
     while (i < data_size) {
         switch(ptc) {
@@ -143,54 +136,4 @@ int VariablePacket::getParr_obj_id() const
 void VariablePacket::setParr_obj_id(int value)
 {
     parr_obj_id = value;
-}
-
-int VariablePacket::getParr_module_id() const
-{
-    return parr_module_id;
-}
-
-void VariablePacket::setParr_module_id(int value)
-{
-    parr_module_id = value;
-}
-
-int VariablePacket::getParr_array_id() const
-{
-    return parr_array_id;
-}
-
-void VariablePacket::setParr_array_id(int value)
-{
-    parr_array_id = value;
-}
-
-int VariablePacket::getParr_index() const
-{
-    return parr_index;
-}
-
-void VariablePacket::setParr_index(int value)
-{
-    parr_index = value;
-}
-
-int VariablePacket::getRows() const
-{
-    return rows;
-}
-
-void VariablePacket::setRows(int value)
-{
-    rows = value;
-}
-
-int VariablePacket::getColumns() const
-{
-    return columns;
-}
-
-void VariablePacket::setColumns(int value)
-{
-    columns = value;
 }
