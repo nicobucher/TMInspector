@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     models/packetmodel.cpp \
     models/dumpviewfilterproxymodel.cpp \
     packets/variablepacket.cpp \
-    workers/worker.cpp
+    workers/worker.cpp \
+    packets/service206.cpp
 
 HEADERS  += mainwindow.h \
     event.h \
@@ -81,6 +82,7 @@ HEADERS  += mainwindow.h \
     packets/variablepacket.h \
     workers/worker.h \
     interfaces/workerplugininterface.h
+    packets/service206.h
 
 FORMS    += mainwindow.ui \
     dialogs/serversettings.ui \

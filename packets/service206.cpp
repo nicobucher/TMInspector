@@ -1,17 +1,24 @@
-#include "variablepacket.h"
+#include "service206.h"
 
-VariablePacket::VariablePacket(SourcePacket &packet) : SourcePacket(packet)
+Service206::Service206(SourcePacket &packet) : VariablePacket(packet)
 {
     decode();
 }
 
-void VariablePacket::decode()
+void Service206::decode()
 {
     unsigned char* p_ = &this->data[12];
     this->parr_obj_id = (p_[0] << 24) + (p_[1] << 16) + (p_[2] << 8) + p_[3];
+    // Extract the dump id and dump counter
+    this->parr_module_id = p_[4];
+    this->parr_array_id = (p_[5] << 8) + p_[6];
+    this->parr_index = p_[7];
 
-    this->setPtc( p_[4] );
-    this->setPfc( p_[5] );
+    this->setPtc( p_[8] );
+    this->setPfc( p_[9] );
+
+    this->setColumns( p_[10] );
+    this->setRows( p_[11] );
 
     int datalength = 1;
     switch(ptc) {
@@ -49,9 +56,9 @@ void VariablePacket::decode()
         break;
     }
 
-    int data_size = p_[6] * datalength;
+    int data_size = this->columns * this->rows * datalength;
 
-    p_ = p_ + 6;
+    p_ = p_ + 11;
     int i = 0;
     while (i < data_size) {
         switch(ptc) {
@@ -103,37 +110,52 @@ void VariablePacket::decode()
     }
 }
 
-int VariablePacket::getPfc() const
+int Service206::getParr_module_id() const
 {
-    return pfc;
+    return parr_module_id;
 }
 
-void VariablePacket::setPfc(int value)
+void Service206::setParr_module_id(int value)
 {
-    pfc = value;
+    parr_module_id = value;
 }
 
-int VariablePacket::getPtc() const
+int Service206::getParr_array_id() const
 {
-    return ptc;
+    return parr_array_id;
 }
 
-void VariablePacket::setPtc(int value)
+void Service206::setParr_array_id(int value)
 {
-    ptc = value;
+    parr_array_id = value;
 }
 
-QVector<QVariant> VariablePacket::getValues() const
+int Service206::getParr_index() const
 {
-    return values;
+    return parr_index;
 }
 
-int VariablePacket::getParr_obj_id() const
+void Service206::setParr_index(int value)
 {
-    return parr_obj_id;
+    parr_index = value;
 }
 
-void VariablePacket::setParr_obj_id(int value)
+int Service206::getRows() const
 {
-    parr_obj_id = value;
+    return rows;
+}
+
+void Service206::setRows(int value)
+{
+    rows = value;
+}
+
+int Service206::getColumns() const
+{
+    return columns;
+}
+
+void Service206::setColumns(int value)
+{
+    columns = value;
 }

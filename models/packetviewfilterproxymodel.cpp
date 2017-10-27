@@ -34,10 +34,9 @@ bool PacketViewFilterProxyModel::filterAcceptsRow(int source_row, const QModelIn
                     return false;
                 }
             }
-        } else {
-            if (str_ == index_type.data(Qt::DisplayRole)) {
-                return true;
-            }
+        }
+        if (str_ == index_type.data(Qt::DisplayRole)) {
+            return true;
         }
     }
     return false;
