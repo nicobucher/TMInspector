@@ -59,6 +59,9 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             SourcePacket* packet = new SourcePacket();
             QByteArray data = query.value(rec.indexOf("data")).toByteArray();
 
+            QDateTime ts_;
+            ts_.setMSecsSinceEpoch(query.value(rec.indexOf("receiveTimestamp")).toULongLong());
+            packet->setReceptionTime(ts_);
             packet->setVersion(0);
             packet->setDataField((unsigned char*)data.data()+packet->HEADER_SIZE, data.length()-packet->HEADER_SIZE);
             packet->setApid(query.value(rec.indexOf("applicationProcessId")).toInt());
@@ -72,7 +75,7 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             header->setSubServiceType(query.value(rec.indexOf("serviceSubtype")).toInt());
             int key_ = (header->getServiceType() << 16) + header->getSubServiceType();
             header->setTypeKey(key_);
-            QDateTime ts_;
+
             ts_.setMSecsSinceEpoch(query.value(rec.indexOf("generationTimestamp")).toULongLong());
             header->setTimestamp(ts_);
             header->setTimestampValid(true);

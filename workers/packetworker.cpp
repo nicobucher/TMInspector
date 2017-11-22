@@ -74,6 +74,7 @@ PacketWorker::doWork()
                     } else {
                         // Create the packet
                         SourcePacket* packet = new SourcePacket();
+                        packet->setReceptionTime(QDateTime::currentDateTime());
                         packet->setStorePointer(&myPacketStore);
                         packet->makePacketFromData((unsigned char*)header_buffer.data(), (unsigned char*)data_buffer.data(), data_length);
 

@@ -49,6 +49,7 @@ protected:
     int dataLength;
     QString mibVersion;
     QString name;
+    QDateTime receptionTime;
 
     PacketStore* storePointer;
 
@@ -190,6 +191,8 @@ public:
     void setName(QString name_);
     PacketStore *getStorePointer() const;
     void setStorePointer(PacketStore *value);
+    QDateTime getReceptionTime() const;
+    void setReceptionTime(const QDateTime &value);
 };
 
 #endif // SOURCEPACKET_H

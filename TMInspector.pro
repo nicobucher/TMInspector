@@ -81,7 +81,7 @@ HEADERS  += mainwindow.h \
     models/dumpviewfilterproxymodel.h \
     packets/variablepacket.h \
     workers/worker.h \
-    interfaces/workerplugininterface.h
+    interfaces/workerplugininterface.h \
     packets/service206.h
 
 FORMS    += mainwindow.ui \

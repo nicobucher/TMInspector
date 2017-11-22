@@ -6,7 +6,7 @@ DumpSummary::DumpSummary(QObject* parent, DumpSummaryPacket* init_packet) : QObj
     this->object_name = init_packet->getObject_name();
     this->uniqueId = init_packet->generateUniqueId();
     this->dumpId = init_packet->getDumpid();
-    this->reception_time = QDateTime::currentDateTime();
+    this->reception_time = init_packet->getReceptionTime();
     putDumpSummaryPacket(init_packet);
 }
 

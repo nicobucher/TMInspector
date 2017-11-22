@@ -54,6 +54,16 @@ SourcePacket::~SourcePacket()
     delete this->dataFieldHeader;
 }
 
+QDateTime SourcePacket::getReceptionTime() const
+{
+    return receptionTime;
+}
+
+void SourcePacket::setReceptionTime(const QDateTime &value)
+{
+    receptionTime = value;
+}
+
 PacketStore *SourcePacket::getStorePointer() const
 {
     return storePointer;

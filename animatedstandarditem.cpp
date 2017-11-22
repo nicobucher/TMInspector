@@ -59,3 +59,12 @@ AnimatedStandardItem::animate()
 {
     myAnimatioGroup->start();
 }
+
+void
+AnimatedStandardItem::text_ouput(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state)
+{
+//    qDebug() << "anim_state changed from " << old_state << " to " << new_state;
+}
+
+
+
