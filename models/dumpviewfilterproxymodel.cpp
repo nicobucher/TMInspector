@@ -3,7 +3,6 @@
 #include "helpers/variantptr.h"
 #include "packets/dumpsummarypacket.h"
 #include "stores/dumpstore.h"
-#include <QDebug>
 
 DumpViewFilterProxyModel::DumpViewFilterProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent)

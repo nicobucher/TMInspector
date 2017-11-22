@@ -1,15 +1,12 @@
 #include "animatedstandarditem.h"
-#include <QDebug>
 
 AnimatedStandardItem::AnimatedStandardItem(const QString text) : QStandardItem(text)
 {
     myAnimatioGroup = new QSequentialAnimationGroup(this);
-//    connect(myAnimatioGroup, SIGNAL(stateChanged(QAbstractAnimation::State,QAbstractAnimation::State)), this, SLOT(text_ouput(QAbstractAnimation::State,QAbstractAnimation::State)));
 }
 
 AnimatedStandardItem::~AnimatedStandardItem()
 {
-    qDebug() << "Animation Destroyed";
     delete myAnimatioGroup;
 }
 
@@ -61,11 +58,4 @@ void
 AnimatedStandardItem::animate()
 {
     myAnimatioGroup->start();
-}
-
-void
-AnimatedStandardItem::text_ouput(QAbstractAnimation::State new_state, QAbstractAnimation::State old_state)
-{
-
-    qDebug() << "anim_state changed from " << old_state << " to " << new_state;
 }
