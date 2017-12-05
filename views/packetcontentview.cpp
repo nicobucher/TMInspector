@@ -49,7 +49,7 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
             while (it.hasNext()) {
                 it.next();
                 if(it.value() == false) {
-                    QTextStream(&ssc_summary_) << (it.key() & 0xFFFF) << endl;
+                    QTextStream(&ssc_summary_) << (it.key() & 0xFFFF) << " (APID: " << ((it.key() & 0xFFFF0000) >> 16) << endl;
                 }
             }
             QTextStream(&ssc_summary_) << "\nFound " << ds_packet->getNumberOfFoundSSC() << " packets:" << endl;
@@ -57,7 +57,7 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
             while (it.hasNext()) {
                 it.next();
                 if(it.value() == true) {
-                    QTextStream(&ssc_summary_) << (it.key() & 0xFFFF) << endl;
+                    QTextStream(&ssc_summary_) << (it.key() & 0xFFFF) << " (APID: " << ((it.key() & 0xFFFF0000) >> 16) << endl;
                 }
             }
             ui->data_line_edit->setText(ssc_summary_);
