@@ -44,6 +44,7 @@ SourcePacket::SourcePacket(int type_, int version_, int apid_) :
     this->apid = apid_;
     this->version = version_;
     this->SourcePacketType = type_;
+    this->checked = false;
 
     this->setDataField(NULL, 0);
 }
@@ -52,6 +53,16 @@ SourcePacket::~SourcePacket()
 {
     free(this->data);
     delete this->dataFieldHeader;
+}
+
+bool SourcePacket::isChecked() const
+{
+    return checked;
+}
+
+void SourcePacket::setChecked()
+{
+    checked = true;
 }
 
 QDateTime SourcePacket::getReceptionTime() const

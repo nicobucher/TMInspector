@@ -97,7 +97,10 @@ PacketStore::searchPacketInStore(uint16_t ssc_, uint16_t apid_) {
     while (it.hasNext()) {
         it.next();
         if (it.value()->getSourceSequenceCount() == ssc_ && apid_ == it.value()->getApid()) {
-            found_ = it.value();
+            // Check wether the packet has been checked by a different summary before
+            if (!it.value()->isChecked()) {
+                found_ = it.value();
+            }
         }
     }
     return found_;
@@ -124,6 +127,7 @@ PacketStore::checkSequenceCounts(QHash<uint32_t, bool> &searchForCounts) {
         uint16_t ssc_ = it.key() & 0x0000FFFF;
         SourcePacket* nextPkt_ = searchPacketInStore(ssc_, apid_);
         if(nextPkt_ != NULL) {
+            nextPkt_->setChecked();
             foundPackets.append(nextPkt_);
             searchForCounts[it.key()] = true;
         }

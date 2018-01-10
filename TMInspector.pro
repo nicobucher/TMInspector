@@ -13,6 +13,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = TMInspector
 TEMPLATE = app
 
+# For MacOS builds
+QMAKE_MAC_SDK = macosx10.13
 
 SOURCES += main.cpp\
         mainwindow.cpp \

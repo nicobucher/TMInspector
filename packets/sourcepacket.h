@@ -52,6 +52,7 @@ protected:
     QDateTime receptionTime;
 
     PacketStore* storePointer;
+    bool checked;
 
 public:
     int getVersion() {
@@ -193,6 +194,8 @@ public:
     void setStorePointer(PacketStore *value);
     QDateTime getReceptionTime() const;
     void setReceptionTime(const QDateTime &value);
+    bool isChecked() const;
+    void setChecked();
 };
 
 #endif // SOURCEPACKET_H
