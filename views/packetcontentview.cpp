@@ -44,12 +44,12 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
             QTextStream(&ssc_summary_) << "Dump Summary Packet of 0x" << QString::number(ds_packet->getOnboardStoreObject_id(), 16) << " (" << ds_packet->getObject_name() << ")" << endl;
             QTextStream(&ssc_summary_) << "Dump-ID=" << ds_packet->getDumpid() << endl;
 
-            QHashIterator<uint32_t, bool> it(ds_packet->getL_sequencecounts());
+            QHashIterator<qulonglong, bool> it(ds_packet->getL_uniqueIds());
             QTextStream(&ssc_summary_) << "\nMissing " << ds_packet->getNumberOfMissingSSC() << " packets:" << endl;
             while (it.hasNext()) {
                 it.next();
                 if(it.value() == false) {
-                    QTextStream(&ssc_summary_) << (it.key() & 0xFFFF) << " (APID: " << ((it.key() & 0xFFFF0000) >> 16) << ")" << endl;
+                    QTextStream(&ssc_summary_) << it.key() << endl;
                 }
             }
             QTextStream(&ssc_summary_) << "\nFound " << ds_packet->getNumberOfFoundSSC() << " packets:" << endl;
@@ -57,7 +57,7 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
             while (it.hasNext()) {
                 it.next();
                 if(it.value() == true) {
-                    QTextStream(&ssc_summary_) << (it.key() & 0xFFFF) << " (APID: " << ((it.key() & 0xFFFF0000) >> 16) << ")" << endl;
+                    QTextStream(&ssc_summary_) << it.key() << endl;
                 }
             }
             ui->data_line_edit->setText(ssc_summary_);

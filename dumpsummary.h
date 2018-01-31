@@ -30,9 +30,6 @@ public:
     uint8_t getDumpId() const;
     void setDumpId(const uint8_t &value);
 
-    qulonglong getUniqueId() const;
-    void setUniqueId(const qulonglong &value);
-
     QList<SourcePacket *> getL_found_packets() const;
     void add_found_packets(const QList<SourcePacket *> &value);
 
@@ -41,8 +38,7 @@ private:
      * A dump summary is identified by a combination of onboard object id and
      * dump id.
      */
-    qulonglong uniqueId;
-    uint8_t dumpId;
+    qulonglong dumpId;
     uint32_t object_id;
     QString object_name;
     QHash<uint16_t, DumpSummaryPacket*> l_summary_packets;

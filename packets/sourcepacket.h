@@ -50,9 +50,9 @@ protected:
     QString mibVersion;
     QString name;
     QDateTime receptionTime;
+    qulonglong unique_id;
 
     PacketStore* storePointer;
-    bool checked;
 
 public:
     int getVersion() {
@@ -170,16 +170,16 @@ public:
         return this->pi_vals.PI2_VAL;
     }
 
-    qulonglong getId() {
-        return ((qulonglong)this->dataFieldHeader->getTimestampSeconds() << 32) + this->getSourceSequenceCount();
-    }
-
     QString getMibVersion() {
         return this->mibVersion;
     }
 
     void setMibVersion(const QString &value) {
         this->mibVersion = value;
+    }
+
+    void setUnique_id(qulonglong id_) {
+        this->unique_id = id_;
     }
 
     bool checkCRC();
@@ -194,8 +194,8 @@ public:
     void setStorePointer(PacketStore *value);
     QDateTime getReceptionTime() const;
     void setReceptionTime(const QDateTime &value);
-    bool isChecked() const;
-    void setChecked();
+    qulonglong getUnique_id() const;
+    void generateUnique_id();
 };
 
 #endif // SOURCEPACKET_H

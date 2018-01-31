@@ -4,7 +4,6 @@ DumpSummary::DumpSummary(QObject* parent, DumpSummaryPacket* init_packet) : QObj
 {
     this->object_id = init_packet->getOnboardStoreObject_id();
     this->object_name = init_packet->getObject_name();
-    this->uniqueId = init_packet->generateUniqueId();
     this->dumpId = init_packet->getDumpid();
     this->reception_time = init_packet->getReceptionTime();
     putDumpSummaryPacket(init_packet);
@@ -63,16 +62,6 @@ uint8_t DumpSummary::getDumpId() const
 void DumpSummary::setDumpId(const uint8_t &value)
 {
     dumpId = value;
-}
-
-qulonglong DumpSummary::getUniqueId() const
-{
-    return uniqueId;
-}
-
-void DumpSummary::setUniqueId(const qulonglong &value)
-{
-    uniqueId = value;
 }
 
 QList<SourcePacket *> DumpSummary::getL_found_packets() const

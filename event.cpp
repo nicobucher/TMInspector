@@ -48,7 +48,7 @@ Event::Event(SourcePacket* packet)
     if ( packet->getDataLength() > 0 && packet->getDataLength() < SourcePacket::MAX_PACKET_SIZE ) {
         makeEventfromPacketData(packet->getData());
     }
-    setPacketReference(packet->getId());
+    setPacketReference(packet->getUnique_id());
 }
 
 QStandardItem* Event::clone() const

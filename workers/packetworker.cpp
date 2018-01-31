@@ -77,6 +77,7 @@ PacketWorker::doWork()
                         packet->setReceptionTime(QDateTime::currentDateTime());
                         packet->setStorePointer(&myPacketStore);
                         packet->makePacketFromData((unsigned char*)header_buffer.data(), (unsigned char*)data_buffer.data(), data_length);
+                        packet->generateUnique_id();
 
                         if (packet->getQuality() == GOOD &&
                                 packet->getApid() != SourcePacket::APID_IDLEPACKET) {

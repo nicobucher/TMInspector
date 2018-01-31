@@ -5,10 +5,9 @@
 
 SourcePacket::SourcePacket() :
     sequence(STANDALONE_PACKET),
-    quality(GOOD),
+    quality(BAD),
     storePointer(NULL)
 {
-    this->checked = false;
     this->sourceSequenceCount = 0;
     this->setDataField(NULL, 0);
 }
@@ -32,8 +31,6 @@ SourcePacket::SourcePacket(SourcePacket &packet) :
     this->dataFieldHeader->setSubServiceType(packet.getDataFieldHeader()->getSubServiceType());
     this->dataFieldHeader->setTimestamp(packet.getDataFieldHeader()->getTimestamp());
     this->dataFieldHeader->setTimestampValid(packet.getDataFieldHeader()->timestampValid());
-
-    this->checked = false;
 }
 
 SourcePacket::SourcePacket(int type_, int version_, int apid_) :
@@ -46,8 +43,6 @@ SourcePacket::SourcePacket(int type_, int version_, int apid_) :
     this->apid = apid_;
     this->version = version_;
     this->SourcePacketType = type_;
-    this->checked = false;
-
     this->setDataField(NULL, 0);
 }
 
@@ -57,14 +52,17 @@ SourcePacket::~SourcePacket()
     delete this->dataFieldHeader;
 }
 
-bool SourcePacket::isChecked() const
+qulonglong SourcePacket::getUnique_id() const
 {
-    return checked;
+    return unique_id;
 }
 
-void SourcePacket::setChecked()
+void SourcePacket::generateUnique_id()
 {
-    this->checked = true;
+    this->unique_id =
+            (this->dataFieldHeader->getTimestampSeconds() << 32) +
+            (this->dataFieldHeader->getCoreId() << 24) +
+            this->getSourceSequenceCount();
 }
 
 QDateTime SourcePacket::getReceptionTime() const

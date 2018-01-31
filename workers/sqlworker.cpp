@@ -68,6 +68,7 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
             packet->setSourceSequenceCount(query.value(rec.indexOf("sequenceCount")).toInt());
             packet->setSequence((Sequence)query.value(rec.indexOf("sequenceFlags")).toInt());
             packet->setMibVersion(query.value(rec.indexOf("mibVersion")).toString());
+            packet->setUnique_id(query.value(rec.indexOf("id")).toLongLong());
 
             TMSourcePacketDataFieldHeader* header = new TMSourcePacketDataFieldHeader();
             header->setVersion(1);

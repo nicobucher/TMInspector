@@ -16,7 +16,7 @@ PacketModel& PacketModel::operator<<(SourcePacket* packet_) {
     int apid_ = packet_->getApid();
     int lastSequenceCount_ = -1;
 
-    currentId = packet_->getId();
+    currentId = packet_->getUnique_id();
     insertRow(0);
 
     // APID

@@ -70,7 +70,7 @@ public:
      * Returns:
      * - A list of pointers to the corresponding source packets in the packet store
      */
-    QList<SourcePacket *> checkSequenceCounts(QHash<uint32_t, bool> &searchForCounts);
+    QList<SourcePacket *> checkUniqueIds(QHash<qulonglong, bool> &searchIds_);
 
     /*
      * Takes a hash-map of sequence counts and corresponding apids and checks this store
@@ -80,6 +80,7 @@ public:
      * - A hash-map of missing source sequence counts and APID combinations in time-range
      */
     QHash<uint16_t, uint16_t> checkSequenceCounts(QHash<uint16_t, uint16_t> searchForCounts, QDateTime from_time_, int seconds_);
+
 private:
     PacketModel* model;
     QHash<qulonglong, SourcePacket*> l_packets;

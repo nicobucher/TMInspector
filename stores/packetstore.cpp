@@ -49,7 +49,7 @@ QStandardItemModel* PacketStore::getModel() {
 void PacketStore::putPacket(SourcePacket* p_) {
     *this->model << p_;
 
-    l_packets.insert(p_->getId(), p_);
+    l_packets.insert(p_->getUnique_id(), p_);
 
     if (p_->getDataFieldHeader()->getServiceType() == 6 && p_->getDataFieldHeader()->getSubServiceType() == 10) {
         ChecksumPacket new_checksum_packet(*p_);
@@ -97,10 +97,7 @@ PacketStore::searchPacketInStore(uint16_t ssc_, uint16_t apid_) {
     while (it.hasNext()) {
         it.next();
         if (it.value()->getSourceSequenceCount() == ssc_ && apid_ == it.value()->getApid()) {
-            // Check wether the packet has been checked by a different summary before
-            if (!it.value()->isChecked()) {
-                found_ = it.value();
-            }
+            found_ = it.value();
         }
     }
     return found_;
@@ -118,18 +115,15 @@ PacketStore::searchPacketInStore(uint16_t ssc_, uint16_t apid_, QDateTime from_t
 }
 
 QList<SourcePacket*>
-PacketStore::checkSequenceCounts(QHash<uint32_t, bool> &searchForCounts) {
+PacketStore::checkUniqueIds(QHash<qulonglong, bool> &searchIds_) {
     QList<SourcePacket*> foundPackets;
-    QHashIterator<uint32_t, bool> it(searchForCounts);
+    QHashIterator<qulonglong, bool> it(searchIds_);
     while (it.hasNext()) {
         it.next();
-        uint16_t apid_ = (it.key() & 0xFFFF0000) >> 16;
-        uint16_t ssc_ = it.key() & 0x0000FFFF;
-        SourcePacket* nextPkt_ = searchPacketInStore(ssc_, apid_);
-        if(nextPkt_ != NULL) {
-            nextPkt_->setChecked();
+        SourcePacket* nextPkt_ = getPacket(it.key());
+        if(nextPkt_->getQuality() == Quality::GOOD) {
             foundPackets.append(nextPkt_);
-            searchForCounts[it.key()] = true;
+            searchIds_[it.key()] = true;
         }
     }
     return foundPackets;

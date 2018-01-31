@@ -45,7 +45,7 @@ void DumpStore::putDumpSummaryPacket(SourcePacket *packet_)
 
     dps_->checkPackets();
 
-    qulonglong id_ = dps_->generateUniqueId();
+    qulonglong id_ = dps_->getDumpid();
     if (!this->containsDumpId(id_)) {
         dump_summary_ = new DumpSummary(this, dps_);
         l_summaries.insert(id_, dump_summary_);
