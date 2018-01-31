@@ -97,6 +97,7 @@ QString SourcePacket::getName() const
 
 SourcePacket* SourcePacket::makePacketFromData(unsigned char* pHeader_, unsigned char* pData_, int length_)
 {
+    this->setQuality(GOOD);
     // byte 0 & 1
     short part1 = (pHeader_[0] << 8) + pHeader_[1];
 

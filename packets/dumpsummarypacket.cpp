@@ -18,7 +18,7 @@ void DumpSummaryPacket::decode()
         this->object_name = QString::number(this->object_id);
     }
     // Extract the dump id and dump counter
-    this->dumpid = ((qulonglong)this->object_id << 32) + p_[4];
+    this->dumpid = (this->object_id << 32) + p_[4];
     this->dumpcounter = (p_[5] << 8) + p_[6];
     uint8_t n = p_[7];
 

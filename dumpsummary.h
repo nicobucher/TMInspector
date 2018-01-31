@@ -27,8 +27,8 @@ public:
     QString getObject_name() const;
     void setObject_name(const QString &value);
 
-    uint8_t getDumpId() const;
-    void setDumpId(const uint8_t &value);
+    qulonglong getDumpId() const;
+    void setDumpId(const qulonglong &value);
 
     QList<SourcePacket *> getL_found_packets() const;
     void add_found_packets(const QList<SourcePacket *> &value);

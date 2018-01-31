@@ -54,12 +54,12 @@ void DumpSummary::setObject_name(const QString &value)
     object_name = value;
 }
 
-uint8_t DumpSummary::getDumpId() const
+qulonglong DumpSummary::getDumpId() const
 {
     return dumpId;
 }
 
-void DumpSummary::setDumpId(const uint8_t &value)
+void DumpSummary::setDumpId(const qulonglong &value)
 {
     dumpId = value;
 }

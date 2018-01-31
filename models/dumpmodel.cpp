@@ -36,7 +36,7 @@ DumpModel &DumpModel::operator <<(DumpSummary *dump_summary_)
 DumpModel &DumpModel::operator <<(DumpSummaryPacket* dump_summary_packet_)
 {
     QStandardItem *root = invisibleRootItem();
-    int row = checkDumpExists(dump_summary_packet_->getUnique_id());
+    int row = checkDumpExists(dump_summary_packet_->getDumpid());
 
     if (row < 0) {
         // No Existing Dump Found, can not be appended

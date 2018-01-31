@@ -90,34 +90,10 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
                 }
             }
             ui->data_line_edit->setText(vp_summary_);
-            // TODO: This is not quite right for a variable packet the structure is also defined in MIB.. Which packets can be assumed to have similar structure though?
-//        } else if (selectedPacket->getDataFieldHeader()->getServiceType() == 12 && selectedPacket->getDataFieldHeader()->getSubServiceType() == 12) {
-//            // Variable Packet
-//            VariablePacket* v_packet = new VariablePacket(*selectedPacket);
-
-//            QString vp_summary_;
-//            QTextStream text(&vp_summary_);
-//            text << "Variable Packet:" << endl;
-//            text << "Parameter Object ID = 0x" << QString::number(v_packet->getParr_obj_id(), 16) << endl;
-
-//            text << "\n Data:" << endl;
-//            for (int i = 0; i < v_packet->getValues().size(); i++) {
-//                text << qSetFieldWidth(0) << "\n";
-//                QVariant value_ = v_packet->getValues()[i];
-//                if (value_.type() == QMetaType::Float || value_.type() == QMetaType::Double) {
-//                    text << qSetFieldWidth(16) << left << fixed << QString::number(value_.toFloat());
-//                } else if (value_.canConvert<int>()) {
-//                    text << "0x" << qSetFieldWidth(16) << left << QString::number(value_.toInt(), 16);
-//                } else if (value_.canConvert<QString>()) {
-//                    text << qSetFieldWidth(0) << value_.toString();
-//                } else {
-//                    text << "NaN";
-//                }
-//            }
-//            ui->data_line_edit->setText(vp_summary_);
         } else {
             QString packet_text;
             QTextStream text(&packet_text);
+            text << "Unique ID: " << selectedPacket->getUnique_id() << " bytes):\n" << endl;
             text << "Raw Content (" << selectedPacket->getDataLength() + 1 << " bytes):\n" << endl;
             text << selectedPacket->getData().toHex();
             ui->data_line_edit->setText(packet_text);
