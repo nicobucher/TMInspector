@@ -93,7 +93,7 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
         } else {
             QString packet_text;
             QTextStream text(&packet_text);
-            text << "Unique ID: " << selectedPacket->getUnique_id() << " bytes):\n" << endl;
+            text << "Unique ID: " << selectedPacket->getUnique_id() << "\n" << endl;
             text << "Raw Content (" << selectedPacket->getDataLength() + 1 << " bytes):\n" << endl;
             text << selectedPacket->getData().toHex();
             ui->data_line_edit->setText(packet_text);

@@ -60,9 +60,10 @@ qulonglong SourcePacket::getUnique_id() const
 void SourcePacket::generateUnique_id()
 {
     this->unique_id =
-            (this->dataFieldHeader->getTimestampSeconds() << 32) +
+            ((qulonglong)this->dataFieldHeader->getTimestampSeconds() << 32) +
             (this->dataFieldHeader->getCoreId() << 24) +
             this->getSourceSequenceCount();
+
 }
 
 QDateTime SourcePacket::getReceptionTime() const
