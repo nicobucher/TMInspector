@@ -44,7 +44,7 @@ public:
 
 public slots:
     void exportToFile(QString filename_);
-    void putDumpSummaryPacket(SourcePacket *dps_);
+    void putDumpSummaryPacket(DumpSummaryPacket *dps_);
 
 private:
     DumpModel* model;

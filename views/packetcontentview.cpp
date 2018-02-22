@@ -46,20 +46,22 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
 
             QHashIterator<qulonglong, bool> it(ds_packet->getL_uniqueIds());
             QTextStream(&ssc_summary_) << "\nFound packets:" << endl;
-            int counter;
+            int counter = ds_packet->getL_uniqueIds().size();
             it.toFront();
             while (it.hasNext()) {
                 it.next();
                 if(it.value() == true) {
                     QTextStream(&ssc_summary_) << it.key() << endl;
-                    counter++;
+                    counter--;
                 }
             }
-            QTextStream(&ssc_summary_) << "\nMissing " << ds_packet->getL_uniqueIds().size() - counter << " packets:" << endl;
-            while (it.hasNext()) {
-                it.next();
-                if(it.value() == false) {
-                    QTextStream(&ssc_summary_) << it.key() << endl;
+            if (counter > 0) {
+                QTextStream(&ssc_summary_) << "\nMissing " << counter << " packets:" << endl;
+                while (it.hasNext()) {
+                    it.next();
+                    if(it.value() == false) {
+                        QTextStream(&ssc_summary_) << it.key() << endl;
+                    }
                 }
             }
             ui->data_line_edit->setText(ssc_summary_);

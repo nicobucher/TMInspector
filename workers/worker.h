@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "packets/sourcepacket.h"
+#include "packets/dumpsummarypacket.h"
 #include "event.h"
 
 class Worker : public QObject
@@ -20,7 +21,7 @@ public slots:
 
 signals:
     void hasError(const QString& errormessage);
-    void dumpSummaryReceived(SourcePacket*);
+    void dumpSummaryReceived(DumpSummaryPacket*);
     void eventAdded(Event*);
     void eventReceived(Event*);
     void packetReceived(SourcePacket*);

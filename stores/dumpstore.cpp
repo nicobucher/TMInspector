@@ -38,11 +38,9 @@ QStandardItemModel *DumpStore::getModel()
     return this->model;
 }
 
-void DumpStore::putDumpSummaryPacket(SourcePacket *packet_)
+void DumpStore::putDumpSummaryPacket(DumpSummaryPacket *dps_)
 {
     DumpSummary* dump_summary_;
-    DumpSummaryPacket* dps_ = (DumpSummaryPacket*)packet_;
-
     dps_->checkPackets();
 
     qulonglong id_ = dps_->getDumpid();

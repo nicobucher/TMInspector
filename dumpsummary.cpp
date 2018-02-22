@@ -13,7 +13,7 @@ DumpSummary::DumpSummary(QObject* parent, DumpSummaryPacket* init_packet) : QObj
 
 void DumpSummary::putDumpSummaryPacket(DumpSummaryPacket *pkt_)
 {
-    this->l_summary_packets.insert(pkt_->getDumpcounter(), pkt_);
+    this->l_summary_packets.insert(pkt_->getUnique_id(), pkt_);
     PacketStore* store = pkt_->getStorePointer();
     QHashIterator<qulonglong, bool> it(pkt_->getL_uniqueIds());
     SourcePacket* foundPacket = 0;
@@ -24,6 +24,11 @@ void DumpSummary::putDumpSummaryPacket(DumpSummaryPacket *pkt_)
             this->add_found_packet(foundPacket);
         }
     }
+}
+
+QHash<qulonglong, DumpSummaryPacket*> DumpSummary::getSummaryPackets()
+{
+    return l_summary_packets;
 }
 
 QDateTime DumpSummary::getReception_time() const

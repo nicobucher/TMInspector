@@ -140,8 +140,8 @@ void MainWindow::on_actionTo_Server_triggered()
             &myPacketStore, SLOT(putPacket(SourcePacket*)));
     connect(myPacketWorker, SIGNAL(eventReceived(Event*)),
             &myEventStore, SLOT(putEvent(Event*)));
-    connect(myPacketWorker, SIGNAL(dumpSummaryReceived(SourcePacket*)),
-            &myDumpStore, SLOT(putDumpSummaryPacket(SourcePacket*)));
+    connect(myPacketWorker, SIGNAL(dumpSummaryReceived(DumpSummaryPacket*)),
+            &myDumpStore, SLOT(putDumpSummaryPacket(DumpSummaryPacket*)));
     connect(this, SIGNAL(clientSetup(QThread*,QString*,quint16*)),
             myPacketWorker, SLOT(setup(QThread*,QString*,quint16*)));
     myPacketWorkerThread = new QThread();

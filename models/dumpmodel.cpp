@@ -24,14 +24,11 @@ DumpModel &DumpModel::operator <<(DumpSummary *dump_summary_)
     PacketStore* store = dump_summary_->getStorePointer();
     new_dump->setData(VariantPtr<PacketStore>::asQVariant(store), StorePointerRole);
 
-    QHashIterator<qulonglong, bool> it(dump_summary_->getSummaryPackets());
+    QHashIterator<qulonglong, DumpSummaryPacket*> it(dump_summary_->getSummaryPackets());
     while (it.hasNext()) {
         it.next();
-        DumpSummaryPacket* dump_summary_packet = dynamic_cast<DumpSummaryPacket*>(dump_summary_->getStorePointer()->getPacket(it.key()));
-        if (dump_summary_packet != NULL) {
-            appendSummaryPacket(new_dump, dump_summary_packet);
-        } else {
-            // No dump summary packet returned, something is wrong!
+        if (it.value() != NULL) {
+            appendSummaryPacket(new_dump, it.value());
         }
     }
 

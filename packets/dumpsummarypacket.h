@@ -34,6 +34,13 @@ public:
 
     int getNumberOfFoundSSC();
 protected:
+    /*
+     * l_unique_ids
+     *
+     * List of unique packet ids contained in this dump summary packet,
+     * key: The actual unique id
+     * value: "true" if the packet has been found in the corresponding store
+     */
     QHash<qulonglong, bool> l_unique_ids;
     uint32_t object_id;
     QString object_name;
