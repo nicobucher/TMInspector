@@ -11,16 +11,15 @@ public:
     DumpSummary(QObject *parent, DumpSummaryPacket *init_packet);
 
     void putDumpSummaryPacket(DumpSummaryPacket* pkt_);
-    QHash<uint16_t, DumpSummaryPacket*> getSummaryPackets() {
-        return l_summary_packets;
+    QHash<qulonglong, bool> getSummaryPackets() {
+        return l_unique_ids;
     }
 
     QDateTime getReception_time() const;
 
     bool isFresh();
 
-    void addMissingCounts(QHash<uint16_t, uint16_t> counts_);
-    QHash<uint16_t, uint16_t>* getMissingCounts();
+    QHash<uint16_t, uint16_t>* getMissingPackets();
 
     uint32_t getObject_id() const;
 
@@ -30,8 +29,12 @@ public:
     qulonglong getDumpId() const;
     void setDumpId(const qulonglong &value);
 
-    QList<SourcePacket *> getL_found_packets() const;
-    void add_found_packets(const QList<SourcePacket *> &value);
+    QHash<qulonglong, bool> getL_packets() const;
+    void add_found_packet(SourcePacket *&value);
+    void add_found_packets(const QHash<qulonglong, bool> &value);
+
+    PacketStore *getStorePointer() const;
+    void setStorePointer(PacketStore *value);
 
 private:
     /*
@@ -43,8 +46,9 @@ private:
     QString object_name;
     QHash<uint16_t, DumpSummaryPacket*> l_summary_packets;
     QHash<uint16_t, uint16_t> l_missingcounts;
-    QList<SourcePacket*> l_found_packets;
+    QHash<qulonglong, bool> l_unique_ids;
     QDateTime reception_time;
+    PacketStore* storePointer;
 };
 
 #endif // DUMPSUMMARY_H

@@ -1,5 +1,6 @@
 #include "dumpmodel.h"
 #include "helpers/variantptr.h"
+#include "stores/packetstore.h"
 
 DumpModel::DumpModel(DumpStore *parentStore_) :
     parentStore(parentStore_)
@@ -20,13 +21,18 @@ DumpModel &DumpModel::operator <<(DumpSummary *dump_summary_)
     new_dump->setData(VariantPtr<QObject>::asQVariant(dump_summary_), ObjectRole);
     new_dump->setData(dump_summary_->getDumpId(), IdentifierRole);
 
-    PacketStore* store = dump_summary_->getSummaryPackets().begin().value()->getStorePointer();
+    PacketStore* store = dump_summary_->getStorePointer();
     new_dump->setData(VariantPtr<PacketStore>::asQVariant(store), StorePointerRole);
 
-    QHashIterator<uint16_t, DumpSummaryPacket*> it(dump_summary_->getSummaryPackets());
+    QHashIterator<qulonglong, bool> it(dump_summary_->getSummaryPackets());
     while (it.hasNext()) {
         it.next();
-        appendSummaryPacket(new_dump, it.value());
+        DumpSummaryPacket* dump_summary_packet = dynamic_cast<DumpSummaryPacket*>(dump_summary_->getStorePointer()->getPacket(it.key()));
+        if (dump_summary_packet != NULL) {
+            appendSummaryPacket(new_dump, dump_summary_packet);
+        } else {
+            // No dump summary packet returned, something is wrong!
+        }
     }
 
     this->appendRow(new_dump);

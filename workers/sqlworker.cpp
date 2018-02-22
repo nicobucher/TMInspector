@@ -109,6 +109,24 @@ SqlWorker::fetchPackets(QDateTime b_, QDateTime e_)
     return list;
 }
 
+QList<qulonglong> SqlWorker::checkDumpSummaryPacket(const QStringList ids_)
+{
+    QList<qulonglong> result;
+    if (db.open()) {
+        QString str;
+        QTextStream(&str) << "SELECT id FROM SourcePacket WHERE id IN (" << ids_.join(",") << ")";
+        QSqlQuery query(str);
+        while (query.nextResult()) {
+            result << query.value(query.record().indexOf("id")).toULongLong();
+        }
+        db.close();
+    } else {
+        qWarning() << db.lastError().text();
+        emit dbAccessError(db.lastError().text());
+    }
+    return result;
+}
+
 void
 SqlWorker::doWork() {
     QList<SourcePacket*> retrievedPackets;

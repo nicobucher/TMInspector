@@ -19,7 +19,7 @@ public:
     void setFilterIndex(QModelIndex newindex);
 
 private:
-    QList<SourcePacket*> acceptList;
+    QHash<qulonglong, bool> acceptList;
 };
 
 #endif // DUMPVIEWFILTERPROXYMODEL_H

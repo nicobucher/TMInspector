@@ -22,6 +22,7 @@ SourcePacket::SourcePacket(SourcePacket &packet) :
     sourceSequenceCount(packet.getSourceSequenceCount()),
     apid(packet.getApid()),
     spid(packet.getSpid()),
+    unique_id(packet.getUnique_id()),
     storePointer(packet.getStorePointer())
 {
     this->setDataField((unsigned char*)packet.getData().data(), packet.getDataLength());

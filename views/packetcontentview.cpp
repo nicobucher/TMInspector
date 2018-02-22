@@ -45,18 +45,20 @@ PacketContentView::PacketContentView(QWidget *parent, PacketStore *st_, qulonglo
             QTextStream(&ssc_summary_) << "Dump-ID=" << ds_packet->getDumpid() << endl;
 
             QHashIterator<qulonglong, bool> it(ds_packet->getL_uniqueIds());
-            QTextStream(&ssc_summary_) << "\nMissing " << ds_packet->getNumberOfMissingSSC() << " packets:" << endl;
-            while (it.hasNext()) {
-                it.next();
-                if(it.value() == false) {
-                    QTextStream(&ssc_summary_) << it.key() << endl;
-                }
-            }
-            QTextStream(&ssc_summary_) << "\nFound " << ds_packet->getNumberOfFoundSSC() << " packets:" << endl;
+            QTextStream(&ssc_summary_) << "\nFound packets:" << endl;
+            int counter;
             it.toFront();
             while (it.hasNext()) {
                 it.next();
                 if(it.value() == true) {
+                    QTextStream(&ssc_summary_) << it.key() << endl;
+                    counter++;
+                }
+            }
+            QTextStream(&ssc_summary_) << "\nMissing " << ds_packet->getL_uniqueIds().size() - counter << " packets:" << endl;
+            while (it.hasNext()) {
+                it.next();
+                if(it.value() == false) {
                     QTextStream(&ssc_summary_) << it.key() << endl;
                 }
             }

@@ -4,6 +4,7 @@
 
 DumpSummaryPacket::DumpSummaryPacket(SourcePacket &packet) : SourcePacket(packet)
 {
+    this->checked = false;
     decode();
 }
 
@@ -18,7 +19,7 @@ void DumpSummaryPacket::decode()
         this->object_name = QString::number(this->object_id);
     }
     // Extract the dump id and dump counter
-    this->dumpid = (this->object_id << 32) + p_[4];
+    this->dumpid = ((qulonglong)this->object_id << 32) + p_[4];
     this->dumpcounter = (p_[5] << 8) + p_[6];
     uint8_t n = p_[7];
 
@@ -30,8 +31,8 @@ void DumpSummaryPacket::decode()
     }
     while(pos > 7) {
         unique_id =
-                (p_[pos-7] << 56) + (p_[pos-6] << 48) +
-                (p_[pos-5] << 40) + (p_[pos-4] << 32) +
+                ((qulonglong)p_[pos-7] << 56) + ((qulonglong)p_[pos-6] << 48) +
+                ((qulonglong)p_[pos-5] << 40) + ((qulonglong)p_[pos-4] << 32) +
                 (p_[pos-3] << 24) + (p_[pos-2] << 16) +
                 (p_[pos-1] << 8) + p_[pos];
         this->l_unique_ids.insert(unique_id, false);
@@ -61,16 +62,24 @@ qulonglong DumpSummaryPacket::getDumpid() const
 
 bool DumpSummaryPacket::isComplete() const
 {
-    if (l_unique_ids.size() == l_found_packets.size())
-        return true;
-    else {
-        return false;
+    QHashIterator<qulonglong, bool> it(this->l_unique_ids);
+    while (it.hasNext()) {
+        it.next();
+        if (it.value() == false) {
+            return false;
+        }
     }
+    return true;
 }
 
-int DumpSummaryPacket::getNumberOfMissingSSC()
+bool DumpSummaryPacket::isChecked() const
 {
-    return l_unique_ids.size() - l_found_packets.size();
+    return this->checked;
+}
+
+void DumpSummaryPacket::setChecked()
+{
+    this->checked = true;
 }
 
 int DumpSummaryPacket::getNumberOfSSC()
@@ -78,29 +87,14 @@ int DumpSummaryPacket::getNumberOfSSC()
     return l_unique_ids.size();
 }
 
-int DumpSummaryPacket::getNumberOfFoundSSC()
-{
-    return l_found_packets.size();
-}
-
 QString DumpSummaryPacket::getObject_name() const
 {
     return object_name;
 }
 
-QList<SourcePacket *> DumpSummaryPacket::getL_found_packets() const
-{
-    return l_found_packets;
-}
-
-void DumpSummaryPacket::add_found_packets(const QList<SourcePacket *> &value)
-{
-    l_found_packets.append(value);
-}
-
 void DumpSummaryPacket::checkPackets()
 {
-    if(this->storePointer != NULL) {
-        add_found_packets(this->storePointer->checkUniqueIds(this->l_unique_ids));
+    if(this->storePointer != NULL && !this->isChecked()) {
+        this->storePointer->checkUniqueIds(this->l_unique_ids);
     }
 }

@@ -1,7 +1,9 @@
 #include "dumpsummary.h"
+#include "stores/packetstore.h"
 
 DumpSummary::DumpSummary(QObject* parent, DumpSummaryPacket* init_packet) : QObject(parent)
 {
+    this->setStorePointer(init_packet->getStorePointer());
     this->object_id = init_packet->getOnboardStoreObject_id();
     this->object_name = init_packet->getObject_name();
     this->dumpId = init_packet->getDumpid();
@@ -12,7 +14,16 @@ DumpSummary::DumpSummary(QObject* parent, DumpSummaryPacket* init_packet) : QObj
 void DumpSummary::putDumpSummaryPacket(DumpSummaryPacket *pkt_)
 {
     this->l_summary_packets.insert(pkt_->getDumpcounter(), pkt_);
-    add_found_packets(pkt_->getL_found_packets());
+    PacketStore* store = pkt_->getStorePointer();
+    QHashIterator<qulonglong, bool> it(pkt_->getL_uniqueIds());
+    SourcePacket* foundPacket = 0;
+    while (it.hasNext()) {
+        it.next();
+        foundPacket = store->getPacket(it.key());
+        if(foundPacket != 0) {
+            this->add_found_packet(foundPacket);
+        }
+    }
 }
 
 QDateTime DumpSummary::getReception_time() const
@@ -27,16 +38,6 @@ bool DumpSummary::isFresh()
     } else {
         return true;
     }
-}
-
-void DumpSummary::addMissingCounts(QHash<uint16_t, uint16_t> counts_)
-{
-    this->l_missingcounts.unite(counts_);
-}
-
-QHash<uint16_t, uint16_t> *DumpSummary::getMissingCounts()
-{
-    return &l_missingcounts;
 }
 
 uint32_t DumpSummary::getObject_id() const
@@ -64,12 +65,27 @@ void DumpSummary::setDumpId(const qulonglong &value)
     dumpId = value;
 }
 
-QList<SourcePacket *> DumpSummary::getL_found_packets() const
+QHash<qulonglong, bool> DumpSummary::getL_packets() const
 {
-    return l_found_packets;
+    return this->l_unique_ids;
 }
 
-void DumpSummary::add_found_packets(const QList<SourcePacket *> &value)
+void DumpSummary::add_found_packet(SourcePacket* &value)
 {
-    l_found_packets.append(value);
+    this->l_unique_ids.insert(value->getUnique_id(), true);
+}
+
+void DumpSummary::add_found_packets(const QHash<qulonglong, bool> &value)
+{
+    this->l_unique_ids.unite(value);
+}
+
+PacketStore *DumpSummary::getStorePointer() const
+{
+    return storePointer;
+}
+
+void DumpSummary::setStorePointer(PacketStore *value)
+{
+    storePointer = value;
 }

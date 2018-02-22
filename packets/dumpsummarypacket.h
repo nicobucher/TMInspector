@@ -22,24 +22,24 @@ public:
     qulonglong getDumpid() const;
 
     bool isComplete() const;
+    bool isChecked() const;
+    void setChecked();
 
     int getNumberOfMissingSSC();
     int getNumberOfSSC();
 
     QString getObject_name() const;
 
-    QList<SourcePacket *> getL_found_packets() const;
     void checkPackets();
-    void add_found_packets(const QList<SourcePacket *> &value);
 
     int getNumberOfFoundSSC();
 protected:
-    QList<SourcePacket*> l_found_packets;
     QHash<qulonglong, bool> l_unique_ids;
     uint32_t object_id;
     QString object_name;
     uint16_t dumpcounter;
     qulonglong dumpid;
+    bool checked;
 };
 
 #endif // DUMPSUMMARYPACKET_H

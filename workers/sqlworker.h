@@ -19,6 +19,7 @@ public:
     SqlWorker(QSettings *settings, QDateTime begin_, QDateTime end_, QProgressDialog* prg_);
     ~SqlWorker();
     QList<SourcePacket*> fetchPackets(QDateTime b_, QDateTime e_);
+    QList<qulonglong> checkDumpSummaryPacket(const QStringList ids_);
 
 private:
     QSqlDatabase db;

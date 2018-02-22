@@ -90,56 +90,18 @@ PacketStore::getPacket(qulonglong pkt_id)
     return l_packets.value(pkt_id, 0);
 }
 
-SourcePacket*
-PacketStore::searchPacketInStore(uint16_t ssc_, uint16_t apid_) {
-    SourcePacket* found_ = NULL;
-    QHashIterator<qulonglong, SourcePacket*> it(l_packets);
-    while (it.hasNext()) {
-        it.next();
-        if (it.value()->getSourceSequenceCount() == ssc_ && apid_ == it.value()->getApid()) {
-            found_ = it.value();
-        }
-    }
-    return found_;
-}
-
-SourcePacket*
-PacketStore::searchPacketInStore(uint16_t ssc_, uint16_t apid_, QDateTime from_time_, int seconds_) {
-    SourcePacket* packet = searchPacketInStore(ssc_, apid_);
-    if(packet != NULL) {
-        if (packet->getDataFieldHeader()->getTimestamp().secsTo(from_time_) > seconds_) {
-            packet = NULL;
-        }
-    }
-    return packet;
-}
-
-QList<SourcePacket*>
+void
 PacketStore::checkUniqueIds(QHash<qulonglong, bool> &searchIds_) {
-    QList<SourcePacket*> foundPackets;
     QHashIterator<qulonglong, bool> it(searchIds_);
     while (it.hasNext()) {
         it.next();
         SourcePacket* nextPkt_ = getPacket(it.key());
-        if(nextPkt_->getQuality() == Quality::GOOD) {
-            foundPackets.append(nextPkt_);
-            searchIds_[it.key()] = true;
+        if (nextPkt_ != NULL) {
+            if(nextPkt_->getQuality() == Quality::GOOD) {
+                searchIds_[it.key()] = true;
+            }
         }
     }
-    return foundPackets;
-}
-
-QHash<uint16_t, uint16_t>
-PacketStore::checkSequenceCounts(QHash<uint16_t, uint16_t> searchForCounts, QDateTime from_time_, int seconds_) {
-    QHash<uint16_t, uint16_t> missingCounts;
-    QHashIterator<uint16_t, uint16_t> it(searchForCounts);
-    while (it.hasNext()) {
-        it.next();
-        if(searchPacketInStore(it.key(), it.value(), from_time_, seconds_) == NULL) {
-            missingCounts.insert(it.key(), it.value());
-        }
-    }
-    return missingCounts;
 }
 
 void PacketModel::setMyTimestampFmt(const QString &value)
